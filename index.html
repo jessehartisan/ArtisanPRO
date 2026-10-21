@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAKboard Pro — Smart Office Monitor & Calendar Kiosk</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50: '#f0f9ff', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-primary: #070b14;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --bg-card-hover: rgba(30, 41, 59, 0.88);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --glass-blur: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.10) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.10) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .dak-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      transition: all 0.2s ease;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.45); }
+
+    /* Bottom Ticker Marquee */
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 45s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+
+    /* TV Kiosk View adjustments */
+    body.kiosk-active .admin-only { display: none !important; }
+    body.kiosk-active { user-select: none; }
+
+    .sync-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col select-none sm:select-auto">
+
+  <!-- Kiosk Floating Pill (Visible on mouse move in Kiosk Mode) -->
+  <div id="kiosk-floating-controls" class="fixed top-4 right-4 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center gap-2 bg-slate-900/95 border border-white/20 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md">
+    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+    <span class="text-xs font-semibold tracking-wide uppercase text-slate-300">TV Kiosk Active</span>
+    <button onclick="toggleKioskMode(false)" class="ml-2 px-3 py-1 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition">
+      Exit Kiosk (ESC)
+    </button>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-12 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ========================================================= -->
+  <!-- TOP HEADER & FAIL-SAFE REALTIME STATUS BAR               -->
+  <!-- ========================================================= -->
+  <header class="relative z-20 px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 dak-card rounded-none">
+    
+    <!-- Left: Identity & Non-Freezing Sync Status Badge -->
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-black text-lg tracking-tight shrink-0">
+        <span id="company-logo-initials">HQ</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 id="company-title-display" class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">
+            Company Operations &amp; Dispatch
+          </h1>
+          
+          <!-- Persistent Sync Status Indicator -->
+          <div id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300 border border-white/10">
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="sync-status-label">Initializing...</span>
+            <span class="text-sky-400 font-mono text-[10px]" id="sync-countdown-label">(next in 60s)</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          Fishers HQ Monitor • Bulletproof Realtime Loop
+        </p>
+      </div>
+    </div>
+
+    <!-- Center: View Switcher & Date Navigation -->
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10">
+        <button onclick="setLayoutView('kiosk-split')" id="view-btn-kiosk-split" class="view-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+          <span>DAK Split</span>
+        </button>
+        <button onclick="setLayoutView('month-grid')" id="view-btn-month-grid" class="view-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          <span>Big Month</span>
+        </button>
+        <button onclick="setLayoutView('week-dispatch')" id="view-btn-week-dispatch" class="view-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          <i data-lucide="columns" class="w-3.5 h-3.5"></i>
+          <span>7-Day Dispatch</span>
+        </button>
+        <button onclick="setLayoutView('agenda-board')" id="view-btn-agenda-board" class="view-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          <i data-lucide="list-todo" class="w-3.5 h-3.5"></i>
+          <span>Agenda TV</span>
+        </button>
+      </div>
+
+      <div class="flex items-center bg-slate-900/60 p-1 rounded-xl border border-white/10 text-xs">
+        <button onclick="navigatePeriod(-1)" title="Previous" class="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+        <button onclick="navigateToday()" class="px-2.5 py-1 font-semibold text-sky-400 hover:bg-sky-500/10 rounded-lg transition">
+          Today
+        </button>
+        <span id="current-period-label" class="px-3 font-bold text-white min-w-[140px] text-center">
+          October 2026
+        </span>
+        <button onclick="navigatePeriod(1)" title="Next" class="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Kiosk Trigger, Modal Trigger, and Header Clock -->
+    <div class="flex items-center gap-2">
+      <div class="admin-only flex items-center gap-1.5">
+        <button onclick="triggerImmediateSync()" title="Force Sync Immediately" class="px-3 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="manual-sync-icon"></i>
+          <span>Sync Now</span>
+        </button>
+
+        <button onclick="openCalendarModal()" class="px-3 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="calendar-sync" class="w-3.5 h-3.5"></i>
+          <span>Upload .ICS / Feeds</span>
+        </button>
+
+        <button onclick="toggleKioskMode(true)" title="Lock to 10-Foot TV Display" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">TV Kiosk</span>
+        </button>
+      </div>
+
+      <!-- Live Clock in Header -->
+      <div class="pl-2 border-l border-white/10 flex items-center gap-2">
+        <div class="text-right">
+          <div id="header-clock-time" class="font-mono text-base sm:text-lg font-bold tracking-tight text-white leading-none">
+            10:17:00 AM
+          </div>
+          <div id="header-clock-date" class="text-[11px] font-medium text-slate-400 leading-tight mt-0.5">
+            Wed, Oct 21, 2026
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- CREW & DEPARTMENT FILTER STRIP                            -->
+  <!-- ========================================================= -->
+  <div class="relative z-10 px-4 lg:px-6 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-white/5 bg-slate-950/50 backdrop-blur-md">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+        <i data-lucide="users" class="w-3 h-3"></i> Crew:
+      </span>
+      <div id="category-filter-chips" class="flex items-center gap-1.5 flex-wrap">
+        <!-- Populated via script -->
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-3 text-xs text-slate-400">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span id="loaded-events-counter">0 Events Active</span>
+      </div>
+      <span>•</span>
+      <div id="active-feed-display-name" class="text-slate-300 font-medium truncate max-w-xs">
+        Feed: Local Demo
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MAIN DISPLAY PANELS (4 LAYOUTS)                           -->
+  <!-- ========================================================= -->
+  <main class="relative z-10 flex-1 p-3 lg:p-5 overflow-y-auto flex flex-col">
+    
+    <!-- LAYOUT 1: DAK SPLIT VIEW (Big Clock + Weather + Month + Agenda + Notes) -->
+    <div id="layout-kiosk-split" class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+      
+      <!-- Left Column: Clock, Weather, Bulletin -->
+      <div class="lg:col-span-3 flex flex-col gap-4">
+        
+        <!-- Big Clock Card -->
+        <div class="dak-card rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-sky-400">
+            <span id="big-clock-day">WEDNESDAY</span>
+            <span id="big-clock-week" class="font-mono px-2 py-0.5 rounded bg-white/5 text-slate-400">WEEK 43</span>
+          </div>
+          <div class="my-3 flex items-baseline gap-1.5">
+            <span id="big-clock-digits" class="font-mono text-4xl xl:text-5xl font-extrabold tracking-tight text-white">10:17</span>
+            <span id="big-clock-seconds" class="font-mono text-xl font-semibold text-sky-400">00</span>
+            <span id="big-clock-ampm" class="text-sm font-bold text-slate-400 ml-1">AM</span>
+          </div>
+          <div id="big-clock-fulldate" class="text-sm font-medium text-slate-400">
+            October 21, 2026
+          </div>
+        </div>
+
+        <!-- Live Open-Meteo Weather (Fishers, IN Coordinates: 39.95, -86.01) -->
+        <div class="dak-card rounded-2xl p-5 flex flex-col gap-3.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-300">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Fishers, IN</span>
+            </div>
+            <span id="weather-refresh-time" class="text-[10px] text-slate-500 font-mono">15m live</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div id="weather-current-icon" class="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <i data-lucide="cloud-sun" class="w-7 h-7"></i>
+              </div>
+              <div>
+                <div class="flex items-start">
+                  <span id="weather-current-temp" class="text-3xl font-extrabold text-white">62°</span>
+                  <span class="text-xs font-bold text-slate-400 mt-1">F</span>
+                </div>
+                <div id="weather-current-desc" class="text-xs font-medium text-slate-300">Partly Cloudy</div>
+              </div>
+            </div>
+            <div class="text-right text-xs text-slate-400 space-y-1">
+              <div>H: <strong id="weather-high" class="text-white">68°</strong> • L: <strong id="weather-low" class="text-white">46°</strong></div>
+              <div class="flex items-center justify-end gap-1 text-[11px]">
+                <i data-lucide="wind" class="w-3 h-3 text-slate-400"></i>
+                <span id="weather-wind">8 mph</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5-Day Strip -->
+          <div id="weather-forecast-grid" class="grid grid-cols-5 gap-1.5 pt-3 border-t border-white/10 text-center">
+            <!-- Dynamic 5-day weather forecast -->
+          </div>
+        </div>
+
+        <!-- Bulletin & Notes -->
+        <div class="dak-card rounded-2xl p-5 flex-1 flex flex-col justify-between min-h-[180px]">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>Office &amp; Dispatch Bulletin</span>
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs text-slate-200">
+              <li class="flex items-start gap-2">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
+                <span>Weekly technician receipts &amp; dispatch logs due Friday by 3:00 PM.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
+                <span>Fishers yard pickup shipments staged at Loading Bay 2.</span>
+              </li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Display Sleep Lock: Active</span>
+            <button onclick="triggerImmediateSync()" class="text-sky-400 hover:underline">Force Poll</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Center Column: Monthly Grid -->
+      <div class="lg:col-span-6 dak-card rounded-2xl p-4 flex flex-col min-h-[540px]">
+        <div class="flex items-center justify-between mb-2.5">
+          <h2 id="split-cal-title" class="text-base sm:text-lg font-bold text-white">October 2026</h2>
+          <span class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+            Realtime Display
+          </span>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 pb-2 border-b border-white/10">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+
+        <div id="split-calendar-grid" class="grid grid-cols-7 gap-1.5 flex-1 pt-2 auto-rows-fr">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Right Column: 14-Day Upcoming Agenda Stream -->
+      <div class="lg:col-span-3 dak-card rounded-2xl p-5 flex flex-col max-h-[calc(100vh-145px)]">
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="calendar-clock" class="w-4 h-4 text-sky-400"></i>
+              <span>Upcoming Agenda</span>
+            </h3>
+            <p class="text-[11px] text-slate-400">Chronological schedule stream</p>
+          </div>
+          <span id="agenda-count-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/20 text-sky-300">
+            0
+          </span>
+        </div>
+        <div id="split-agenda-list" class="flex-1 overflow-y-auto pr-1 mt-3 space-y-3">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LAYOUT 2: BIG MONTH VIEW -->
+    <div id="layout-month-grid" class="hidden flex-1 flex flex-col dak-card rounded-2xl p-4 lg:p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 id="big-month-title" class="text-xl sm:text-2xl font-extrabold text-white">October 2026</h2>
+          <p class="text-xs text-slate-400">High-visibility full screen monthly grid</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-slate-400 pb-2 border-b border-white/10">
+        <div>Sunday</div><div>Monday</div><div>Tuesday</div><div>Wednesday</div><div>Thursday</div><div>Friday</div><div>Saturday</div>
+      </div>
+      <div id="big-month-cells" class="grid grid-cols-7 gap-2 flex-1 pt-2 auto-rows-fr min-h-[600px]">
+        <!-- Big month cells -->
+      </div>
+    </div>
+
+    <!-- LAYOUT 3: 7-DAY DISPATCH VIEW -->
+    <div id="layout-week-dispatch" class="hidden flex-1 flex flex-col dak-card rounded-2xl p-4 lg:p-5">
+      <div class="mb-3">
+        <h2 id="week-dispatch-title" class="text-xl font-extrabold text-white">7-Day Dispatch &amp; Crew Schedule</h2>
+        <p class="text-xs text-slate-400">Continuous 7-day schedule sorted with locations and assigned crew tags</p>
+      </div>
+      <div id="week-dispatch-columns" class="grid grid-cols-1 md:grid-cols-7 gap-3 flex-1 min-h-[580px]">
+        <!-- 7 Daily Columns -->
+      </div>
+    </div>
+
+    <!-- LAYOUT 4: AGENDA KIOSK LIST -->
+    <div id="layout-agenda-board" class="hidden flex-1 dak-card rounded-2xl p-5 flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div>
+          <h2 class="text-xl font-extrabold text-white">Full Company Operations Stream</h2>
+          <p class="text-xs text-slate-400">All scheduled tasks, customer appointments, and work orders</p>
+        </div>
+        <button onclick="triggerImmediateSync()" class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 text-xs font-bold">
+          Refresh Stream
+        </button>
+      </div>
+      <div id="agenda-board-stream" class="flex-1 overflow-y-auto mt-4 space-y-4 pr-2 max-h-[calc(100vh-220px)]">
+        <!-- Agenda List Stream -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- BOTTOM LIVE TICKER BAR                                    -->
+  <!-- ========================================================= -->
+  <footer class="relative z-20 h-9 dak-card rounded-none border-t border-white/10 flex items-center overflow-hidden">
+    <div class="shrink-0 h-full px-3.5 bg-sky-500 text-slate-950 font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 z-10 shadow-lg">
+      <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
+      <span>Office Bulletin</span>
+    </div>
+    <div class="flex-1 overflow-hidden relative h-full flex items-center">
+      <div id="ticker-marquee-content" class="ticker-track text-xs font-medium text-slate-200 flex items-center gap-10 px-6">
+        <span class="inline-flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>SAFETY RECORD: 142 Days Injury-Free Across All Work Sites</span>
+        </span>
+        <span class="inline-flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+          <span>DISPATCH: Automatic 60s Google Calendar live sync active</span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: UPLOAD .ICS / LIVE FEEDS CONFIGURATION             -->
+  <!-- ========================================================= -->
+  <div id="modal-calendar-sources" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="dak-card bg-slate-900 border border-white/15 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
+            <i data-lucide="calendar-sync" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Google &amp; Outlook Live Calendar Feed</h3>
+            <p class="text-xs text-slate-400">Persists automatically across TV reboots</p>
+          </div>
+        </div>
+        <button onclick="closeCalendarModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        
+        <!-- Live Feed URL -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+              <i data-lucide="rss" class="w-4 h-4"></i>
+              <span>Live .ICS / Webcal Feed URL</span>
+            </h4>
+            <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">
+              Bypasses Cache Every 60s
+            </span>
+          </div>
+          <p class="text-slate-400">
+            Paste your Google Calendar <strong>Secret address in iCal format</strong> (ends in <code>/basic.ics</code>). This URL saves directly to <code>localStorage('company_cal_url')</code> and reloads on boot.
+          </p>
+          <div class="space-y-2">
+            <input
+              id="calendar-feed-url-input"
+              type="url"
+              placeholder="https://calendar.google.com/calendar/ical/.../basic.ics"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-sky-500"
+            />
+            
+            <div id="test-fetch-status-log" class="hidden p-2.5 rounded-lg bg-slate-900/90 border border-white/10 font-mono text-[11px] text-slate-300">
+              <!-- Live test log -->
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <button onclick="saveAndSyncFeedUrl()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-sky-500/20 transition">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Save &amp; Sync Immediately</span>
+              </button>
+              <button onclick="testFetchCurrentInput()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 transition">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Test Fetch Now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual File Dropzone -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 space-y-3">
+          <h4 class="font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>Or Drop .ICS File Directly (Offline / One-time)</span>
+          </h4>
+          <div
+            id="modal-dropzone"
+            ondragover="handleDropzoneDragOver(event)"
+            ondragleave="handleDropzoneDragLeave(event)"
+            ondrop="handleDropzoneDrop(event)"
+            onclick="document.getElementById('manual-file-input').click()"
+            class="cursor-pointer border-2 border-dashed border-slate-700 hover:border-sky-400 bg-slate-900/50 hover:bg-sky-500/5 rounded-xl p-6 text-center transition"
+          >
+            <input id="manual-file-input" type="file" accept=".ics,text/calendar" class="hidden" onchange="handleManualFileSelected(event)" />
+            <i data-lucide="file-up" class="w-8 h-8 mx-auto text-sky-400 mb-2"></i>
+            <p class="text-sm font-semibold text-white">Click or drag &amp; drop a <code class="text-sky-400">.ics</code> file here</p>
+            <p class="text-slate-400 text-[11px] mt-1">Parses RFC-5545, multi-day shifts, and recurring events</p>
+          </div>
+        </div>
+
+        <!-- Reset to Demo -->
+        <div class="flex items-center justify-between pt-1 text-slate-400">
+          <span>Need to restore demonstration tasks?</span>
+          <button onclick="restoreSampleEvents()" class="text-sky-400 hover:underline font-semibold">
+            Restore Sample Schedule
+          </button>
+        </div>
+
+      </div>
+
+      <div class="px-6 py-3.5 border-t border-white/10 flex justify-end">
+        <button onclick="closeCalendarModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
+          Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT BULLETPROOF ENGINE                             -->
+  <!-- ========================================================= -->
+  <script>
+    /*************************************************************
+     * 1. APP CONFIGURATION & CREW ASSIGNMENT DEFINITIONS
+     *************************************************************/
+    const LOCAL_STORAGE_URL_KEY = 'company_cal_url';
+    const LOCAL_STORAGE_LAYOUT_KEY = 'company_cal_layout';
+    const POLLING_INTERVAL_SECONDS = 60;
+
+    // Crew / Department tags with matching color specifications
+    const CREW_CATEGORIES = [
+      { id: 'crew-willy', name: 'Willy', color: '#3b82f6', matchTerms: ['willy', 'will'], enabled: true },
+      { id: 'crew-joseph', name: 'Joseph', color: '#10b981', matchTerms: ['joseph', 'joe s'], enabled: true },
+      { id: 'crew-sam', name: 'Sam', color: '#f43f5e', matchTerms: ['sam', 'samuel'], enabled: true },
+      { id: 'crew-joe', name: 'Joe', color: '#a855f7', matchTerms: ['joe', 'joey'], enabled: true },
+      { id: 'crew-pickup', name: '84 / Pickup', color: '#d97706', matchTerms: ['pickup', '84', 'delivery', 'dock', 'warehouse'], enabled: true },
+      { id: 'crew-general', name: 'General', color: '#64748b', matchTerms: [], enabled: true },
+    ];
+
+    let currentEvents = [];
+    let currentFocusDate = new Date();
+    let currentLayout = 'kiosk-split';
+    let wakeLockInstance = null;
+    let isKiosk = false;
+    let mouseTimeout = null;
+
+    // Independent timer & sync state flags
+    let isSyncing = false;
+    let countdownSeconds = POLLING_INTERVAL_SECONDS;
+    let countdownTimerId = null;
+
+    /*************************************************************
+     * 2. INITIAL DEMO EVENTS (Rendered before feed is configured)
+     *************************************************************/
+    function generateDemoEvents() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const d = now.getDate();
+      const pad = (n) => String(n).padStart(2, '0');
+      const makeDate = (offset = 0) => {
+        const dt = new Date(y, m, d + offset);
+        return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+      };
+
+      return [
+        {
+          id: 'demo-1',
+          title: 'Morning Operations Briefing & Dispatch [Willy]',
+          date: makeDate(0),
+          endDate: makeDate(0),
+          startTime: '08:00',
+          endTime: '08:45',
+          allDay: false,
+          crewId: 'crew-willy',
+          location: 'Fishers HQ - Main Conference',
+          description: 'Daily team alignment on field dispatches and safety reviews.'
+        },
+        {
+          id: 'demo-2',
+          title: 'Commercial HVAC Site Inspection [Joseph]',
+          date: makeDate(0),
+          endDate: makeDate(0),
+          startTime: '10:00',
+          endTime: '13:30',
+          allDay: false,
+          crewId: 'crew-joseph',
+          location: 'Nickel Plate District, Fishers',
+          description: 'Rooftop unit pressure checks.'
+        },
+        {
+          id: 'demo-3',
+          title: 'Bay 2 Steel Component Delivery [84 / Pickup]',
+          date: makeDate(1),
+          endDate: makeDate(1),
+          startTime: '08:30',
+          endTime: '10:00',
+          allDay: false,
+          crewId: 'crew-pickup',
+          location: 'Fishers Warehouse Dock 2',
+          description: 'Structural steel components for fabrication.'
+        },
+        {
+          id: 'demo-4',
+          title: 'Electrical Substation Service [Sam]',
+          date: makeDate(2),
+          endDate: makeDate(2),
+          startTime: '11:00',
+          endTime: '14:00',
+          allDay: false,
+          crewId: 'crew-sam',
+          location: 'Cumberland Crossing',
+          description: 'Scheduled breaker test.'
+        },
+        {
+          id: 'demo-5',
+          title: 'Executive KPI & Dispatch Planning [Joe]',
+          date: makeDate(3),
+          endDate: makeDate(3),
+          startTime: '14:00',
+          endTime: '15:30',
+          allDay: false,
+          crewId: 'crew-joe',
+          location: 'Boardroom B',
+          description: 'Review technician utilization.'
+        }
+      ];
+    }
+
+    /*************************************************************
+     * 3. FAIL-SAFE REALTIME SYNC ENGINE WITH STRICT 8s TIMEOUT
+     *************************************************************/
+    async function fetchIcsWithTimeout(url) {
+      // Normalize protocol
+      let cleanUrl = url.trim().replace(/^webcal:\/\//i, 'https://');
+      
+      // Dynamic timestamp cache-buster
+      const sep = cleanUrl.includes('?') ? '&' : '?';
+      const timestamp = Date.now();
+      const targetWithBuster = `${cleanUrl}${sep}_t=${timestamp}`;
+
+      // Multi-proxy fallback array
+      const proxyEndpoints = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetWithBuster)}&cb=${timestamp}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(targetWithBuster)}&cb=${timestamp}`,
+        `https://thingproxy.freeboard.io/fetch/${targetWithBuster}`
+      ];
+
+      for (let i = 0; i < proxyEndpoints.length; i++) {
+        const proxyUrl = proxyEndpoints[i];
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second strict timeout
+
+        try {
+          const res = await fetch(proxyUrl, {
+            signal: controller.signal,
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache'
+            }
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const text = await res.text();
+            if (text && text.includes('BEGIN:VCALENDAR')) {
+              return text; // Valid iCalendar text found
+            }
+          }
+        } catch (err) {
+          clearTimeout(timeoutId);
+          console.warn(`Proxy endpoint [${i + 1}/${proxyEndpoints.length}] failed: ${err.message}`);
+        }
+      }
+
+      throw new Error('All CORS proxies timed out or were blocked by Google CDN');
+    }
+
+    // Main sync handler: called automatically by countdown timer or manually
+    async function syncCalendarFeed(isManual = false) {
+      const feedUrl = localStorage.getItem(LOCAL_STORAGE_URL_KEY);
+      const manualIcon = document.getElementById('manual-sync-icon');
+
+      if (!feedUrl) {
+        updateSyncBadge('No Feed Configured', 'idle');
+        return;
+      }
+
+      if (isSyncing) return; // Prevent concurrent network overlaps
+      isSyncing = true;
+
+      updateSyncBadge('Syncing...', 'syncing');
+      if (manualIcon) manualIcon.classList.add('sync-spinner');
+
+      try {
+        const rawIcs = await fetchIcsWithTimeout(feedUrl);
+        const parsed = parseRFC5545ICS(rawIcs);
+
+        if (parsed && parsed.length > 0) {
+          // Replace demo items cleanly upon successful parse
+          currentEvents = parsed;
+          renderCurrentLayout();
+
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          updateSyncBadge(`Synced ${timeStr}`, 'success');
+
+          if (isManual) {
+            showToast(`Synced ${parsed.length} events from Google Calendar!`, 'success');
+          }
+        } else {
+          updateSyncBadge('No Events Found', 'warning');
+        }
+      } catch (err) {
+        console.error('Real-time sync failure:', err.message);
+        updateSyncBadge('Retry in 60s', 'warning');
+        if (isManual) {
+          showToast(`Sync failed: ${err.message}`, 'error');
+        }
+      } finally {
+        isSyncing = false;
+        if (manualIcon) manualIcon.classList.remove('sync-spinner');
+      }
+    }
+
+    /*************************************************************
+     * 4. DECOUPLED, NON-FREEZING 1-SECOND COUNTDOWN TICKER
+     *************************************************************/
+    function initIndependentCountdownTicker() {
+      if (countdownTimerId) clearInterval(countdownTimerId);
+
+      countdownSeconds = POLLING_INTERVAL_SECONDS;
+
+      countdownTimerId = setInterval(() => {
+        const label = document.getElementById('sync-countdown-label');
+
+        if (countdownSeconds > 0) {
+          countdownSeconds--;
+        } else {
+          // Never freeze at 0: reset cleanly and execute sync in background
+          countdownSeconds = POLLING_INTERVAL_SECONDS;
+          syncCalendarFeed(false);
+        }
+
+        if (label) {
+          label.textContent = `(next in ${countdownSeconds}s)`;
+        }
+      }, 1000);
+    }
+
+    function triggerImmediateSync() {
+      countdownSeconds = POLLING_INTERVAL_SECONDS; // Reset countdown
+      syncCalendarFeed(true);
+    }
+
+    function updateSyncBadge(label, state) {
+      const badge = document.getElementById('sync-status-badge');
+      const dot = document.getElementById('sync-status-dot');
+      const text = document.getElementById('sync-status-label');
+
+      text.textContent = label;
+
+      if (state === 'success') {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+      } else if (state === 'syncing') {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30';
+        dot.className = 'w-2 h-2 rounded-full bg-sky-400 animate-ping';
+      } else if (state === 'warning') {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300 border border-white/10';
+        dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+      }
+    }
+
+    /*************************************************************
+     * 5. RFC-5545 iCALENDAR & RRULE RECURRING PARSER
+     *************************************************************/
+    function parseRFC5545ICS(icsRawString) {
+      if (!icsRawString || !icsRawString.includes('BEGIN:VCALENDAR')) {
+        throw new Error('Not a valid .ics calendar stream');
+      }
+
+      // Unfold RFC-5545 multiline wraps
+      const unfolded = icsRawString.replace(/\r?\n[ \t]/g, '');
+      const lines = unfolded.split(/\r?\n/);
+
+      const parsedEvents = [];
+      let inEvent = false;
+      let cur = {};
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        if (trimmed === 'BEGIN:VEVENT') {
+          inEvent = true;
+          cur = {};
+          continue;
+        }
+
+        if (trimmed === 'END:VEVENT') {
+          inEvent = false;
+          const expanded = normalizeVEvent(cur);
+          if (expanded && expanded.length) {
+            parsedEvents.push(...expanded);
+          }
+          continue;
+        }
+
+        if (inEvent) {
+          const colonIdx = trimmed.indexOf(':');
+          if (colonIdx === -1) continue;
+          const prop = trimmed.substring(0, colonIdx);
+          const val = trimmed.substring(colonIdx + 1);
+          const propName = prop.split(';')[0].toUpperCase();
+          cur[propName] = val;
+          cur[propName + '_META'] = prop;
+        }
+      }
+
+      return parsedEvents;
+    }
+
+    function parseICSDate(val, meta = '') {
+      if (!val) return null;
+      const clean = val.trim();
+      const isDateOnly = meta.includes('VALUE=DATE') || /^\d{8}$/.test(clean);
+
+      if (isDateOnly) {
+        const y = parseInt(clean.substring(0, 4), 10);
+        const m = parseInt(clean.substring(4, 6), 10) - 1;
+        const d = parseInt(clean.substring(6, 8), 10);
+        return { dateObj: new Date(y, m, d), allDay: true };
+      }
+
+      // YYYYMMDDTHHMMSS or with trailing Z (UTC)
+      const match = clean.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?/);
+      if (match) {
+        const [, y, m, d, hh, mm, ss, isUTC] = match;
+        const dateObj = isUTC
+          ? new Date(Date.UTC(+y, +m - 1, +d, +hh, +mm, +ss))
+          : new Date(+y, +m - 1, +d, +hh, +mm, +ss);
+        return { dateObj, allDay: false };
+      }
+      return null;
+    }
+
+    function unescapeICS(str = '') {
+      return str
+        .replace(/\\n/gi, '\n')
+        .replace(/\\,/g, ',')
+        .replace(/\\;/g, ';')
+        .replace(/\\\\/g, '\\')
+        .trim();
+    }
+
+    function formatToYYYYMMDD(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatToHHMM(d) {
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    function assignCrewCategory(title = '', desc = '', location = '') {
+      const combined = `${title} ${desc} ${location}`.toLowerCase();
+      for (const cat of CREW_CATEGORIES) {
+        if (cat.id === 'crew-general') continue;
+        for (const term of cat.matchTerms) {
+          const regex = new RegExp(`\\b${term}\\b`, 'i');
+          if (regex.test(combined)) {
+            return cat.id;
+          }
+        }
+      }
+      return 'crew-general';
+    }
+
+    function normalizeVEvent(vevent) {
+      const dtStart = parseICSDate(vevent.DTSTART, vevent.DTSTART_META || '');
+      if (!dtStart || isNaN(dtStart.dateObj.getTime())) return [];
+
+      let dtEnd = parseICSDate(vevent.DTEND, vevent.DTEND_META || '');
+      if (!dtEnd) {
+        dtEnd = {
+          dateObj: new Date(dtStart.dateObj.getTime() + 60 * 60 * 1000),
+          allDay: dtStart.allDay
+        };
+      }
+
+      let endDateObj = new Date(dtEnd.dateObj);
+      if (dtStart.allDay && endDateObj > dtStart.dateObj) {
+        endDateObj.setDate(endDateObj.getDate() - 1);
+      }
+
+      const title = unescapeICS(vevent.SUMMARY || 'Untitled Company Task');
+      const location = unescapeICS(vevent.LOCATION || '');
+      const description = unescapeICS(vevent.DESCRIPTION || '');
+      const crewId = assignCrewCategory(title, description, location);
+
+      const base = {
+        id: 'ics-' + (vevent.UID || Math.random().toString(36).substring(2, 9)),
+        title,
+        date: formatToYYYYMMDD(dtStart.dateObj),
+        endDate: formatToYYYYMMDD(endDateObj),
+        startTime: dtStart.allDay ? '00:00' : formatToHHMM(dtStart.dateObj),
+        endTime: dtStart.allDay ? '23:59' : formatToHHMM(dtEnd.dateObj),
+        allDay: dtStart.allDay,
+        crewId,
+        location,
+        description
+      };
+
+      if (vevent.RRULE) {
+        return expandRecurrence(base, dtStart.dateObj, vevent.RRULE);
+      }
+
+      return [base];
+    }
+
+    function expandRecurrence(baseEvent, startObj, rruleStr) {
+      const parts = {};
+      rruleStr.split(';').forEach(p => {
+        const [k, v] = p.split('=');
+        if (k && v) parts[k.toUpperCase()] = v.toUpperCase();
+      });
+
+      const freq = parts.FREQ;
+      const count = Math.min(parseInt(parts.COUNT || '24', 10), 30);
+      const instances = [];
+
+      const spanDays = Math.max(
+        0,
+        Math.round((new Date(baseEvent.endDate) - new Date(baseEvent.date)) / (1000 * 60 * 60 * 24))
+      );
+
+      for (let i = 0; i < count; i++) {
+        const cur = new Date(startObj);
+        if (freq === 'DAILY') cur.setDate(cur.getDate() + i);
+        else if (freq === 'WEEKLY') cur.setDate(cur.getDate() + i * 7);
+        else if (freq === 'MONTHLY') cur.setMonth(cur.getMonth() + i);
+        else {
+          if (i === 0) instances.push(baseEvent);
+          break;
+        }
+
+        const endCur = new Date(cur);
+        endCur.setDate(endCur.getDate() + spanDays);
+
+        instances.push({
+          ...baseEvent,
+          id: `${baseEvent.id}-r${i}`,
+          date: formatToYYYYMMDD(cur),
+          endDate: formatToYYYYMMDD(endCur)
+        });
+      }
+
+      return instances;
+    }
+
+    /*************************************************************
+     * 6. OPEN-METEO WEATHER ENGINE (Fishers, IN: 39.95, -86.01)
+     *************************************************************/
+    const WMO_MAP = {
+      0: { label: 'Clear Sky', icon: 'sun' },
+      1: { label: 'Mainly Clear', icon: 'sun' },
+      2: { label: 'Partly Cloudy', icon: 'cloud-sun' },
+      3: { label: 'Overcast', icon: 'cloud' },
+      45: { label: 'Fog', icon: 'cloud-fog' },
+      51: { label: 'Light Drizzle', icon: 'cloud-drizzle' },
+      61: { label: 'Light Rain', icon: 'cloud-rain' },
+      63: { label: 'Moderate Rain', icon: 'cloud-rain' },
+      71: { label: 'Light Snow', icon: 'snowflake' },
+      80: { label: 'Rain Showers', icon: 'cloud-rain' },
+      95: { label: 'Thunderstorms', icon: 'cloud-lightning' }
+    };
+
+    async function updateWeather() {
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0139&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FIndiana%2FIndianapolis&forecast_days=5');
+        const data = await res.json();
+
+        if (data && data.current) {
+          const temp = Math.round(data.current.temperature_2m);
+          const meta = WMO_MAP[data.current.weather_code] || { label: 'Fair Conditions', icon: 'cloud-sun' };
+          
+          document.getElementById('weather-current-temp').textContent = `${temp}°`;
+          document.getElementById('weather-current-desc').textContent = meta.label;
+          document.getElementById('weather-wind').textContent = `${Math.round(data.current.wind_speed_10m)} mph`;
+          document.getElementById('weather-current-icon').innerHTML = `<i data-lucide="${meta.icon}" class="w-7 h-7"></i>`;
+        }
+
+        if (data && data.daily) {
+          document.getElementById('weather-high').textContent = `${Math.round(data.daily.temperature_2m_max[0])}°`;
+          document.getElementById('weather-low').textContent = `${Math.round(data.daily.temperature_2m_min[0])}°`;
+
+          const grid = document.getElementById('weather-forecast-grid');
+          grid.innerHTML = data.daily.time.slice(0, 5).map((dStr, idx) => {
+            const [y, m, d] = dStr.split('-').map(Number);
+            const date = new Date(y, m - 1, d);
+            const dayName = idx === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+            const meta = WMO_MAP[data.daily.weather_code[idx]] || { label: 'Fair', icon: 'cloud-sun' };
+            const hi = Math.round(data.daily.temperature_2m_max[idx]);
+            const lo = Math.round(data.daily.temperature_2m_min[idx]);
+
+            return `
+              <div class="p-1.5 rounded-xl bg-white/5 flex flex-col items-center">
+                <span class="text-[10px] font-semibold text-slate-400">${dayName}</span>
+                <i data-lucide="${meta.icon}" class="w-4 h-4 my-1.5 text-sky-400"></i>
+                <div class="text-[11px] font-bold text-white">${hi}° <span class="text-slate-500 font-normal">${lo}°</span></div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        lucide.createIcons();
+      } catch (err) {
+        console.warn('Weather fallback active:', err);
+      }
+    }
+
+    /*************************************************************
+     * 7. DIGITAL CLOCKS ENGINE
+     *************************************************************/
+    function updateLiveClocks() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+
+      // Header clock
+      document.getElementById('header-clock-time').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      document.getElementById('header-clock-date').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      // Big Kiosk clock
+      document.getElementById('big-clock-digits').textContent = `${hours}:${minutes}`;
+      document.getElementById('big-clock-seconds').textContent = seconds;
+      document.getElementById('big-clock-ampm').textContent = ampm;
+      document.getElementById('big-clock-day').textContent = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+      document.getElementById('big-clock-fulldate').textContent = now.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    /*************************************************************
+     * 8. CALENDAR RENDERING ENGINE (4 LAYOUTS)
+     *************************************************************/
+    function getActiveEvents() {
+      const enabledIds = new Set(CREW_CATEGORIES.filter(c => c.enabled).map(c => c.id));
+      return currentEvents.filter(e => enabledIds.has(e.crewId));
+    }
+
+    function formatTimeDisplay(timeStr) {
+      if (!timeStr) return '';
+      const [hStr, mStr] = timeStr.split(':');
+      let h = parseInt(hStr, 10);
+      const ampm = h >= 12 ? 'p' : 'a';
+      h = h % 12 || 12;
+      return mStr === '00' ? `${h}${ampm}` : `${h}:${mStr}${ampm}`;
+    }
+
+    function renderCurrentLayout() {
+      const events = getActiveEvents();
+      const label = currentFocusDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      document.getElementById('current-period-label').textContent = label;
+      document.getElementById('split-cal-title').textContent = label;
+      document.getElementById('big-month-title').textContent = label;
+      document.getElementById('loaded-events-counter').textContent = `${events.length} Events Active`;
+
+      renderSplitView(events);
+      renderBigMonthView(events);
+      render7DayDispatch(events);
+      renderAgendaBoard(events);
+
+      lucide.createIcons();
+    }
+
+    function buildMonthGridCells(year, month) {
+      const firstDay = new Date(year, month, 1);
+      const startDayOfWeek = firstDay.getDay();
+      const startDate = new Date(year, month, 1 - startDayOfWeek);
+
+      const cells = [];
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        cells.push({
+          dateObj: d,
+          dateStr: formatToYYYYMMDD(d),
+          dayNum: d.getDate(),
+          isCurrentMonth: d.getMonth() === month
+        });
+      }
+      return cells;
+    }
+
+    function renderSplitView(events) {
+      const grid = document.getElementById('split-calendar-grid');
+      const agenda = document.getElementById('split-agenda-list');
+      const cells = buildMonthGridCells(currentFocusDate.getFullYear(), currentFocusDate.getMonth());
+      const todayStr = formatToYYYYMMDD(new Date());
+
+      // Month Cells
+      grid.innerHTML = cells.map(cell => {
+        const dayEvents = events.filter(e => cell.dateStr >= e.date && cell.dateStr <= (e.endDate || e.date));
+        const isToday = cell.dateStr === todayStr;
+        const opacity = cell.isCurrentMonth ? 'opacity-100' : 'opacity-30';
+        const todayStyle = isToday ? 'ring-2 ring-sky-400 bg-sky-500/10' : 'bg-white/[0.03] border border-white/5';
+
+        const pills = dayEvents.slice(0, 3).map(ev => {
+          const crew = CREW_CATEGORIES.find(c => c.id === ev.crewId) || CREW_CATEGORIES[5];
+          const time = ev.allDay ? 'ALL DAY' : formatTimeDisplay(ev.startTime);
+          return `
+            <div class="px-1.5 py-0.5 rounded text-[10px] font-medium truncate flex items-center gap-1" style="background-color: ${crew.color}25; border-left: 3px solid ${crew.color};">
+              <span class="font-mono text-[9px] text-slate-300 shrink-0">${time}</span>
+              <span class="truncate font-semibold text-white">${escapeHtml(ev.title)}</span>
+            </div>
+          `;
+        }).join('');
+
+        const extra = dayEvents.length > 3 ? `<div class="text-[10px] text-sky-400 font-bold pl-1">+${dayEvents.length - 3} more</div>` : '';
+
+        return `
+          <div class="rounded-xl p-1.5 flex flex-col justify-between min-h-[76px] ${opacity} ${todayStyle}">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold ${isToday ? 'w-5 h-5 rounded-full bg-sky-400 text-slate-950 flex items-center justify-center' : 'text-slate-300'}">${cell.dayNum}</span>
+              ${dayEvents.length ? `<span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>` : ''}
+            </div>
+            <div class="space-y-1 mt-1 overflow-hidden flex-1">
+              ${pills}
+              ${extra}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 14-Day Agenda Stream
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const agendaDays = [];
+      let totalAgendaCount = 0;
+
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const dStr = formatToYYYYMMDD(d);
+        const dayEvents = events.filter(e => dStr >= e.date && dStr <= (e.endDate || e.date));
+        if (!dayEvents.length && i > 1) continue;
+
+        totalAgendaCount += dayEvents.length;
+        const label = i === 0 ? 'TODAY' : i === 1 ? 'TOMORROW' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+
+        const cards = dayEvents.length ? dayEvents.map(ev => {
+          const crew = CREW_CATEGORIES.find(c => c.id === ev.crewId) || CREW_CATEGORIES[5];
+          const time = ev.allDay ? 'All Day' : `${formatTimeDisplay(ev.startTime)} - ${formatTimeDisplay(ev.endTime)}`;
+          return `
+            <div class="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 transition" style="border-left: 4px solid ${crew.color}">
+              <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span class="font-bold uppercase" style="color: ${crew.color}">${escapeHtml(crew.name)}</span>
+                <span>${time}</span>
+              </div>
+              <div class="text-xs font-bold text-white mt-1 leading-snug">${escapeHtml(ev.title)}</div>
+              ${ev.location ? `<div class="text-[11px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-sky-400 shrink-0"></i><span class="truncate">${escapeHtml(ev.location)}</span></div>` : ''}
+            </div>
+          `;
+        }).join('') : `<div class="text-[11px] text-slate-500 italic py-1">No scheduled tasks</div>`;
+
+        agendaDays.push(`
+          <div>
+            <div class="text-[11px] font-extrabold tracking-wider ${i === 0 ? 'text-sky-400' : 'text-slate-400'} mb-1.5">${label}</div>
+            <div class="space-y-2">${cards}</div>
+          </div>
+        `);
+      }
+
+      document.getElementById('agenda-count-badge').textContent = totalAgendaCount;
+      agenda.innerHTML = agendaDays.join('');
+    }
+
+    function renderBigMonthView(events) {
+      const container = document.getElementById('big-month-cells');
+      const cells = buildMonthGridCells(currentFocusDate.getFullYear(), currentFocusDate.getMonth());
+      const todayStr = formatToYYYYMMDD(new Date());
+
+      container.innerHTML = cells.map(cell => {
+        const dayEvents = events.filter(e => cell.dateStr >= e.date && cell.dateStr <= (e.endDate || e.date));
+        const isToday = cell.dateStr === todayStr;
+        const opacity = cell.isCurrentMonth ? 'opacity-100' : 'opacity-35';
+        const todayStyle = isToday ? 'ring-2 ring-sky-400 bg-sky-500/10' : 'bg-white/[0.03] border border-white/5';
+
+        const pills = dayEvents.slice(0, 5).map(ev => {
+          const crew = CREW_CATEGORIES.find(c => c.id === ev.crewId) || CREW_CATEGORIES[5];
+          const time = ev.allDay ? 'ALL DAY' : formatTimeDisplay(ev.startTime);
+          return `
+            <div class="px-2 py-1 rounded text-xs font-semibold flex items-center justify-between gap-1" style="background-color: ${crew.color}25; border-left: 3px solid ${crew.color};">
+              <span class="truncate text-white">${escapeHtml(ev.title)}</span>
+              <span class="font-mono text-[10px] text-slate-300 shrink-0">${time}</span>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="rounded-xl p-2 flex flex-col min-h-[100px] ${opacity} ${todayStyle}">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm font-extrabold ${isToday ? 'px-2 py-0.5 rounded-full bg-sky-400 text-slate-950' : 'text-white'}">${cell.dayNum}</span>
+              ${dayEvents.length ? `<span class="text-[10px] font-mono text-slate-400">${dayEvents.length} tasks</span>` : ''}
+            </div>
+            <div class="space-y-1 flex-1 overflow-y-auto">
+              ${pills}
+              ${dayEvents.length > 5 ? `<div class="text-[11px] font-bold text-sky-400 pl-1">+${dayEvents.length - 5} more</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function render7DayDispatch(events) {
+      const container = document.getElementById('week-dispatch-columns');
+      const startOfWeek = new Date(currentFocusDate);
+      startOfWeek.setDate(currentFocusDate.getDate() - currentFocusDate.getDay());
+      const todayStr = formatToYYYYMMDD(new Date());
+
+      const cols = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(startOfWeek);
+        d.setDate(startOfWeek.getDate() + i);
+        const dStr = formatToYYYYMMDD(d);
+        const isToday = dStr === todayStr;
+        const dayEvents = events.filter(e => dStr >= e.date && dStr <= (e.endDate || e.date));
+
+        const cards = dayEvents.length ? dayEvents.map(ev => {
+          const crew = CREW_CATEGORIES.find(c => c.id === ev.crewId) || CREW_CATEGORIES[5];
+          const time = ev.allDay ? 'ALL DAY' : `${formatTimeDisplay(ev.startTime)} - ${formatTimeDisplay(ev.endTime)}`;
+          return `
+            <div class="p-3 rounded-xl bg-white/[0.04] border border-white/5" style="border-top: 3px solid ${crew.color}">
+              <div class="text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                <span>${time}</span>
+                <span class="w-2 h-2 rounded-full" style="background-color: ${crew.color}"></span>
+              </div>
+              <div class="text-xs font-bold text-white mt-1 leading-snug">${escapeHtml(ev.title)}</div>
+              ${ev.location ? `<div class="text-[10px] text-slate-400 mt-1 truncate">${escapeHtml(ev.location)}</div>` : ''}
+            </div>
+          `;
+        }).join('') : `<div class="text-xs text-slate-500 italic text-center py-8">Open Schedule</div>`;
+
+        cols.push(`
+          <div class="rounded-2xl p-3 flex flex-col ${isToday ? 'ring-2 ring-sky-400 bg-sky-500/10' : 'bg-white/[0.02] border border-white/5'}">
+            <div class="pb-2 mb-2 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider ${isToday ? 'text-sky-400' : 'text-slate-400'}">${d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div class="text-lg font-extrabold text-white">${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-slate-400">${dayEvents.length}</span>
+            </div>
+            <div class="space-y-2 flex-1 overflow-y-auto">${cards}</div>
+          </div>
+        `);
+      }
+
+      container.innerHTML = cols.join('');
+    }
+
+    function renderAgendaBoard(events) {
+      const container = document.getElementById('agenda-board-stream');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const groups = [];
+
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const dStr = formatToYYYYMMDD(d);
+        const dayEvents = events.filter(e => dStr >= e.date && dStr <= (e.endDate || e.date));
+        if (!dayEvents.length) continue;
+
+        const banner = i === 0 ? 'Today — ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        groups.push(`
+          <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-sky-400 mb-3">${banner}</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${dayEvents.map(ev => {
+                const crew = CREW_CATEGORIES.find(c => c.id === ev.crewId) || CREW_CATEGORIES[5];
+                const time = ev.allDay ? 'ALL DAY' : `${formatTimeDisplay(ev.startTime)} – ${formatTimeDisplay(ev.endTime)}`;
+                return `
+                  <div class="p-3.5 rounded-xl bg-slate-900 border border-white/10" style="border-left: 4px solid ${crew.color}">
+                    <div class="flex items-center justify-between text-xs font-mono text-sky-400">
+                      <span class="font-bold text-[10px] uppercase" style="color: ${crew.color}">${escapeHtml(crew.name)}</span>
+                      <span>${time}</span>
+                    </div>
+                    <div class="text-sm font-bold text-white mt-1.5">${escapeHtml(ev.title)}</div>
+                    ${ev.location ? `<div class="text-xs text-slate-400 mt-1 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i><span>${escapeHtml(ev.location)}</span></div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `);
+      }
+
+      container.innerHTML = groups.length ? groups.join('') : `<div class="text-sm text-slate-500 italic p-8 text-center">No upcoming events scheduled.</div>`;
+    }
+
+    function renderFilters() {
+      const container = document.getElementById('category-filter-chips');
+      container.innerHTML = CREW_CATEGORIES.map(cat => {
+        const active = cat.enabled ? 'opacity-100 ring-1 ring-white/15' : 'opacity-40 line-through';
+        return `
+          <button onclick="toggleCrewFilter('${cat.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold dak-card flex items-center gap-1.5 ${active}">
+            <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>
+            <span class="text-white">${escapeHtml(cat.name)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function toggleCrewFilter(catId) {
+      const cat = CREW_CATEGORIES.find(c => c.id === catId);
+      if (cat) {
+        cat.enabled = !cat.enabled;
+        renderCurrentLayout();
+        renderFilters();
+      }
+    }
+
+    /*************************************************************
+     * 9. LAYOUT & NAVIGATION CONTROLLERS
+     *************************************************************/
+    function setLayoutView(layoutName) {
+      currentLayout = layoutName;
+      localStorage.setItem(LOCAL_STORAGE_LAYOUT_KEY, layoutName);
+
+      const layouts = ['kiosk-split', 'month-grid', 'week-dispatch', 'agenda-board'];
+      layouts.forEach(l => {
+        const btn = document.getElementById(`view-btn-${l}`);
+        const panel = document.getElementById(`layout-${l}`);
+        if (l === layoutName) {
+          btn.className = 'view-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-sky-500 text-slate-950 shadow-sm transition';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'view-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-white/5 transition';
+          panel.classList.add('hidden');
+        }
+      });
+
+      renderCurrentLayout();
+    }
+
+    function navigatePeriod(delta) {
+      if (currentLayout === 'week-dispatch') {
+        currentFocusDate.setDate(currentFocusDate.getDate() + delta * 7);
+      } else {
+        currentFocusDate.setMonth(currentFocusDate.getMonth() + delta);
+      }
+      renderCurrentLayout();
+    }
+
+    function navigateToday() {
+      currentFocusDate = new Date();
+      renderCurrentLayout();
+    }
+
+    /*************************************************************
+     * 10. TV KIOSK MODE & SCREEN WAKE LOCK
+     *************************************************************/
+    async function toggleKioskMode(enable) {
+      isKiosk = enable;
+      const floatingPill = document.getElementById('kiosk-floating-controls');
+
+      if (enable) {
+        document.body.classList.add('kiosk-active');
+        floatingPill.classList.remove('hidden');
+
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          }
+        } catch (e) {}
+
+        // Request Screen Wake Lock so monitor never sleeps
+        try {
+          if ('wakeLock' in navigator) {
+            wakeLockInstance = await navigator.wakeLock.request('screen');
+          }
+        } catch (e) {}
+
+        showToast('TV Kiosk Mode Active. Press ESC or move mouse to top-right to exit.', 'info');
+      } else {
+        document.body.classList.remove('kiosk-active');
+        floatingPill.classList.add('hidden');
+
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen();
+          }
+        } catch (e) {}
+
+        if (wakeLockInstance) {
+          wakeLockInstance.release().catch(() => {});
+          wakeLockInstance = null;
+        }
+      }
+    }
+
+    /*************************************************************
+     * 11. FEED MODAL & PERSISTENT LOCALSTORAGE
+     *************************************************************/
+    function openCalendarModal() {
+      const saved = localStorage.getItem(LOCAL_STORAGE_URL_KEY) || '';
+      document.getElementById('calendar-feed-url-input').value = saved;
+      document.getElementById('modal-calendar-sources').classList.remove('hidden');
+      document.getElementById('test-fetch-status-log').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('modal-calendar-sources').classList.add('hidden');
+    }
+
+    function saveAndSyncFeedUrl() {
+      const input = document.getElementById('calendar-feed-url-input');
+      const url = input.value.trim();
+
+      if (url) {
+        localStorage.setItem(LOCAL_STORAGE_URL_KEY, url);
+        document.getElementById('active-feed-display-name').textContent = 'Feed: ' + url.substring(0, 30) + '...';
+        closeCalendarModal();
+        showToast('Calendar URL saved! Polling live Google Calendar...', 'info');
+        triggerImmediateSync();
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_URL_KEY);
+        document.getElementById('active-feed-display-name').textContent = 'Feed: Local Demo';
+        closeCalendarModal();
+        showToast('Feed cleared. Reverting to demonstration schedule.', 'info');
+      }
+    }
+
+    async function testFetchCurrentInput() {
+      const input = document.getElementById('calendar-feed-url-input');
+      const log = document.getElementById('test-fetch-status-log');
+      const url = input.value.trim();
+
+      if (!url) {
+        log.className = 'p-2.5 rounded-lg bg-rose-500/15 border border-rose-500/30 font-mono text-[11px] text-rose-300';
+        log.textContent = 'Please enter a valid Google Calendar .ics URL first.';
+        log.classList.remove('hidden');
+        return;
+      }
+
+      log.className = 'p-2.5 rounded-lg bg-sky-500/15 border border-sky-500/30 font-mono text-[11px] text-sky-300';
+      log.textContent = 'Testing connection through proxies with 8-second timeout...';
+      log.classList.remove('hidden');
+
+      try {
+        const icsText = await fetchIcsWithTimeout(url);
+        const parsed = parseRFC5545ICS(icsText);
+        log.className = 'p-2.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 font-mono text-[11px] text-emerald-300';
+        log.textContent = `SUCCESS: Retrieved valid feed! Found ${parsed.length} calendar events.`;
+      } catch (err) {
+        log.className = 'p-2.5 rounded-lg bg-rose-500/15 border border-rose-500/30 font-mono text-[11px] text-rose-300';
+        log.textContent = `FETCH ERROR: ${err.message}. Verify that the Google Calendar secret address is active and ends with /basic.ics.`;
+      }
+    }
+
+    function restoreSampleEvents() {
+      localStorage.removeItem(LOCAL_STORAGE_URL_KEY);
+      currentEvents = generateDemoEvents();
+      document.getElementById('active-feed-display-name').textContent = 'Feed: Local Demo';
+      closeCalendarModal();
+      renderCurrentLayout();
+      showToast('Restored sample demonstration dispatch schedule.', 'info');
+    }
+
+    function handleDropzoneDragOver(e) {
+      e.preventDefault();
+      document.getElementById('modal-dropzone').classList.add('border-sky-400', 'bg-sky-500/10');
+    }
+
+    function handleDropzoneDragLeave(e) {
+      e.preventDefault();
+      document.getElementById('modal-dropzone').classList.remove('border-sky-400', 'bg-sky-500/10');
+    }
+
+    function handleDropzoneDrop(e) {
+      e.preventDefault();
+      document.getElementById('modal-dropzone').classList.remove('border-sky-400', 'bg-sky-500/10');
+      if (e.dataTransfer && e.dataTransfer.files.length) {
+        processUploadedICSFile(e.dataTransfer.files[0]);
+      }
+    }
+
+    function handleManualFileSelected(e) {
+      if (e.target.files.length) {
+        processUploadedICSFile(e.target.files[0]);
+        e.target.value = '';
+      }
+    }
+
+    async function processUploadedICSFile(file) {
+      try {
+        const text = await file.text();
+        const parsed = parseRFC5545ICS(text);
+        currentEvents = parsed;
+        document.getElementById('active-feed-display-name').textContent = `File: ${file.name}`;
+        closeCalendarModal();
+        renderCurrentLayout();
+        showToast(`Imported ${parsed.length} events from ${file.name}!`, 'success');
+      } catch (err) {
+        showToast(`Error reading file: ${err.message}`, 'error');
+      }
+    }
+
+    /*************************************************************
+     * 12. UTILITIES & TOAST NOTIFICATIONS
+     *************************************************************/
+    function escapeHtml(str = '') {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'border-emerald-500/40 bg-slate-900/95 text-emerald-300',
+        error: 'border-rose-500/40 bg-slate-900/95 text-rose-300',
+        info: 'border-sky-500/40 bg-slate-900/95 text-sky-300'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-semibold flex items-center justify-between gap-3 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${escapeHtml(msg)}</span><button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white">✕</button>`;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4500);
+    }
+
+    /*************************************************************
+     * 13. INITIALIZATION & LIFECYCLE
+     *************************************************************/
+    window.addEventListener('mousemove', () => {
+      if (!isKiosk) return;
+      const pill = document.getElementById('kiosk-floating-controls');
+      pill.classList.remove('opacity-0');
+      clearTimeout(mouseTimeout);
+      mouseTimeout = setTimeout(() => {
+        if (isKiosk) pill.classList.add('opacity-0');
+      }, 2500);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (isKiosk) toggleKioskMode(false);
+        closeCalendarModal();
+      }
+    });
+
+    window.onload = function () {
+      // 1. Load initial demo data first so UI is never blank
+      currentEvents = generateDemoEvents();
+
+      // 2. Restore layout selection
+      const savedLayout = localStorage.getItem(LOCAL_STORAGE_LAYOUT_KEY) || 'kiosk-split';
+      setLayoutView(savedLayout);
+      renderFilters();
+
+      // 3. Start clocks & weather
+      updateLiveClocks();
+      setInterval(updateLiveClocks, 1000);
+      updateWeather();
+      setInterval(updateWeather, 15 * 60 * 1000);
+
+      // 4. Start decoupled countdown ticker (guaranteed never to stall)
+      initIndependentCountdownTicker();
+
+      // 5. Check if calendar URL is stored in localStorage
+      const savedUrl = localStorage.getItem(LOCAL_STORAGE_URL_KEY);
+      if (savedUrl) {
+        document.getElementById('active-feed-display-name').textContent = 'Feed: ' + savedUrl.substring(0, 30) + '...';
+        // Trigger initial background sync
+        syncCalendarFeed(false);
+      } else {
+        updateSyncBadge('Demo Mode', 'idle');
+      }
+    };
+  </script>
+</body>
+</html>
