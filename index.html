@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DAKboard Pro - Smart Office Display</title>
+  <title>ArtisanPRO - Smart Office Display</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
       letter-spacing: -0.5px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 2px;
     }
 
     .brand-logo span {
@@ -180,7 +180,7 @@
       overflow: hidden;
     }
 
-    /* Left Sidebar: Clock, Weather, Bulletin */
+    /* Left Sidebar */
     .sidebar-left {
       display: flex;
       flex-direction: column;
@@ -263,29 +263,44 @@
       flex: 1;
     }
 
+    .bulletin-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
     .bulletin-title {
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-main);
-      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .bulletin-content {
-      font-size: 0.8rem;
+    .btn-icon-tiny {
+      background: transparent;
+      border: 1px solid var(--card-border);
       color: var(--text-muted);
-      line-height: 1.6;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-tiny:hover {
+      background: var(--card-border);
+      color: var(--accent);
     }
 
     .crew-color-legend {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-top: 10px;
     }
 
     .legend-item {
@@ -300,6 +315,7 @@
       width: 10px;
       height: 10px;
       border-radius: 3px;
+      flex-shrink: 0;
     }
 
     /* Center: Calendar Grid View */
@@ -552,6 +568,59 @@
       margin-top: 10px;
     }
 
+    /* Crew Manager Form Rows */
+    .crew-edit-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 48px 36px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .crew-edit-input {
+      background: #0f141c;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .crew-edit-input:focus {
+      border-color: var(--accent);
+    }
+
+    .crew-color-picker {
+      width: 100%;
+      height: 34px;
+      background: #0f141c;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .btn-row-del {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #f43f5e;
+      height: 34px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-row-del:hover {
+      background: #f43f5e;
+      color: #fff;
+    }
+
     @keyframes pulse {
       0% { opacity: 0.4; }
       100% { opacity: 1; }
@@ -578,7 +647,7 @@
   <!-- Top Navigation Header -->
   <header>
     <div class="brand-section">
-      <div class="brand-logo">DAKboard <span>Pro</span></div>
+      <div class="brand-logo">Artisan<span>PRO</span></div>
       <div class="badge-live">OFFICE LIVE</div>
     </div>
 
@@ -623,13 +692,12 @@
       </div>
 
       <div class="widget crew-bulletin">
-        <div class="bulletin-title">📋 Crew Classification</div>
-        <div class="crew-color-legend">
-          <div class="legend-item"><div class="legend-dot" style="background: #a855f7;"></div> Joe</div>
-          <div class="legend-item"><div class="legend-dot" style="background: #10b981;"></div> Joseph</div>
-          <div class="legend-item"><div class="legend-dot" style="background: #f43f5e;"></div> Sam</div>
-          <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Willy</div>
-          <div class="legend-item"><div class="legend-dot" style="background: #d97706;"></div> Scotty / 84 / Pickup</div>
+        <div class="bulletin-header-row">
+          <div class="bulletin-title">📋 Crew Classification</div>
+          <button class="btn-icon-tiny" title="Edit Crews & Colors" onclick="openCrewManagerModal()">⚙️ Edit</button>
+        </div>
+        <div class="crew-color-legend" id="crewLegendContainer">
+          <!-- Dynamically populated from crew definitions -->
         </div>
       </div>
     </aside>
@@ -648,7 +716,6 @@
         <div class="weekday-header">THU</div>
         <div class="weekday-header">FRI</div>
         <div class="weekday-header">SAT</div>
-        <!-- 35-42 Dynamic Day Cells Rendered Here -->
       </div>
     </section>
 
@@ -717,6 +784,37 @@
     </div>
   </div>
 
+  <!-- Crew Classification Manager Modal -->
+  <div id="crewModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 620px;">
+      <div class="modal-title">Edit Crew Classifications & Colors</div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+        Define the crew display name, calendar matching keyword (case-insensitive), and color badge. Ordering here dictates daily calendar sort rank.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+        <div>Display Name</div>
+        <div>Match Keyword</div>
+        <div>Color</div>
+        <div></div>
+      </div>
+
+      <div id="crewRowsContainer" style="max-height: 280px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
+        <!-- Rows dynamically injected -->
+      </div>
+
+      <button class="btn" onclick="addCrewRow('', '', '#38bdf8')" style="margin-bottom: 16px; font-size: 0.8rem;">+ Add New Crew</button>
+
+      <div class="modal-actions" style="justify-content: space-between;">
+        <button class="btn" style="color: #f43f5e;" onclick="resetCrewsToDefault()">Reset Defaults</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" onclick="document.getElementById('crewModal').style.display='none'">Cancel</button>
+          <button class="btn btn-primary" onclick="saveCrewDefinitions()">Save & Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // CONFIGURATION & DEDICATED WORKER PROXY
@@ -730,26 +828,49 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Crew color classification: Scotty assigned to Amber/Orange (#d97706)
-    const CREW_COLORS = {
-      'joe': '#a855f7',
-      'joseph': '#10b981',
-      'sam': '#f43f5e',
-      'willy': '#3b82f6',
-      'scotty': '#d97706',
-      '84': '#d97706',
-      'pickup': '#d97706'
-    };
+    // Default Crew Classifications (Scotty assigned to Amber/Orange #d97706)
+    const DEFAULT_CREW_DEFINITIONS = [
+      { name: 'Joe', keyword: 'joe', color: '#a855f7' },
+      { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
+      { name: 'Sam', keyword: 'sam', color: '#f43f5e' },
+      { name: 'Willy', keyword: 'willy', color: '#3b82f6' },
+      { name: 'Scotty / 84 / Pickup', keyword: '84,scotty,pickup', color: '#d97706' }
+    ];
 
-    // Deterministic crew sorting rank
-    const CREW_ORDER = ['joe', 'joseph', 'sam', 'willy', 'scotty', '84', 'pickup'];
+    let crewDefinitions = JSON.parse(localStorage.getItem('crew_classifications')) || DEFAULT_CREW_DEFINITIONS;
+
+    function renderCrewLegend() {
+      const container = document.getElementById('crewLegendContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      crewDefinitions.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `<div class="legend-dot" style="background: ${c.color};"></div> ${c.name}`;
+        container.appendChild(item);
+      });
+    }
 
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
-      for (const [key, color] of Object.entries(CREW_COLORS)) {
-        if (lower.includes(key)) return color;
+      for (const c of crewDefinitions) {
+        const keys = c.keyword.split(',').map(k => k.trim().toLowerCase());
+        for (const k of keys) {
+          if (k && lower.includes(k)) return c.color;
+        }
       }
       return '#475569';
+    }
+
+    function getCrewSortRank(title) {
+      const lower = (title || '').toLowerCase();
+      for (let i = 0; i < crewDefinitions.length; i++) {
+        const keys = crewDefinitions[i].keyword.split(',').map(k => k.trim().toLowerCase());
+        for (const k of keys) {
+          if (k && lower.includes(k)) return i;
+        }
+      }
+      return 99;
     }
 
     // ==========================================
@@ -774,7 +895,6 @@
 
     async function fetchWeather() {
       try {
-        // Open-Meteo for Fishers, IN (Lat: 39.9568, Long: -86.0134)
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0134&current_weather=true&temperature_unit=fahrenheit");
         if (res.ok) {
           const data = await res.json();
@@ -785,7 +905,7 @@
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 900000); // 15 mins
+    setInterval(fetchWeather, 900000);
 
     // ==========================================
     // 2. ICS PARSER WITH TIMEZONE & UN-FOLDING
@@ -794,7 +914,6 @@
       if (!raw) return new Date();
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
-      // All-day format (YYYYMMDD)
       if (val.length === 8 && !val.includes('T')) {
         const y = parseInt(val.slice(0, 4), 10);
         const m = parseInt(val.slice(4, 6), 10) - 1;
@@ -802,7 +921,6 @@
         return new Date(y, m, d, 0, 0, 0);
       }
 
-      // UTC ISO format (YYYYMMDDTHHMMSSZ)
       if (val.includes('Z')) {
         const clean = val.replace('Z', '');
         const y = parseInt(clean.slice(0, 4), 10);
@@ -814,7 +932,6 @@
         return new Date(Date.UTC(y, m, d, hh, mm, ss));
       }
 
-      // Local format
       if (val.includes('T')) {
         const parts = val.split('T');
         const y = parseInt(parts[0].slice(0, 4), 10);
@@ -842,11 +959,9 @@
         } else if (line.startsWith('END:VEVENT')) {
           inEvent = false;
           if (cur.summary && cur.start) {
-            // Generate stable deterministic ID
             const stableId = 'evt_' + btoa(encodeURIComponent(cur.summary + '_' + cur.start.getTime())).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
             cur.id = stableId;
 
-            // Merge local edits
             if (localEventOverrides[stableId]) {
               const ov = localEventOverrides[stableId];
               if (ov.summary !== undefined) cur.summary = ov.summary;
@@ -858,7 +973,6 @@
 
             parsed.push(cur);
 
-            // Expand basic weekly recursions
             if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
               for (let w = 1; w <= 4; w++) {
                 const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
@@ -884,20 +998,16 @@
         }
       }
 
-      // STABLE DETERMINISTIC SORT: Time -> Crew Hierarchy -> Alphabetical
+      // STABLE SORT: Time -> Configured Crew Hierarchy -> Alphabetical
       parsed.sort((a, b) => {
         const timeDiff = a.start.getTime() - b.start.getTime();
         if (timeDiff !== 0) return timeDiff;
 
-        const lowerA = a.summary.toLowerCase();
-        const lowerB = b.summary.toLowerCase();
-        const idxA = CREW_ORDER.findIndex(k => lowerA.includes(k));
-        const idxB = CREW_ORDER.findIndex(k => lowerB.includes(k));
-        const rankA = idxA === -1 ? 99 : idxA;
-        const rankB = idxB === -1 ? 99 : idxB;
+        const rankA = getCrewSortRank(a.summary);
+        const rankB = getCrewSortRank(b.summary);
 
         if (rankA !== rankB) return rankA - rankB;
-        return lowerA.localeCompare(lowerB);
+        return (a.summary || '').localeCompare(b.summary || '');
       });
 
       eventsDatabase = parsed;
@@ -908,6 +1018,7 @@
     // 3. RENDER VIEWS & GRID ENGINE
     // ==========================================
     function renderCurrentLayout() {
+      renderCrewLegend();
       renderCalendarGrid();
       populateTodayQueue();
     }
@@ -921,7 +1032,6 @@
 
       monthTitle.textContent = now.toLocaleDateString([], { month: 'long', year: 'numeric' });
 
-      // Clean existing cells (preserve 7 weekday headers)
       while (grid.children.length > 7) {
         grid.removeChild(grid.lastChild);
       }
@@ -930,7 +1040,6 @@
       const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
       const prevMonthLastDay = new Date(year, month, 0).getDate();
 
-      // Leading days from previous month
       for (let x = firstDayIndex; x > 0; x--) {
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell inactive';
@@ -938,7 +1047,6 @@
         grid.appendChild(cell);
       }
 
-      // Active month days
       for (let day = 1; day <= totalDaysInMonth; day++) {
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell';
@@ -950,7 +1058,6 @@
 
         cell.innerHTML = `<span class="day-num">${day}</span>`;
 
-        // Filter events for this cell's date
         const dayEvents = eventsDatabase.filter(e => {
           return e.start.getFullYear() === cellDate.getFullYear() &&
                  e.start.getMonth() === cellDate.getMonth() &&
@@ -973,7 +1080,6 @@
         grid.appendChild(cell);
       }
 
-      // Fill remaining cells for standard 35 or 42 grid
       const totalRendered = firstDayIndex + totalDaysInMonth;
       const trailingDays = totalRendered > 35 ? (42 - totalRendered) : (35 - totalRendered);
       for (let i = 1; i <= trailingDays; i++) {
@@ -1052,7 +1158,6 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-        // Simple GET fetch to bypass CORS preflight header rejection
         const res = await fetch(finalUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
 
@@ -1077,7 +1182,6 @@
       }
     }
 
-    // Countdown Polling Loop
     setInterval(() => {
       countdownSec--;
       const badge = document.getElementById('syncBadge');
@@ -1094,6 +1198,7 @@
     }, 1000);
 
     // Initial Trigger
+    renderCrewLegend();
     triggerSync();
 
     // ==========================================
@@ -1172,6 +1277,59 @@
       }
       document.getElementById('jobEditModal').style.display = 'none';
       triggerSync();
+    }
+
+    // ==========================================
+    // 6. CREW CLASSIFICATION MANAGER
+    // ==========================================
+    function openCrewManagerModal() {
+      const container = document.getElementById('crewRowsContainer');
+      container.innerHTML = '';
+      crewDefinitions.forEach(c => addCrewRow(c.name, c.keyword, c.color));
+      document.getElementById('crewModal').style.display = 'flex';
+    }
+
+    function addCrewRow(name = '', keyword = '', color = '#38bdf8') {
+      const container = document.getElementById('crewRowsContainer');
+      const row = document.createElement('div');
+      row.className = 'crew-edit-row';
+      row.innerHTML = `
+        <input type="text" class="crew-edit-input crew-val-name" placeholder="Display Name (e.g. Joe)" value="${name}" />
+        <input type="text" class="crew-edit-input crew-val-key" placeholder="Keywords (e.g. joe, joey)" value="${keyword}" />
+        <input type="color" class="crew-color-picker crew-val-color" value="${color}" />
+        <button class="btn-row-del" title="Delete Crew" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function saveCrewDefinitions() {
+      const rows = document.querySelectorAll('#crewRowsContainer .crew-edit-row');
+      const updated = [];
+      rows.forEach(r => {
+        const name = r.querySelector('.crew-val-name').value.trim();
+        const keyword = r.querySelector('.crew-val-key').value.trim();
+        const color = r.querySelector('.crew-val-color').value;
+        if (name && keyword) {
+          updated.push({ name, keyword, color });
+        }
+      });
+
+      if (updated.length > 0) {
+        crewDefinitions = updated;
+        localStorage.setItem('crew_classifications', JSON.stringify(crewDefinitions));
+      }
+
+      document.getElementById('crewModal').style.display = 'none';
+      renderCurrentLayout();
+    }
+
+    function resetCrewsToDefault() {
+      if (confirm('Reset crew classifications to original default list?')) {
+        crewDefinitions = DEFAULT_CREW_DEFINITIONS;
+        localStorage.removeItem('crew_classifications');
+        document.getElementById('crewModal').style.display = 'none';
+        renderCurrentLayout();
+      }
     }
 
     function switchLayout(layoutName) {
