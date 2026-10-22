@@ -26,12 +26,14 @@
       padding: 0;
     }
 
-    body {
+    /* Zero-Scroll Viewport Lock */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       user-select: none;
@@ -39,26 +41,25 @@
 
     /* Top Utility Bar */
     header {
+      height: 52px;
+      flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 24px;
-      background: rgba(15, 20, 28, 0.95);
+      padding: 0 clamp(12px, 1.5vw, 24px);
+      background: rgba(15, 20, 28, 0.98);
       border-bottom: 1px solid var(--card-border);
-      position: sticky;
-      top: 0;
       z-index: 100;
-      backdrop-filter: blur(8px);
     }
 
     .brand-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-logo {
-      font-size: 1.25rem;
+      font-size: clamp(1.1rem, 1.3vw, 1.35rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -76,7 +77,7 @@
       text-transform: uppercase;
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
       border: 1px solid rgba(56, 189, 248, 0.3);
     }
@@ -84,7 +85,7 @@
     .view-toggles {
       display: flex;
       background: var(--card-bg);
-      padding: 3px;
+      padding: 2px;
       border-radius: 8px;
       border: 1px solid var(--card-border);
       gap: 2px;
@@ -94,8 +95,8 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 6px 14px;
-      font-size: 0.8rem;
+      padding: 5px clamp(8px, 0.8vw, 14px);
+      font-size: 0.78rem;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -116,7 +117,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       font-weight: 500;
     }
@@ -126,6 +127,7 @@
       height: 8px;
       border-radius: 50%;
       background: #10b981;
+      flex-shrink: 0;
     }
 
     .sync-dot.busy {
@@ -136,17 +138,17 @@
     .controls-cluster {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 6px 14px;
-      font-size: 0.8rem;
+      padding: 5px 12px;
+      font-size: 0.78rem;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -170,13 +172,14 @@
       background: #0369a1;
     }
 
-    /* Primary Dashboard Grid */
+    /* Main Conforming Grid (Zero Overflow) */
     main {
       flex: 1;
-      padding: 16px 24px;
+      min-height: 0; /* Critical for CSS Grid flexbox shrink */
+      padding: 12px clamp(12px, 1.2vw, 20px);
       display: grid;
-      grid-template-columns: 240px 1fr 340px;
-      gap: 16px;
+      grid-template-columns: clamp(200px, 14vw, 250px) 1fr clamp(280px, 19vw, 360px);
+      gap: 12px;
       overflow: hidden;
     }
 
@@ -184,27 +187,28 @@
     .sidebar-left {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .widget {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 18px;
+      border-radius: 10px;
+      padding: clamp(10px, 1vw, 16px);
       display: flex;
       flex-direction: column;
     }
 
     .clock-widget {
-      align-items: flex-start;
-      justify-content: center;
+      flex-shrink: 0;
     }
 
     .time-large {
-      font-size: 3.25rem;
+      font-size: clamp(2.4rem, 2.8vw, 3.4rem);
       font-weight: 800;
-      letter-spacing: -2px;
+      letter-spacing: -1.5px;
       line-height: 1;
       display: flex;
       align-items: baseline;
@@ -212,30 +216,32 @@
     }
 
     .time-large .seconds {
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 1.2vw, 1.3rem);
       color: var(--text-muted);
       font-weight: 600;
     }
 
     .date-display {
-      font-size: 0.95rem;
+      font-size: clamp(0.8rem, 0.9vw, 0.95rem);
       font-weight: 600;
       color: var(--accent);
-      margin-top: 8px;
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .weather-widget {
-      position: relative;
-      overflow: hidden;
+      flex-shrink: 0;
     }
 
     .weather-header {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
     }
@@ -243,35 +249,38 @@
     .temp-row {
       display: flex;
       align-items: baseline;
-      gap: 10px;
+      gap: 8px;
     }
 
     .current-temp {
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 2.2vw, 2.4rem);
       font-weight: 800;
       letter-spacing: -1px;
+      line-height: 1.1;
     }
 
     .weather-desc {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       font-weight: 500;
-      margin-top: 2px;
     }
 
     .crew-bulletin {
       flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .bulletin-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
     }
 
     .bulletin-title {
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -286,9 +295,9 @@
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 6px;
-      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 0.72rem;
       transition: all 0.2s;
     }
 
@@ -298,22 +307,28 @@
     }
 
     .crew-color-legend {
+      flex: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      padding-right: 2px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
+      gap: 7px;
+      font-size: clamp(0.74rem, 0.8vw, 0.82rem);
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .legend-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 3px;
       flex-shrink: 0;
     }
@@ -322,43 +337,50 @@
     .center-view {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
     }
 
     .calendar-toolbar {
+      flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 20px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--card-border);
     }
 
     .month-title {
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 1.2vw, 1.25rem);
       font-weight: 800;
       letter-spacing: -0.5px;
     }
 
+    /* Strict Proportional Calendar Rows (Zero-Scroll Fit) */
     .calendar-grid {
       flex: 1;
+      min-height: 0;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: auto repeat(5, 1fr);
-      overflow-y: auto;
+      grid-template-rows: 28px repeat(5, minmax(0, 1fr));
+      overflow: hidden;
     }
 
     .weekday-header {
       background: rgba(15, 20, 28, 0.4);
-      padding: 8px;
-      font-size: 0.75rem;
+      padding: 4px;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-bottom: 1px solid var(--card-border);
       border-right: 1px solid var(--card-border);
     }
@@ -370,11 +392,14 @@
     .calendar-day-cell {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
-      padding: 6px;
+      padding: 4px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      min-height: 90px;
+      gap: 3px;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--card-border) transparent;
       position: relative;
     }
 
@@ -383,7 +408,7 @@
     }
 
     .calendar-day-cell.inactive {
-      opacity: 0.3;
+      opacity: 0.28;
       background: rgba(0, 0, 0, 0.15);
     }
 
@@ -393,10 +418,11 @@
     }
 
     .day-num {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text-muted);
-      margin-bottom: 2px;
+      line-height: 1;
+      margin-bottom: 1px;
     }
 
     .calendar-day-cell.today .day-num {
@@ -405,38 +431,38 @@
 
     /* Event Badges on Month Grid */
     .event-badge {
-      font-size: 0.72rem;
+      font-size: clamp(0.68rem, 0.75vw, 0.76rem);
       font-weight: 700;
-      padding: 3px 6px;
+      padding: 2px 5px;
       border-radius: 4px;
       color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: transform 0.1s ease, filter 0.1s ease;
+      line-height: 1.25;
+      flex-shrink: 0;
+      transition: filter 0.1s ease;
     }
 
     .event-badge:hover {
-      filter: brightness(1.15);
-      transform: translateY(-1px);
+      filter: brightness(1.2);
     }
 
     /* Right Sidebar: Today's Dispatch */
     .sidebar-right {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
     }
 
     .dispatch-header {
-      padding: 16px 20px;
+      flex-shrink: 0;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
@@ -444,81 +470,73 @@
     }
 
     .dispatch-title {
-      font-size: 1.1rem;
+      font-size: clamp(0.95rem, 1.1vw, 1.15rem);
       font-weight: 800;
       letter-spacing: -0.5px;
     }
 
     .dispatch-count {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
     }
 
     .dispatch-list {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
-      padding: 14px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--card-border) transparent;
     }
 
     .dispatch-card {
-      background: rgba(15, 20, 28, 0.6);
+      background: rgba(15, 20, 28, 0.65);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
-      border-radius: 8px;
-      padding: 12px 14px;
+      border-radius: 7px;
+      padding: clamp(8px, 0.8vw, 12px) clamp(10px, 0.9vw, 14px);
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
     }
 
     .dispatch-card:hover {
-      background: rgba(30, 41, 59, 0.8);
-      transform: translateX(2px);
+      background: rgba(30, 41, 59, 0.85);
     }
 
     .dispatch-card-title {
-      font-size: 0.85rem;
+      font-size: clamp(0.8rem, 0.88vw, 0.92rem);
       font-weight: 700;
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      margin-bottom: 3px;
+      line-height: 1.25;
     }
 
     .dispatch-card-time {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .dispatch-card-location {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      margin-top: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* Modal Styling */
+    /* Modals */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
       z-index: 1000;
@@ -531,16 +549,18 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 24px;
+      padding: 20px;
       width: 90%;
-      max-width: 580px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
     }
 
     .modal-title {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .modal-input {
@@ -548,11 +568,11 @@
       background: #0f141c;
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      margin-top: 6px;
-      margin-bottom: 14px;
+      padding: 9px 12px;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      margin-top: 5px;
+      margin-bottom: 12px;
       outline: none;
       font-family: inherit;
     }
@@ -568,7 +588,6 @@
       margin-top: 10px;
     }
 
-    /* Crew Manager Form Rows */
     .crew-edit-row {
       display: grid;
       grid-template-columns: 1fr 1fr 48px 36px;
@@ -583,18 +602,14 @@
       color: #fff;
       padding: 7px 10px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-family: inherit;
       outline: none;
     }
 
-    .crew-edit-input:focus {
-      border-color: var(--accent);
-    }
-
     .crew-color-picker {
       width: 100%;
-      height: 34px;
+      height: 32px;
       background: #0f141c;
       border: 1px solid var(--card-border);
       border-radius: 6px;
@@ -606,19 +621,13 @@
       background: rgba(244, 63, 94, 0.15);
       border: 1px solid rgba(244, 63, 94, 0.3);
       color: #f43f5e;
-      height: 34px;
+      height: 32px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .btn-row-del:hover {
-      background: #f43f5e;
-      color: #fff;
     }
 
     @keyframes pulse {
@@ -628,14 +637,14 @@
 
     /* Alternate Layouts */
     main.big-month-layout {
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
     }
     main.big-month-layout .sidebar-right {
       display: none;
     }
 
     main.dispatch-only-layout {
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
     }
     main.dispatch-only-layout .center-view {
       display: none;
@@ -696,9 +705,7 @@
           <div class="bulletin-title">📋 Crew Classification</div>
           <button class="btn-icon-tiny" title="Edit Crews & Colors" onclick="openCrewManagerModal()">⚙️ Edit</button>
         </div>
-        <div class="crew-color-legend" id="crewLegendContainer">
-          <!-- Dynamically populated from crew definitions -->
-        </div>
+        <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
     </aside>
 
@@ -708,7 +715,6 @@
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
       <div class="calendar-grid" id="calendarGrid">
-        <!-- Weekday Headers -->
         <div class="weekday-header">SUN</div>
         <div class="weekday-header">MON</div>
         <div class="weekday-header">TUE</div>
@@ -735,10 +741,10 @@
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
         Paste your Google Calendar iCal (.ics) address below. It will be cached for uninterrupted kiosk polling.
       </p>
-      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
       <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../public/basic.ics" />
       <div class="modal-actions">
         <button class="btn" onclick="document.getElementById('feedModal').style.display='none'">Cancel</button>
@@ -752,25 +758,25 @@
     <div class="modal-box">
       <div class="modal-title">Edit Scheduled Job</div>
 
-      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
       <input type="text" id="editJobSummary" class="modal-input" style="font-weight: 600;" />
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
           <input type="datetime-local" id="editJobStart" class="modal-input" />
         </div>
         <div>
-          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
           <input type="datetime-local" id="editJobEnd" class="modal-input" />
         </div>
       </div>
 
-      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
       <input type="text" id="editJobLocation" class="modal-input" />
 
-      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
-      <textarea id="editJobDescription" class="modal-input" style="height: 140px; resize: vertical; line-height: 1.4;"></textarea>
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
+      <textarea id="editJobDescription" class="modal-input" style="height: 130px; resize: vertical; line-height: 1.4;"></textarea>
 
       <input type="hidden" id="editJobId" />
 
@@ -786,24 +792,22 @@
 
   <!-- Crew Classification Manager Modal -->
   <div id="crewModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 620px;">
+    <div class="modal-box" style="max-width: 600px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
-        Define the crew display name, calendar matching keyword (case-insensitive), and color badge. Ordering here dictates daily calendar sort rank.
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+        Define crew display names, calendar match keywords, and colors. Ordering dictates calendar sort rank.
       </p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
         <div>Display Name</div>
         <div>Match Keyword</div>
         <div>Color</div>
         <div></div>
       </div>
 
-      <div id="crewRowsContainer" style="max-height: 280px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
-        <!-- Rows dynamically injected -->
-      </div>
+      <div id="crewRowsContainer" style="max-height: 260px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;"></div>
 
-      <button class="btn" onclick="addCrewRow('', '', '#38bdf8')" style="margin-bottom: 16px; font-size: 0.8rem;">+ Add New Crew</button>
+      <button class="btn" onclick="addCrewRow('', '', '#38bdf8')" style="margin-bottom: 14px; font-size: 0.78rem;">+ Add New Crew</button>
 
       <div class="modal-actions" style="justify-content: space-between;">
         <button class="btn" style="color: #f43f5e;" onclick="resetCrewsToDefault()">Reset Defaults</button>
@@ -816,9 +820,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // CONFIGURATION & DEDICATED WORKER PROXY
-    // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
 
@@ -828,16 +829,21 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Default Crew Classifications (Scotty assigned to Amber/Orange #d97706)
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
       { name: 'Sam', keyword: 'sam', color: '#f43f5e' },
       { name: 'Willy', keyword: 'willy', color: '#3b82f6' },
+      { name: 'Chris', keyword: 'chris', color: '#eab308' },
       { name: 'Scotty / 84 / Pickup', keyword: '84,scotty,pickup', color: '#d97706' }
     ];
 
     let crewDefinitions = JSON.parse(localStorage.getItem('crew_classifications')) || DEFAULT_CREW_DEFINITIONS;
+
+    if (!crewDefinitions.some(c => c.keyword && c.keyword.toLowerCase().includes('chris'))) {
+      crewDefinitions.splice(4, 0, { name: 'Chris', keyword: 'chris', color: '#eab308' });
+      localStorage.setItem('crew_classifications', JSON.stringify(crewDefinitions));
+    }
 
     function renderCrewLegend() {
       const container = document.getElementById('crewLegendContainer');
@@ -873,9 +879,7 @@
       return 99;
     }
 
-    // ==========================================
     // 1. CLOCK & WEATHER ENGINE
-    // ==========================================
     function updateClockDisplay() {
       const now = new Date();
       let hours = now.getHours();
@@ -907,9 +911,7 @@
     fetchWeather();
     setInterval(fetchWeather, 900000);
 
-    // ==========================================
-    // 2. ICS PARSER WITH TIMEZONE & UN-FOLDING
-    // ==========================================
+    // 2. ICS PARSER
     function parseIcsDate(raw) {
       if (!raw) return new Date();
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
@@ -998,7 +1000,6 @@
         }
       }
 
-      // STABLE SORT: Time -> Configured Crew Hierarchy -> Alphabetical
       parsed.sort((a, b) => {
         const timeDiff = a.start.getTime() - b.start.getTime();
         if (timeDiff !== 0) return timeDiff;
@@ -1014,9 +1015,7 @@
       renderCurrentLayout();
     }
 
-    // ==========================================
-    // 3. RENDER VIEWS & GRID ENGINE
-    // ==========================================
+    // 3. RENDER VIEWS
     function renderCurrentLayout() {
       renderCrewLegend();
       renderCalendarGrid();
@@ -1105,7 +1104,7 @@
       container.innerHTML = '';
 
       if (todayEvents.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No events scheduled for today.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">No events scheduled for today.</div>';
         return;
       }
 
@@ -1117,24 +1116,16 @@
 
         const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         card.innerHTML = `
-          <div class="dispatch-card-title">
-            <span>${evt.summary}</span>
-          </div>
-          <div class="dispatch-card-time">
-            <span>⏰ ${timeStr}</span>
-          </div>
-          <div class="dispatch-card-location">
-            <span>📍 ${evt.location || 'Site / Office'}</span>
-          </div>
+          <div class="dispatch-card-title">${evt.summary}</div>
+          <div class="dispatch-card-time">⏰ ${timeStr}</div>
+          <div class="dispatch-card-location">📍 ${evt.location || 'Site / Office'}</div>
         `;
         card.onclick = () => openJobEditModal(evt.id);
         container.appendChild(card);
       });
     }
 
-    // ==========================================
-    // 4. FAIL-SAFE BACKGROUND SYNC ENGINE
-    // ==========================================
+    // 4. BACKGROUND SYNC
     async function triggerSync() {
       let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       const badge = document.getElementById('syncBadge');
@@ -1197,13 +1188,10 @@
       }
     }, 1000);
 
-    // Initial Trigger
     renderCrewLegend();
     triggerSync();
 
-    // ==========================================
-    // 5. MODAL & INTERACTION HANDLERS
-    // ==========================================
+    // 5. MODAL HANDLERS
     function openFeedSetupModal() {
       const input = document.getElementById('feedUrlInput');
       input.value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
@@ -1279,9 +1267,7 @@
       triggerSync();
     }
 
-    // ==========================================
     // 6. CREW CLASSIFICATION MANAGER
-    // ==========================================
     function openCrewManagerModal() {
       const container = document.getElementById('crewRowsContainer');
       container.innerHTML = '';
@@ -1294,8 +1280,8 @@
       const row = document.createElement('div');
       row.className = 'crew-edit-row';
       row.innerHTML = `
-        <input type="text" class="crew-edit-input crew-val-name" placeholder="Display Name (e.g. Joe)" value="${name}" />
-        <input type="text" class="crew-edit-input crew-val-key" placeholder="Keywords (e.g. joe, joey)" value="${keyword}" />
+        <input type="text" class="crew-edit-input crew-val-name" placeholder="Display Name (e.g. Chris)" value="${name}" />
+        <input type="text" class="crew-edit-input crew-val-key" placeholder="Keywords (e.g. chris)" value="${keyword}" />
         <input type="color" class="crew-color-picker crew-val-color" value="${color}" />
         <button class="btn-row-del" title="Delete Crew" onclick="this.parentElement.remove()">✕</button>
       `;
