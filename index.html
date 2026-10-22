@@ -33,10 +33,9 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Screen Adaptable Root */
+    /* Base Setup */
     html, body {
       width: 100vw;
-      min-height: 100vh;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
@@ -45,23 +44,26 @@
       user-select: none;
     }
 
-    /* Desktop Viewport Lock (Screens > 1024px) */
+    /* STRICT ZERO-SCROLL FOR DESKTOP & TV MONITORS (> 1024px) */
     @media (min-width: 1025px) {
       html, body {
-        height: 100vh;
-        overflow: hidden;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
       }
     }
 
+    /* NATURAL TOUCH SCROLLING FOR MOBILE / TABLETS (<= 1024px) */
     @media (max-width: 1024px) {
       html, body {
+        height: auto;
+        min-height: 100vh;
         overflow-y: auto;
         overflow-x: hidden;
-        height: auto;
       }
     }
 
-    /* Header Container */
+    /* Top Utility Bar */
     header {
       flex-shrink: 0;
       background: rgba(18, 21, 25, 0.98);
@@ -69,8 +71,8 @@
       z-index: 100;
       display: flex;
       flex-direction: column;
-      padding: 8px clamp(12px, 1.5vw, 24px);
-      gap: 8px;
+      padding: 6px clamp(10px, 1.2vw, 20px);
+      gap: 5px;
     }
 
     .header-primary-row {
@@ -78,17 +80,17 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-logo {
-      font-size: clamp(1.15rem, 1.35vw, 1.4rem);
+      font-size: clamp(1.1rem, 1.3vw, 1.35rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -106,11 +108,11 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 3px 10px;
+      padding: 3px 9px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.35);
       letter-spacing: 0.2px;
@@ -120,8 +122,8 @@
     .sync-status {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.76rem;
+      gap: 7px;
+      font-size: 0.74rem;
       color: var(--text-muted);
       font-weight: 500;
     }
@@ -149,14 +151,14 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 5px 12px;
-      font-size: 0.78rem;
+      padding: 4px 11px;
+      font-size: 0.76rem;
       font-weight: 600;
-      border-radius: 7px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
       font-family: inherit;
     }
@@ -177,26 +179,37 @@
       border-color: var(--accent-hover);
     }
 
+    /* Hide Feed Setup on mobile devices and inside full-screen TV Kiosk mode */
+    @media (max-width: 768px) {
+      .btn-feed-setup {
+        display: none !important;
+      }
+    }
+    :fullscreen .btn-feed-setup,
+    :-webkit-full-screen .btn-feed-setup {
+      display: none !important;
+    }
+
     /* Sub-Bar: Live Conditions Strip & View Selectors */
     .header-sub-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       border-top: 1px solid rgba(44, 53, 66, 0.4);
-      padding-top: 6px;
+      padding-top: 4px;
     }
 
     .site-conditions-strip {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.78rem;
+      gap: 8px;
+      font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
       background: rgba(18, 21, 25, 0.7);
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
     }
@@ -210,7 +223,7 @@
       color: var(--accent);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       letter-spacing: 0.5px;
     }
 
@@ -218,7 +231,7 @@
       display: flex;
       background: var(--card-bg);
       padding: 2px;
-      border-radius: 8px;
+      border-radius: 7px;
       border: 1px solid var(--card-border);
       gap: 2px;
     }
@@ -227,10 +240,10 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 5px clamp(8px, 0.8vw, 14px);
-      font-size: 0.78rem;
+      padding: 4px clamp(7px, 0.7vw, 13px);
+      font-size: 0.76rem;
       font-weight: 600;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
@@ -246,19 +259,21 @@
       color: var(--accent);
     }
 
-    /* Main Conforming Grid (Desktop) */
+    /* Main Conforming Grid (Desktop/TV) */
     main {
       flex: 1;
-      padding: 12px clamp(12px, 1.2vw, 20px);
+      padding: 10px clamp(10px, 1.2vw, 18px);
       display: grid;
-      grid-template-columns: clamp(200px, 14vw, 250px) 1fr clamp(280px, 19vw, 360px);
-      gap: 12px;
+      grid-template-columns: clamp(190px, 13vw, 240px) 1fr clamp(270px, 18vw, 340px);
+      gap: 10px;
+      min-height: 0;
     }
 
     @media (min-width: 1025px) {
       main {
-        min-height: 0;
-        overflow: hidden;
+        height: calc(100vh - 90px);
+        max-height: calc(100vh - 90px);
+        overflow: hidden !important;
       }
     }
 
@@ -266,47 +281,44 @@
     .sidebar-left {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-
-    @media (min-width: 1025px) {
-      .sidebar-left {
-        min-height: 0;
-        overflow: hidden;
-      }
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .widget {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: clamp(10px, 1vw, 16px);
+      border-radius: 9px;
+      padding: clamp(8px, 0.9vw, 14px);
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
 
     .crew-bulletin {
       flex: 1;
       min-height: 0;
+      overflow: hidden;
     }
 
     .bulletin-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
 
     .bulletin-title {
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .btn-icon-tiny {
@@ -314,9 +326,9 @@
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 5px;
-      font-size: 0.72rem;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 0.7rem;
       transition: all 0.2s;
     }
 
@@ -326,24 +338,20 @@
     }
 
     .crew-color-legend {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       padding-right: 2px;
-    }
-
-    @media (min-width: 1025px) {
-      .crew-color-legend {
-        flex: 1;
-        overflow-y: auto;
-      }
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-size: clamp(0.74rem, 0.8vw, 0.82rem);
+      gap: 6px;
+      font-size: clamp(0.72rem, 0.78vw, 0.8rem);
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
@@ -351,8 +359,8 @@
     }
 
     .legend-dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 3px;
       flex-shrink: 0;
     }
@@ -361,16 +369,11 @@
     .center-view {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 9px;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
-    }
-
-    @media (min-width: 1025px) {
-      .center-view {
-        min-height: 0;
-      }
     }
 
     .calendar-toolbar {
@@ -378,55 +381,36 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-bottom: 1px solid var(--card-border);
     }
 
     .month-title {
-      font-size: clamp(1rem, 1.2vw, 1.25rem);
+      font-size: clamp(0.95rem, 1.15vw, 1.2rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
     }
 
-    /* Month Grid Template (5 rows) */
+    /* Month Grid Template (Zero-Scroll 5-Row Fixed Partitioning) */
     .calendar-grid {
+      flex: 1;
+      min-height: 0;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: 28px repeat(5, minmax(0, 1fr));
+      grid-template-rows: 24px repeat(5, minmax(0, 1fr));
+      overflow: hidden !important;
     }
 
-    @media (min-width: 1025px) {
-      .calendar-grid {
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .calendar-grid {
-        grid-template-rows: 28px repeat(5, minmax(90px, auto));
-        overflow: visible;
-      }
-    }
-
-    /* 7-Day Rolling View Template */
+    /* 7-Day Rolling View Template (1 full-height row) */
     .calendar-grid.seven-day-mode {
-      grid-template-rows: 32px minmax(0, 1fr);
-    }
-
-    @media (max-width: 1024px) {
-      .calendar-grid.seven-day-mode {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-      }
+      grid-template-rows: 28px minmax(0, 1fr) !important;
     }
 
     .weekday-header {
       background: rgba(18, 21, 25, 0.7);
-      padding: 4px;
-      font-size: 0.7rem;
+      padding: 3px;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -446,10 +430,10 @@
     .calendar-day-cell {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
-      padding: 4px;
+      padding: 3px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
       min-height: 0;
       overflow-y: auto;
       scrollbar-width: thin;
@@ -472,7 +456,7 @@
     }
 
     .day-num {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       color: var(--text-muted);
       line-height: 1;
@@ -485,9 +469,9 @@
 
     /* Event Badges on Calendar */
     .event-badge {
-      font-size: clamp(0.68rem, 0.75vw, 0.76rem);
+      font-size: clamp(0.65rem, 0.72vw, 0.74rem);
       font-weight: 700;
-      padding: 3px 6px;
+      padding: 2px 5px;
       border-radius: 4px;
       color: #ffffff;
       white-space: nowrap;
@@ -508,21 +492,16 @@
     .sidebar-right {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 9px;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
-    }
-
-    @media (min-width: 1025px) {
-      .sidebar-right {
-        min-height: 0;
-      }
     }
 
     .dispatch-header {
       flex-shrink: 0;
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
@@ -530,45 +509,40 @@
     }
 
     .dispatch-title {
-      font-size: clamp(0.95rem, 1.1vw, 1.15rem);
+      font-size: clamp(0.9rem, 1.05vw, 1.1rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
     }
 
     .dispatch-count {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.35);
     }
 
     .dispatch-list {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
-      padding: 10px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
-    }
-
-    @media (min-width: 1025px) {
-      .dispatch-list {
-        min-height: 0;
-      }
     }
 
     .dispatch-card {
       background: rgba(18, 21, 25, 0.75);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
-      border-radius: 7px;
-      padding: clamp(10px, 0.9vw, 14px);
+      border-radius: 6px;
+      padding: clamp(7px, 0.8vw, 11px);
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.15s ease, border-color 0.15s ease;
@@ -580,23 +554,23 @@
     }
 
     .dispatch-card-title {
-      font-size: clamp(0.84rem, 0.92vw, 0.96rem);
+      font-size: clamp(0.8rem, 0.88vw, 0.92rem);
       font-weight: 700;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       line-height: 1.25;
       color: #ffffff;
     }
 
     .dispatch-card-time {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       font-weight: 600;
     }
 
     .dispatch-card-location {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -619,18 +593,18 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 20px;
-      width: 100%;
-      max-width: 560px;
-      max-height: 92vh;
+      padding: 18px;
+      width: 90%;
+      max-width: 540px;
+      max-height: 90vh;
       overflow-y: auto;
       box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.75);
     }
 
     .modal-title {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 800;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       color: #ffffff;
     }
 
@@ -639,11 +613,11 @@
       background: #111418;
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 10px 12px;
-      border-radius: 7px;
-      font-size: 0.9rem;
-      margin-top: 5px;
-      margin-bottom: 12px;
+      padding: 8px 11px;
+      border-radius: 6px;
+      font-size: 0.86rem;
+      margin-top: 4px;
+      margin-bottom: 10px;
       outline: none;
       font-family: inherit;
     }
@@ -656,7 +630,7 @@
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .crew-edit-row {
@@ -671,16 +645,16 @@
       background: #111418;
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 6px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-family: inherit;
       outline: none;
     }
 
     .crew-color-picker {
       width: 100%;
-      height: 34px;
+      height: 32px;
       background: #111418;
       border: 1px solid var(--card-border);
       border-radius: 6px;
@@ -692,7 +666,7 @@
       background: rgba(244, 63, 94, 0.15);
       border: 1px solid rgba(244, 63, 94, 0.3);
       color: #f43f5e;
-      height: 34px;
+      height: 32px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
@@ -709,14 +683,14 @@
     /* Alternate Layout Modifications (Desktop) */
     @media (min-width: 1025px) {
       main.big-month-layout {
-        grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
+        grid-template-columns: clamp(190px, 13vw, 240px) 1fr;
       }
       main.big-month-layout .sidebar-right {
         display: none;
       }
 
       main.seven-day-layout {
-        grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
+        grid-template-columns: clamp(190px, 13vw, 240px) 1fr;
       }
       main.seven-day-layout .sidebar-right {
         display: none;
@@ -749,7 +723,7 @@
       .controls-cluster {
         width: 100%;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
       }
 
       .controls-cluster .btn {
@@ -783,6 +757,9 @@
         flex-direction: column;
         padding: 10px;
         gap: 12px;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
       }
 
       .sidebar-right {
@@ -799,6 +776,8 @@
 
       .calendar-grid {
         grid-template-columns: repeat(7, 1fr);
+        grid-template-rows: 28px repeat(5, minmax(75px, auto)) !important;
+        overflow: visible !important;
       }
 
       .weekday-header {
@@ -884,7 +863,7 @@
 
       <div class="controls-cluster">
         <button class="btn" style="border-color: var(--accent); color: var(--accent);" onclick="openTimeSheetModal()">⏱️ Log Hours</button>
-        <button class="btn" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
+        <button class="btn btn-feed-setup" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
         <button class="btn btn-primary" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
       </div>
     </div>
@@ -941,7 +920,7 @@
     </aside>
   </main>
 
-  <!-- Feed Setup Modal -->
+  <!-- Feed Setup Modal (Accessible only from Desktop web) -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -1388,7 +1367,7 @@
         cell.className = 'calendar-day-cell';
         if (i === 0) cell.classList.add('today');
 
-        cell.innerHTML = `<span class="day-num" style="font-size: 0.85rem; font-weight: 800; margin-bottom: 4px;">${cellDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
+        cell.innerHTML = `<span class="day-num" style="font-size: 0.82rem; font-weight: 800; margin-bottom: 3px;">${cellDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
 
         const dayEvents = eventsDatabase.filter(e => {
           return e.start.getFullYear() === cellDate.getFullYear() &&
@@ -1399,8 +1378,8 @@
         if (dayEvents.length === 0) {
           const emptyNotice = document.createElement('div');
           emptyNotice.style.color = 'var(--text-muted)';
-          emptyNotice.style.fontSize = '0.75rem';
-          emptyNotice.style.padding = '4px 0';
+          emptyNotice.style.fontSize = '0.74rem';
+          emptyNotice.style.padding = '3px 0';
           emptyNotice.textContent = 'No jobs scheduled';
           cell.appendChild(emptyNotice);
         } else {
@@ -1408,9 +1387,9 @@
             const badge = document.createElement('div');
             badge.className = 'event-badge';
             badge.style.backgroundColor = getEventColor(evt.summary);
-            badge.style.padding = '6px 8px';
-            badge.style.fontSize = '0.78rem';
-            badge.style.marginBottom = '4px';
+            badge.style.padding = '5px 7px';
+            badge.style.fontSize = '0.76rem';
+            badge.style.marginBottom = '3px';
 
             const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
             badge.textContent = `${evt.summary} (${timeStr})`;
@@ -1442,7 +1421,7 @@
       container.innerHTML = '';
 
       if (todayEvents.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No events scheduled for today.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">No events scheduled for today.</div>';
         return;
       }
 
