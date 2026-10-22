@@ -1078,38 +1078,71 @@ function openTimeSheetModal() {
   document.getElementById('timesheetModal').style.display = 'flex';
 }
 
-async function submitTimeSheet() {
-  const crew = document.getElementById('tsCrew').value;
-  const dateWorked = document.getElementById('tsDate').value;
-  const hours = document.getElementById('tsHours').value;
-  const job = document.getElementById('tsJob').value.trim();
-  const notes = document.getElementById('tsNotes').value.trim();
+async function submitTimeSheet(event) {
+  if (event) event.preventDefault();
+
+  const crewEl = document.getElementById('tsCrew');
+  const dateEl = document.getElementById('tsDate');
+  const hoursEl = document.getElementById('tsHours');
+  const jobEl = document.getElementById('tsJob');
+  const notesEl = document.getElementById('tsNotes');
   const statusEl = document.getElementById('tsSubmitStatus');
   const btn = document.getElementById('btnSubmitTS');
 
+  const crew = crewEl ? crewEl.value : '';
+  const dateWorked = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
+  const hours = hoursEl ? hoursEl.value : '';
+  const job = jobEl ? jobEl.value.trim() : '';
+  const notes = notesEl ? notesEl.value.trim() : '';
+
   if (!hours || !job) {
     statusEl.style.color = '#f43f5e';
-    statusEl.textContent = 'Please provide hours and job name.';
+    statusEl.textContent = 'Please provide both hours and a job name.';
     return;
   }
 
   statusEl.style.color = 'var(--accent)';
-  statusEl.textContent = 'Submitting...';
+  statusEl.textContent = 'Submitting to office...';
   btn.disabled = true;
+
+  const payload = {
+    crewWorker: crew,
+    dateWorked: dateWorked,
+    hours: hours,
+    jobProject: job,
+    notes: notes
+  };
+
+  console.log("Submitting timesheet payload:", payload);
 
   try {
     await fetch(TIMESHEET_ENDPOINT, {
       method: 'POST',
-      mode: 'no-cors', // Standard Google Apps Script POST behavior
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        crewWorker: crew,
-        dateWorked: dateWorked,
-        hours: hours,
-        jobProject: job,
-        notes: notes
-      })
+      mode: 'no-cors',
+      cache: 'no-cache',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(payload)
     });
+
+    console.log("Timesheet fetch request dispatched successfully.");
+    statusEl.style.color = '#10b981';
+    statusEl.textContent = '✓ Logged to Office!';
+
+    // Allow 1.5 seconds for visual confirmation before closing
+    setTimeout(() => {
+      document.getElementById('timesheetModal').style.display = 'none';
+      btn.disabled = false;
+      statusEl.textContent = '';
+    }, 1500);
+  } catch (err) {
+    console.error("Timesheet submission failed:", err);
+    statusEl.style.color = '#f43f5e';
+    statusEl.textContent = 'Network error. Check connection.';
+    btn.disabled = false;
+  }
+}
 
     statusEl.style.color = '#10b981';
     statusEl.textContent = '✓ Logged to Office!';
