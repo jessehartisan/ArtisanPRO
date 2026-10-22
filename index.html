@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArtisanPRO - Smart Office Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ArtisanPRO - Smart Office & Field Dispatch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,13 +31,13 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Zero-Scroll Viewport Lock */
+    /* Base Body - Screen Adaptable */
     html, body {
       width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
@@ -46,17 +46,36 @@
       user-select: none;
     }
 
+    /* Desktop Viewport Lock (Screens > 1024px) */
+    @media (min-width: 1025px) {
+      html, body {
+        height: 100vh;
+        overflow: hidden;
+      }
+    }
+
+    /* Mobile / Tablet Body Handling */
+    @media (max-width: 1024px) {
+      html, body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: auto;
+      }
+    }
+
     /* Top Utility Bar */
     header {
-      height: 52px;
+      min-height: 52px;
       flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 clamp(12px, 1.5vw, 24px);
+      padding: 8px clamp(12px, 1.5vw, 24px);
       background: rgba(18, 21, 25, 0.98);
       border-bottom: 1px solid var(--card-border);
       z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .brand-section {
@@ -104,13 +123,14 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 5px clamp(8px, 0.8vw, 14px);
+      padding: 6px clamp(8px, 0.8vw, 14px);
       font-size: 0.78rem;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
+      white-space: nowrap;
     }
 
     .view-btn.active, .view-btn:hover {
@@ -154,7 +174,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 5px 12px;
+      padding: 6px 12px;
       font-size: 0.78rem;
       font-weight: 600;
       border-radius: 7px;
@@ -182,15 +202,20 @@
       border-color: var(--accent-hover);
     }
 
-    /* Main Conforming Grid (Zero Overflow) */
+    /* Main Conforming Grid (Desktop Default) */
     main {
       flex: 1;
-      min-height: 0;
       padding: 12px clamp(12px, 1.2vw, 20px);
       display: grid;
       grid-template-columns: clamp(200px, 14vw, 250px) 1fr clamp(280px, 19vw, 360px);
       gap: 12px;
-      overflow: hidden;
+    }
+
+    @media (min-width: 1025px) {
+      main {
+        min-height: 0;
+        overflow: hidden;
+      }
     }
 
     /* Left Sidebar */
@@ -198,8 +223,13 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-height: 0;
-      overflow: hidden;
+    }
+
+    @media (min-width: 1025px) {
+      .sidebar-left {
+        min-height: 0;
+        overflow: hidden;
+      }
     }
 
     .widget {
@@ -280,7 +310,6 @@
     .crew-bulletin {
       flex: 1;
       min-height: 0;
-      overflow: hidden;
     }
 
     .bulletin-header-row {
@@ -319,12 +348,17 @@
     }
 
     .crew-color-legend {
-      flex: 1;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 6px;
       padding-right: 2px;
+    }
+
+    @media (min-width: 1025px) {
+      .crew-color-legend {
+        flex: 1;
+        overflow-y: auto;
+      }
     }
 
     .legend-item {
@@ -352,8 +386,13 @@
       border-radius: 10px;
       display: flex;
       flex-direction: column;
-      min-height: 0;
       overflow: hidden;
+    }
+
+    @media (min-width: 1025px) {
+      .center-view {
+        min-height: 0;
+      }
     }
 
     .calendar-toolbar {
@@ -372,19 +411,38 @@
       color: #ffffff;
     }
 
-    /* Month Grid Template (5 rows) */
+    /* Month Grid Template (Desktop 5-row proportional lock) */
     .calendar-grid {
-      flex: 1;
-      min-height: 0;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: 28px repeat(5, minmax(0, 1fr));
-      overflow: hidden;
     }
 
-    /* 7-Day Rolling View Template (1 full-height row) */
+    @media (min-width: 1025px) {
+      .calendar-grid {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .calendar-grid {
+        grid-template-rows: 28px repeat(5, minmax(90px, auto));
+        overflow: visible;
+      }
+    }
+
+    /* 7-Day Rolling View Template */
     .calendar-grid.seven-day-mode {
       grid-template-rows: 32px minmax(0, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+      .calendar-grid.seven-day-mode {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
     }
 
     .weekday-header {
@@ -451,7 +509,7 @@
     .event-badge {
       font-size: clamp(0.68rem, 0.75vw, 0.76rem);
       font-weight: 700;
-      padding: 2px 5px;
+      padding: 3px 6px;
       border-radius: 4px;
       color: #ffffff;
       white-space: nowrap;
@@ -475,8 +533,13 @@
       border-radius: 10px;
       display: flex;
       flex-direction: column;
-      min-height: 0;
       overflow: hidden;
+    }
+
+    @media (min-width: 1025px) {
+      .sidebar-right {
+        min-height: 0;
+      }
     }
 
     .dispatch-header {
@@ -507,7 +570,6 @@
 
     .dispatch-list {
       flex: 1;
-      min-height: 0;
       overflow-y: auto;
       padding: 10px;
       display: flex;
@@ -517,12 +579,18 @@
       scrollbar-color: var(--card-border) transparent;
     }
 
+    @media (min-width: 1025px) {
+      .dispatch-list {
+        min-height: 0;
+      }
+    }
+
     .dispatch-card {
       background: rgba(18, 21, 25, 0.75);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
       border-radius: 7px;
-      padding: clamp(8px, 0.8vw, 12px) clamp(10px, 0.9vw, 14px);
+      padding: clamp(10px, 0.9vw, 14px);
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.15s ease, border-color 0.15s ease;
@@ -534,7 +602,7 @@
     }
 
     .dispatch-card-title {
-      font-size: clamp(0.8rem, 0.88vw, 0.92rem);
+      font-size: clamp(0.84rem, 0.92vw, 0.96rem);
       font-weight: 700;
       margin-bottom: 3px;
       line-height: 1.25;
@@ -542,15 +610,15 @@
     }
 
     .dispatch-card-time {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 600;
     }
 
     .dispatch-card-location {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 3px;
+      margin-top: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -560,12 +628,13 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(10, 12, 15, 0.82);
+      background: rgba(10, 12, 15, 0.85);
       backdrop-filter: blur(5px);
       z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
+      padding: 12px;
     }
 
     .modal-box {
@@ -573,9 +642,9 @@
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 20px;
-      width: 90%;
+      width: 100%;
       max-width: 560px;
-      max-height: 90vh;
+      max-height: 92vh;
       overflow-y: auto;
       box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.75);
     }
@@ -592,9 +661,9 @@
       background: #111418;
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 9px 12px;
+      padding: 10px 12px;
       border-radius: 7px;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       margin-top: 5px;
       margin-bottom: 12px;
       outline: none;
@@ -624,16 +693,16 @@
       background: #111418;
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-radius: 6px;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       font-family: inherit;
       outline: none;
     }
 
     .crew-color-picker {
       width: 100%;
-      height: 32px;
+      height: 34px;
       background: #111418;
       border: 1px solid var(--card-border);
       border-radius: 6px;
@@ -645,7 +714,7 @@
       background: rgba(244, 63, 94, 0.15);
       border: 1px solid rgba(244, 63, 94, 0.3);
       color: #f43f5e;
-      height: 32px;
+      height: 34px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
@@ -659,19 +728,165 @@
       100% { opacity: 1; }
     }
 
-    /* Alternate Layout Modifications */
-    main.big-month-layout {
-      grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
-    }
-    main.big-month-layout .sidebar-right {
-      display: none;
+    /* Alternate Layout Modifications (Desktop) */
+    @media (min-width: 1025px) {
+      main.big-month-layout {
+        grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
+      }
+      main.big-month-layout .sidebar-right {
+        display: none;
+      }
+
+      main.seven-day-layout {
+        grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
+      }
+      main.seven-day-layout .sidebar-right {
+        display: none;
+      }
     }
 
-    main.seven-day-layout {
-      grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
+    /* ========================================================
+       RESPONSIVE ADAPTATIONS: TABLETS (769px - 1024px)
+       ======================================================== */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      main {
+        grid-template-columns: 240px 1fr;
+        gap: 12px;
+      }
+      .sidebar-right {
+        grid-column: 1 / -1;
+      }
     }
-    main.seven-day-layout .sidebar-right {
-      display: none;
+
+    /* ========================================================
+       RESPONSIVE ADAPTATIONS: MOBILE PHONES (<= 768px)
+       ======================================================== */
+    @media (max-width: 768px) {
+      header {
+        padding: 10px 14px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .brand-section {
+        justify-content: space-between;
+      }
+
+      .view-toggles {
+        order: 3;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .view-btn {
+        text-align: center;
+        padding: 8px 4px;
+      }
+
+      .sync-status {
+        order: 2;
+        justify-content: space-between;
+      }
+
+      .controls-cluster {
+        order: 4;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .controls-cluster .btn {
+        justify-content: center;
+        padding: 8px;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 12px;
+      }
+
+      /* Elevate Today's Dispatch to top for field crews */
+      .sidebar-right {
+        order: 1;
+      }
+
+      .center-view {
+        order: 2;
+      }
+
+      .sidebar-left {
+        order: 3;
+      }
+
+      .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .weekday-header {
+        font-size: 0.65rem;
+        padding: 6px 2px;
+      }
+
+      .calendar-day-cell {
+        min-height: 80px;
+        padding: 3px;
+      }
+
+      .day-num {
+        font-size: 0.75rem;
+      }
+
+      .event-badge {
+        font-size: 0.72rem;
+        padding: 4px;
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      /* 7-Day View Single-Column Stack on Mobile */
+      .calendar-grid.seven-day-mode {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .calendar-grid.seven-day-mode .weekday-header {
+        display: none;
+      }
+
+      .calendar-grid.seven-day-mode .calendar-day-cell {
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        min-height: auto;
+        padding: 10px;
+        background: rgba(18, 21, 25, 0.6);
+      }
+
+      .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .modal-box {
+        padding: 16px;
+      }
+
+      .crew-edit-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .crew-color-picker {
+        grid-column: 1 / 2;
+      }
+
+      .btn-row-del {
+        grid-column: 2 / 3;
+      }
     }
   </style>
 </head>
@@ -681,7 +896,7 @@
   <header>
     <div class="brand-section">
       <div class="brand-logo">Artisan<span>PRO</span></div>
-      <div class="badge-live">OFFICE LIVE</div>
+      <div class="badge-live">OFFICE & FIELD LIVE</div>
     </div>
 
     <div class="view-toggles">
@@ -691,8 +906,10 @@
     </div>
 
     <div class="sync-status">
-      <div id="syncDot" class="sync-dot"></div>
-      <span id="syncBadge">Syncing...</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div id="syncDot" class="sync-dot"></div>
+        <span id="syncBadge">Syncing...</span>
+      </div>
     </div>
 
     <div class="controls-cluster">
@@ -743,7 +960,7 @@
       </div>
     </section>
 
-    <!-- Right Sidebar -->
+    <!-- Right Sidebar: Today's Dispatch -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
@@ -760,7 +977,7 @@
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
       <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
-        Paste your Google Calendar iCal (.ics) address below. It will be cached for uninterrupted kiosk polling.
+        Paste your Google Calendar iCal (.ics) address below. It will be cached for uninterrupted polling.
       </p>
       <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
       <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../public/basic.ics" />
@@ -794,12 +1011,12 @@
       <input type="text" id="editJobLocation" class="modal-input" />
 
       <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
-      <textarea id="editJobDescription" class="modal-input" style="height: 130px; resize: vertical; line-height: 1.4;"></textarea>
+      <textarea id="editJobDescription" class="modal-input" style="height: 140px; resize: vertical; line-height: 1.4;"></textarea>
 
       <input type="hidden" id="editJobId" />
 
       <div class="modal-actions" style="justify-content: space-between;">
-        <button class="btn" style="color: #f43f5e;" onclick="revertJobOverrides()">Reset to Calendar Feed</button>
+        <button class="btn" style="color: #f43f5e;" onclick="revertJobOverrides()">Reset to Feed</button>
         <div style="display: flex; gap: 8px;">
           <button class="btn" onclick="document.getElementById('jobEditModal').style.display='none'">Cancel</button>
           <button class="btn btn-primary" onclick="saveJobEdits()">Save Changes</button>
@@ -847,7 +1064,6 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Crew color assignments remain intact
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1118,7 +1334,7 @@
       }
     }
 
-    // 7-Day Rolling Calendar View Engine
+    // 7-Day Rolling Calendar View Engine (Auto-stacks vertically on phones)
     function renderSevenDayGrid() {
       const grid = document.getElementById('calendarGrid');
       const heading = document.getElementById('calendarMonthHeading');
@@ -1131,6 +1347,7 @@
       endDay.setDate(now.getDate() + 6);
       heading.textContent = `7-Day Outlook (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
 
+      // Only add header row for wide screens (hidden via CSS on phones)
       for (let i = 0; i < 7; i++) {
         const d = new Date(now);
         d.setDate(now.getDate() + i);
@@ -1149,7 +1366,7 @@
         cell.className = 'calendar-day-cell';
         if (i === 0) cell.classList.add('today');
 
-        cell.innerHTML = `<span class="day-num" style="font-size: 0.85rem; font-weight: 800; margin-bottom: 4px;">${cellDate.toLocaleDateString([], { weekday: 'short' })} ${cellDate.getDate()}</span>`;
+        cell.innerHTML = `<span class="day-num" style="font-size: 0.85rem; font-weight: 800; margin-bottom: 4px;">${cellDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
 
         const dayEvents = eventsDatabase.filter(e => {
           return e.start.getFullYear() === cellDate.getFullYear() &&
@@ -1157,23 +1374,32 @@
                  e.start.getDate() === cellDate.getDate();
         });
 
-        dayEvents.forEach(evt => {
-          const badge = document.createElement('div');
-          badge.className = 'event-badge';
-          badge.style.backgroundColor = getEventColor(evt.summary);
-          badge.style.padding = '4px 6px';
-          badge.style.fontSize = '0.78rem';
-          badge.style.marginBottom = '2px';
+        if (dayEvents.length === 0) {
+          const emptyNotice = document.createElement('div');
+          emptyNotice.style.color = 'var(--text-muted)';
+          emptyNotice.style.fontSize = '0.75rem';
+          emptyNotice.style.padding = '4px 0';
+          emptyNotice.textContent = 'No jobs scheduled';
+          cell.appendChild(emptyNotice);
+        } else {
+          dayEvents.forEach(evt => {
+            const badge = document.createElement('div');
+            badge.className = 'event-badge';
+            badge.style.backgroundColor = getEventColor(evt.summary);
+            badge.style.padding = '6px 8px';
+            badge.style.fontSize = '0.78rem';
+            badge.style.marginBottom = '4px';
 
-          const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-          badge.textContent = `${evt.summary} (${timeStr})`;
-          badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
-          badge.onclick = (e) => {
-            e.stopPropagation();
-            openJobEditModal(evt.id);
-          };
-          cell.appendChild(badge);
-        });
+            const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            badge.textContent = `${evt.summary} (${timeStr})`;
+            badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
+            badge.onclick = (e) => {
+              e.stopPropagation();
+              openJobEditModal(evt.id);
+            };
+            cell.appendChild(badge);
+          });
+        }
 
         grid.appendChild(cell);
       }
@@ -1194,7 +1420,7 @@
       container.innerHTML = '';
 
       if (todayEvents.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">No events scheduled for today.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No events scheduled for today.</div>';
         return;
       }
 
