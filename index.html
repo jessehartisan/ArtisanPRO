@@ -175,7 +175,7 @@
     /* Main Conforming Grid (Zero Overflow) */
     main {
       flex: 1;
-      min-height: 0; /* Critical for CSS Grid flexbox shrink */
+      min-height: 0;
       padding: 12px clamp(12px, 1.2vw, 20px);
       display: grid;
       grid-template-columns: clamp(200px, 14vw, 250px) 1fr clamp(280px, 19vw, 360px);
@@ -359,7 +359,7 @@
       letter-spacing: -0.5px;
     }
 
-    /* Strict Proportional Calendar Rows (Zero-Scroll Fit) */
+    /* Month Grid Template (5 rows) */
     .calendar-grid {
       flex: 1;
       min-height: 0;
@@ -367,6 +367,11 @@
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: 28px repeat(5, minmax(0, 1fr));
       overflow: hidden;
+    }
+
+    /* 7-Day Rolling View Template (1 full-height row) */
+    .calendar-grid.seven-day-mode {
+      grid-template-rows: 32px minmax(0, 1fr);
     }
 
     .weekday-header {
@@ -429,7 +434,7 @@
       color: var(--accent);
     }
 
-    /* Event Badges on Month Grid */
+    /* Event Badges on Calendar */
     .event-badge {
       font-size: clamp(0.68rem, 0.75vw, 0.76rem);
       font-weight: 700;
@@ -635,7 +640,7 @@
       100% { opacity: 1; }
     }
 
-    /* Alternate Layouts */
+    /* Alternate Layout Modifications */
     main.big-month-layout {
       grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
     }
@@ -643,10 +648,10 @@
       display: none;
     }
 
-    main.dispatch-only-layout {
+    main.seven-day-layout {
       grid-template-columns: clamp(200px, 14vw, 250px) 1fr;
     }
-    main.dispatch-only-layout .center-view {
+    main.seven-day-layout .sidebar-right {
       display: none;
     }
   </style>
@@ -663,7 +668,7 @@
     <div class="view-toggles">
       <button class="view-btn active" onclick="switchLayout('split')">DAK Split</button>
       <button class="view-btn" onclick="switchLayout('big-month')">Big Month</button>
-      <button class="view-btn" onclick="switchLayout('dispatch')">7-Day Dispatch</button>
+      <button class="view-btn" onclick="switchLayout('7-day')">7-Day View</button>
     </div>
 
     <div class="sync-status">
@@ -715,13 +720,7 @@
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
       <div class="calendar-grid" id="calendarGrid">
-        <div class="weekday-header">SUN</div>
-        <div class="weekday-header">MON</div>
-        <div class="weekday-header">TUE</div>
-        <div class="weekday-header">WED</div>
-        <div class="weekday-header">THU</div>
-        <div class="weekday-header">FRI</div>
-        <div class="weekday-header">SAT</div>
+        <!-- Rendered dynamically -->
       </div>
     </section>
 
@@ -1018,7 +1017,11 @@
     // 3. RENDER VIEWS
     function renderCurrentLayout() {
       renderCrewLegend();
-      renderCalendarGrid();
+      if (currentLayout === '7-day') {
+        renderSevenDayGrid();
+      } else {
+        renderCalendarGrid();
+      }
       populateTodayQueue();
     }
 
@@ -1029,11 +1032,17 @@
       const year = now.getFullYear();
       const month = now.getMonth();
 
+      grid.classList.remove('seven-day-mode');
       monthTitle.textContent = now.toLocaleDateString([], { month: 'long', year: 'numeric' });
-
-      while (grid.children.length > 7) {
-        grid.removeChild(grid.lastChild);
-      }
+      grid.innerHTML = `
+        <div class="weekday-header">SUN</div>
+        <div class="weekday-header">MON</div>
+        <div class="weekday-header">TUE</div>
+        <div class="weekday-header">WED</div>
+        <div class="weekday-header">THU</div>
+        <div class="weekday-header">FRI</div>
+        <div class="weekday-header">SAT</div>
+      `;
 
       const firstDayIndex = new Date(year, month, 1).getDay();
       const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
@@ -1085,6 +1094,69 @@
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell inactive';
         cell.innerHTML = `<span class="day-num">${i}</span>`;
+        grid.appendChild(cell);
+      }
+    }
+
+    // 7-Day Rolling Calendar View Engine
+    function renderSevenDayGrid() {
+      const grid = document.getElementById('calendarGrid');
+      const heading = document.getElementById('calendarMonthHeading');
+      const now = new Date();
+
+      grid.classList.add('seven-day-mode');
+      grid.innerHTML = '';
+
+      const endDay = new Date(now);
+      endDay.setDate(now.getDate() + 6);
+      heading.textContent = `7-Day Outlook (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
+
+      // 7 Weekday Headers starting with today
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        const header = document.createElement('div');
+        header.className = 'weekday-header';
+        header.textContent = d.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' });
+        if (i === 0) header.style.color = 'var(--accent)';
+        grid.appendChild(header);
+      }
+
+      // 7 Full-Height Day Cells
+      for (let i = 0; i < 7; i++) {
+        const cellDate = new Date(now);
+        cellDate.setDate(now.getDate() + i);
+
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell';
+        if (i === 0) cell.classList.add('today');
+
+        cell.innerHTML = `<span class="day-num" style="font-size: 0.85rem; font-weight: 800; margin-bottom: 4px;">${cellDate.toLocaleDateString([], { weekday: 'short' })} ${cellDate.getDate()}</span>`;
+
+        const dayEvents = eventsDatabase.filter(e => {
+          return e.start.getFullYear() === cellDate.getFullYear() &&
+                 e.start.getMonth() === cellDate.getMonth() &&
+                 e.start.getDate() === cellDate.getDate();
+        });
+
+        dayEvents.forEach(evt => {
+          const badge = document.createElement('div');
+          badge.className = 'event-badge';
+          badge.style.backgroundColor = getEventColor(evt.summary);
+          badge.style.padding = '4px 6px';
+          badge.style.fontSize = '0.78rem';
+          badge.style.marginBottom = '2px';
+
+          const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          badge.textContent = `${evt.summary} (${timeStr})`;
+          badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
+          badge.onclick = (e) => {
+            e.stopPropagation();
+            openJobEditModal(evt.id);
+          };
+          cell.appendChild(badge);
+        });
+
         grid.appendChild(cell);
       }
     }
@@ -1318,7 +1390,9 @@
       }
     }
 
+    // View Switching Logic
     function switchLayout(layoutName) {
+      currentLayout = layoutName;
       const container = document.getElementById('mainContainer');
       const buttons = document.querySelectorAll('.view-btn');
       buttons.forEach(b => b.classList.remove('active'));
@@ -1326,12 +1400,14 @@
       container.className = '';
       if (layoutName === 'big-month') {
         container.classList.add('big-month-layout');
-      } else if (layoutName === 'dispatch') {
-        container.classList.add('dispatch-only-layout');
+      } else if (layoutName === '7-day') {
+        container.classList.add('seven-day-layout');
       }
 
       const activeBtn = Array.from(buttons).find(b => b.getAttribute('onclick').includes(layoutName));
       if (activeBtn) activeBtn.classList.add('active');
+
+      renderCurrentLayout();
     }
 
     function toggleFullScreen() {
