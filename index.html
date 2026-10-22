@@ -101,7 +101,7 @@
       color: var(--accent);
     }
 
-    /* Compact Live Date & Time Ticker (Replaces Badge) */
+    /* Compact Live Date & Time Ticker */
     .compact-datetime-ticker {
       display: flex;
       align-items: center;
@@ -177,7 +177,7 @@
       border-color: var(--accent-hover);
     }
 
-    /* Sub-Bar: Static Conditions Strip & View Selectors */
+    /* Sub-Bar: Live Conditions Strip & View Selectors */
     .header-sub-row {
       display: flex;
       justify-content: space-between;
@@ -188,7 +188,6 @@
       padding-top: 6px;
     }
 
-    /* Site Conditions Strip */
     .site-conditions-strip {
       display: flex;
       align-items: center;
@@ -390,7 +389,7 @@
       color: #ffffff;
     }
 
-    /* Month Grid Template (Desktop 5-row proportional lock) */
+    /* Month Grid Template (5 rows) */
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -750,11 +749,13 @@
       .controls-cluster {
         width: 100%;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
       }
 
       .controls-cluster .btn {
         justify-content: center;
+        padding: 7px 4px;
+        font-size: 0.74rem;
       }
 
       .header-sub-row {
@@ -869,7 +870,7 @@
 
   <!-- Top Navigation & Status Header -->
   <header>
-    <!-- Row 1: Brand, Date/Time Ticker, Sync Dot, Kiosk Controls -->
+    <!-- Row 1: Brand, Date/Time Ticker, Sync Dot, Controls -->
     <div class="header-primary-row">
       <div class="brand-section">
         <div class="brand-logo">Artisan<span>PRO</span></div>
@@ -882,8 +883,8 @@
       </div>
 
       <div class="controls-cluster">
-        <button class="btn" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
         <button class="btn" style="border-color: var(--accent); color: var(--accent);" onclick="openTimeSheetModal()">⏱️ Log Hours</button>
+        <button class="btn" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
         <button class="btn btn-primary" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
       </div>
     </div>
@@ -894,7 +895,7 @@
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
-        <span style="color: var(--text-muted); font-size: 0.72rem;">• Clear</span>
+        <span style="color: var(--text-muted); font-size: 0.72rem;">• Live</span>
       </div>
 
       <div class="view-toggles">
@@ -938,49 +939,6 @@
         <div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">Loading today's queue...</div>
       </div>
     </aside>
-
-    <!-- Time Sheet Modal -->
-<div id="timesheetModal" class="modal-overlay">
-  <div class="modal-box" style="max-width: 520px;">
-    <div class="modal-title">⏱️ Submit Field Time Sheet</div>
-    
-    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
-    <select id="tsCrew" class="modal-input" style="font-weight: 600;">
-      <option value="Joe">Amish Joe</option>
-      <option value="Joseph">Amish Joseph</option>
-      <option value="Sam">Amish Sam</option>
-      <option value="Willy">Amish Willy</option>
-      <option value="Chris">Chris</option>
-      <option value="Scotty">Scotty</option>
-      <option value="Other">Other / Sub</option>
-    </select>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
-        <input type="date" id="tsDate" class="modal-input" />
-      </div>
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
-        <input type="number" step="0.25" id="tsHours" class="modal-input" placeholder="8.0" />
-      </div>
-    </div>
-
-    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
-    <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
-
-    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope / Work Performed & Material Notes</label>
-    <textarea id="tsNotes" class="modal-input" style="height: 100px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
-
-    <div class="modal-actions" style="justify-content: space-between;">
-      <span id="tsSubmitStatus" style="font-size: 0.8rem; font-weight: 600; align-self: center;"></span>
-      <div style="display: flex; gap: 8px;">
-        <button class="btn" onclick="document.getElementById('timesheetModal').style.display='none'">Cancel</button>
-        <button class="btn btn-primary" id="btnSubmitTS" onclick="submitTimeSheet()">Submit Hours</button>
-      </div>
-    </div>
-  </div>
-</div>
   </main>
 
   <!-- Feed Setup Modal -->
@@ -1065,99 +1023,58 @@
     </div>
   </div>
 
+  <!-- Field Time Sheet Modal -->
+  <div id="timesheetModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 520px;">
+      <div class="modal-title">⏱️ Submit Field Time Sheet</div>
+
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
+      <select id="tsCrew" class="modal-input" style="font-weight: 600;">
+        <option value="Amish Joe">Amish Joe</option>
+        <option value="Amish Joseph">Amish Joseph</option>
+        <option value="Amish Sam">Amish Sam</option>
+        <option value="Amish Willy">Amish Willy</option>
+        <option value="Chris">Chris</option>
+        <option value="Scotty">Scotty</option>
+        <option value="Other">Other / Subcontractor</option>
+      </select>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
+          <input type="date" id="tsDate" class="modal-input" />
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
+          <input type="number" step="0.25" id="tsHours" class="modal-input" placeholder="8.0" />
+        </div>
+      </div>
+
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
+      <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
+
+      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
+      <textarea id="tsNotes" class="modal-input" style="height: 110px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+
+      <div class="modal-actions" style="justify-content: space-between;">
+        <span id="tsSubmitStatus" style="font-size: 0.8rem; font-weight: 700; align-self: center;"></span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" onclick="document.getElementById('timesheetModal').style.display='none'">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnSubmitTS" onclick="submitTimeSheet(event)">Submit Hours</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
-
-function openTimeSheetModal() {
-  document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('tsHours').value = '';
-  document.getElementById('tsJob').value = '';
-  document.getElementById('tsNotes').value = '';
-  document.getElementById('tsSubmitStatus').textContent = '';
-  document.getElementById('btnSubmitTS').disabled = false;
-  document.getElementById('timesheetModal').style.display = 'flex';
-}
-
-async function submitTimeSheet(event) {
-  if (event) event.preventDefault();
-
-  const crewEl = document.getElementById('tsCrew');
-  const dateEl = document.getElementById('tsDate');
-  const hoursEl = document.getElementById('tsHours');
-  const jobEl = document.getElementById('tsJob');
-  const notesEl = document.getElementById('tsNotes');
-  const statusEl = document.getElementById('tsSubmitStatus');
-  const btn = document.getElementById('btnSubmitTS');
-
-  const crew = crewEl ? crewEl.value : '';
-  const dateWorked = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
-  const hours = hoursEl ? hoursEl.value : '';
-  const job = jobEl ? jobEl.value.trim() : '';
-  const notes = notesEl ? notesEl.value.trim() : '';
-
-  if (!hours || !job) {
-    statusEl.style.color = '#f43f5e';
-    statusEl.textContent = 'Please provide both hours and a job name.';
-    return;
-  }
-
-  statusEl.style.color = 'var(--accent)';
-  statusEl.textContent = 'Submitting to office...';
-  btn.disabled = true;
-
-  const payload = {
-    crewWorker: crew,
-    dateWorked: dateWorked,
-    hours: hours,
-    jobProject: job,
-    notes: notes
-  };
-
-  console.log("Submitting timesheet payload:", payload);
-
-  try {
-    await fetch(TIMESHEET_ENDPOINT, {
-      method: 'POST',
-      mode: 'no-cors',
-      cache: 'no-cache',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    console.log("Timesheet fetch request dispatched successfully.");
-    statusEl.style.color = '#10b981';
-    statusEl.textContent = '✓ Logged to Office!';
-
-    // Allow 1.5 seconds for visual confirmation before closing
-    setTimeout(() => {
-      document.getElementById('timesheetModal').style.display = 'none';
-      btn.disabled = false;
-      statusEl.textContent = '';
-    }, 1500);
-  } catch (err) {
-    console.error("Timesheet submission failed:", err);
-    statusEl.style.color = '#f43f5e';
-    statusEl.textContent = 'Network error. Check connection.';
-    btn.disabled = false;
-  }
-}
-
-    statusEl.style.color = '#10b981';
-    statusEl.textContent = '✓ Logged to Office!';
-    setTimeout(() => {
-      document.getElementById('timesheetModal').style.display = 'none';
-    }, 1200);
-  } catch (err) {
-    statusEl.style.color = '#f43f5e';
-    statusEl.textContent = 'Submission error. Try again.';
-    btn.disabled = false;
-  }
-}
-    
+    // ==========================================
+    // CONFIGURATION & WORKER PROXY
+    // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
+    
+    // Configured Google Apps Script Web App Endpoint
+    const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
 
     let eventsDatabase = [];
     let currentLayout = 'split';
@@ -1215,7 +1132,9 @@ async function submitTimeSheet(event) {
       return 99;
     }
 
+    // ==========================================
     // 1. DATE, TIME TICKER & WEATHER ENGINE
+    // ==========================================
     function updateHeaderTicker() {
       const now = new Date();
       let hours = now.getHours();
@@ -1246,7 +1165,9 @@ async function submitTimeSheet(event) {
     fetchWeather();
     setInterval(fetchWeather, 900000);
 
+    // ==========================================
     // 2. ICS PARSER
+    // ==========================================
     function parseIcsDate(raw) {
       if (!raw) return new Date();
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
@@ -1350,7 +1271,9 @@ async function submitTimeSheet(event) {
       renderCurrentLayout();
     }
 
+    // ==========================================
     // 3. RENDER VIEWS
+    // ==========================================
     function renderCurrentLayout() {
       renderCrewLegend();
       if (currentLayout === '7-day') {
@@ -1540,7 +1463,9 @@ async function submitTimeSheet(event) {
       });
     }
 
+    // ==========================================
     // 4. BACKGROUND SYNC
+    // ==========================================
     async function triggerSync() {
       let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       const badge = document.getElementById('syncBadge');
@@ -1606,7 +1531,9 @@ async function submitTimeSheet(event) {
     renderCrewLegend();
     triggerSync();
 
+    // ==========================================
     // 5. MODAL HANDLERS
+    // ==========================================
     function openFeedSetupModal() {
       const input = document.getElementById('feedUrlInput');
       input.value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
@@ -1682,7 +1609,9 @@ async function submitTimeSheet(event) {
       triggerSync();
     }
 
+    // ==========================================
     // 6. CREW CLASSIFICATION MANAGER
+    // ==========================================
     function openCrewManagerModal() {
       const container = document.getElementById('crewRowsContainer');
       container.innerHTML = '';
@@ -1730,6 +1659,81 @@ async function submitTimeSheet(event) {
         localStorage.removeItem('crew_classifications');
         document.getElementById('crewModal').style.display = 'none';
         renderCurrentLayout();
+      }
+    }
+
+    // ==========================================
+    // 7. FIELD TIME SHEET HANDLER
+    // ==========================================
+    function openTimeSheetModal() {
+      document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('tsHours').value = '';
+      document.getElementById('tsJob').value = '';
+      document.getElementById('tsNotes').value = '';
+      document.getElementById('tsSubmitStatus').textContent = '';
+      document.getElementById('btnSubmitTS').disabled = false;
+      document.getElementById('timesheetModal').style.display = 'flex';
+    }
+
+    async function submitTimeSheet(event) {
+      if (event) event.preventDefault();
+
+      const crewEl = document.getElementById('tsCrew');
+      const dateEl = document.getElementById('tsDate');
+      const hoursEl = document.getElementById('tsHours');
+      const jobEl = document.getElementById('tsJob');
+      const notesEl = document.getElementById('tsNotes');
+      const statusEl = document.getElementById('tsSubmitStatus');
+      const btn = document.getElementById('btnSubmitTS');
+
+      const crew = crewEl ? crewEl.value : '';
+      const dateWorked = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
+      const hours = hoursEl ? hoursEl.value : '';
+      const job = jobEl ? jobEl.value.trim() : '';
+      const notes = notesEl ? notesEl.value.trim() : '';
+
+      if (!hours || !job) {
+        statusEl.style.color = '#f43f5e';
+        statusEl.textContent = 'Please provide both hours and job name.';
+        return;
+      }
+
+      statusEl.style.color = 'var(--accent)';
+      statusEl.textContent = 'Submitting to office...';
+      btn.disabled = true;
+
+      const payload = {
+        crewWorker: crew,
+        dateWorked: dateWorked,
+        hours: hours,
+        jobProject: job,
+        notes: notes
+      };
+
+      try {
+        await fetch(TIMESHEET_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        statusEl.style.color = '#10b981';
+        statusEl.textContent = '✓ Logged to Office!';
+
+        setTimeout(() => {
+          document.getElementById('timesheetModal').style.display = 'none';
+          btn.disabled = false;
+          statusEl.textContent = '';
+        }, 1400);
+      } catch (err) {
+        console.error("Timesheet submission error:", err);
+        statusEl.style.color = '#f43f5e';
+        statusEl.textContent = 'Network error. Try again.';
+        btn.disabled = false;
       }
     }
 
