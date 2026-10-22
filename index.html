@@ -473,54 +473,94 @@
     }
 
     // ==========================================
-    // 2. ICS PARSER WITH RRULE SUPPORT
-    // ==========================================
-    function parseIcsDate(raw) {
-      if (!raw) return new Date();
-      const val = raw.split(':')[1] || raw;
-      if (val.length === 8) {
-        return new Date(parseInt(val.slice(0, 4)), parseInt(val.slice(4, 6)) - 1, parseInt(val.slice(6, 8)));
-      }
-      return new Date(val.replace(/(Z|T)/g, ' ').trim());
-    }
+// 2. ENHANCED ICS PARSER & TIMEZONE HANDLER
+// ==========================================
+function parseIcsDate(raw) {
+  if (!raw) return new Date();
+  // Strip property name (e.g., DTSTART;TZID=...: or DTSTART:)
+  const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
-    function parseICS(icsText) {
-      const parsed = [];
-      const lines = icsText.split(/\r\n|\n|\r/);
-      let inEvent = false;
-      let cur = {};
+  // All-day event (YYYYMMDD)
+  if (val.length === 8 && !val.includes('T')) {
+    const y = parseInt(val.slice(0, 4), 10);
+    const m = parseInt(val.slice(4, 6), 10) - 1;
+    const d = parseInt(val.slice(6, 8), 10);
+    return new Date(y, m, d, 0, 0, 0);
+  }
 
-      for (let line of lines) {
-        if (line.startsWith('BEGIN:VEVENT')) {
-          inEvent = true;
-          cur = { id: 'evt_' + Math.random().toString(36).substr(2, 9) };
-        } else if (line.startsWith('END:VEVENT')) {
-          inEvent = false;
-          if (cur.summary && cur.start) {
-            parsed.push(cur);
+  // UTC Timestamps (e.g., 20261022T143000Z)
+  if (val.includes('Z')) {
+    const clean = val.replace('Z', '');
+    const y = parseInt(clean.slice(0, 4), 10);
+    const m = parseInt(clean.slice(4, 6), 10) - 1;
+    const d = parseInt(clean.slice(6, 8), 10);
+    const hh = parseInt(clean.slice(9, 11), 10);
+    const mm = parseInt(clean.slice(11, 13), 10);
+    const ss = parseInt(clean.slice(13, 15) || '0', 10);
+    return new Date(Date.UTC(y, m, d, hh, mm, ss));
+  }
 
-            // Handle weekly RRULE recursion for next 4 weeks
-            if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
-              for (let w = 1; w <= 4; w++) {
-                const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
-                const recEnd = cur.end ? new Date(cur.end.getTime() + w * 7 * 86400000) : recStart;
-                parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart, end: recEnd });
-              }
-            }
+  // Local Timestamps (YYYYMMDDTHHMMSS)
+  if (val.includes('T')) {
+    const parts = val.split('T');
+    const y = parseInt(parts[0].slice(0, 4), 10);
+    const m = parseInt(parts[0].slice(4, 6), 10) - 1;
+    const d = parseInt(parts[0].slice(6, 8), 10);
+    const hh = parseInt(parts[1].slice(0, 2), 10);
+    const mm = parseInt(parts[1].slice(2, 4), 10);
+    return new Date(y, m, d, hh, mm);
+  }
+
+  return new Date(val);
+}
+
+function parseICS(icsText) {
+  const parsed = [];
+  // Unfold folded lines according to RFC 5545 (lines starting with space or tab)
+  const unfolded = icsText.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
+  const lines = unfolded.split(/\r\n|\n|\r/);
+  let inEvent = false;
+  let cur = {};
+
+  for (let line of lines) {
+    if (line.startsWith('BEGIN:VEVENT')) {
+      inEvent = true;
+      cur = { id: 'evt_' + Math.random().toString(36).substring(2, 9), description: '' };
+    } else if (line.startsWith('END:VEVENT')) {
+      inEvent = false;
+      if (cur.summary && cur.start) {
+        parsed.push(cur);
+
+        // Weekly RRULE expansion
+        if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
+          for (let w = 1; w <= 4; w++) {
+            const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
+            const recEnd = cur.end ? new Date(cur.end.getTime() + w * 7 * 86400000) : recStart;
+            parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart, end: recEnd });
           }
-        } else if (inEvent) {
-          if (line.startsWith('SUMMARY:')) cur.summary = line.replace('SUMMARY:', '').trim();
-          else if (line.startsWith('DTSTART')) cur.start = parseIcsDate(line);
-          else if (line.startsWith('DTEND')) cur.end = parseIcsDate(line);
-          else if (line.startsWith('LOCATION:')) cur.location = line.replace('LOCATION:', '').trim();
-          else if (line.startsWith('RRULE:')) cur.rrule = line.replace('RRULE:', '').trim();
         }
       }
-
-      eventsDatabase = parsed;
-      renderCurrentLayout();
+    } else if (inEvent) {
+      if (line.startsWith('SUMMARY:')) {
+        cur.summary = line.replace('SUMMARY:', '').trim();
+      } else if (line.startsWith('DTSTART')) {
+        cur.start = parseIcsDate(line);
+      } else if (line.startsWith('DTEND')) {
+        cur.end = parseIcsDate(line);
+      } else if (line.startsWith('LOCATION:')) {
+        cur.location = line.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
+      } else if (line.startsWith('DESCRIPTION:')) {
+        // Unescape escaped newlines and commas from Google export
+        cur.description = line.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
+      } else if (line.startsWith('RRULE:')) {
+        cur.rrule = line.replace('RRULE:', '').trim();
+      }
     }
+  }
 
+  eventsDatabase = parsed;
+  renderCurrentLayout();
+}
     // ==========================================
     // 3. LAYOUT RENDERING ENGINES
     // ==========================================
@@ -534,7 +574,39 @@
       });
       renderCurrentLayout();
     }
+function showEventDetails(evtId) {
+  const evt = eventsDatabase.find(e => e.id === evtId);
+  if (!evt) return;
 
+  const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const descHtml = evt.description 
+    ? evt.description.split('\n').filter(l => l.trim()).map(l => `<li style="margin-bottom: 4px;">${l}</li>`).join('')
+    : '<p style="color: var(--text-muted);">No material notes attached to this event.</p>';
+
+  let modal = document.getElementById('detailsModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'detailsModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-box" style="max-height: 85vh; overflow-y: auto;">
+        <div id="modalEventTitle" class="modal-title" style="margin-bottom: 8px;"></div>
+        <div id="modalEventTime" style="color: var(--accent); font-size: 0.9rem; margin-bottom: 12px;"></div>
+        <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Material List / Notes:</div>
+        <ul id="modalEventDesc" style="padding-left: 20px; font-size: 0.9rem; line-height: 1.5; color: #fff;"></ul>
+        <div class="modal-actions" style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="document.getElementById('detailsModal').style.display='none'">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById('modalEventTitle').textContent = evt.summary;
+  document.getElementById('modalEventTime').textContent = `⏰ ${timeStr} • 📍 ${evt.location || 'Site / Office'}`;
+  document.getElementById('modalEventDesc').innerHTML = descHtml;
+  modal.style.display = 'flex';
+}
     function renderCurrentLayout() {
       const vp = document.getElementById('viewport');
       vp.innerHTML = '';
