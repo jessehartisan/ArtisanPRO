@@ -8,16 +8,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* ========================================================
+       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE
+       ======================================================== */
     :root {
-      --bg-dark: #0f141c;
-      --card-bg: #18202c;
-      --card-border: #243042;
-      --accent: #38bdf8;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --grid-line: #1e293b;
-      --today-bg: #1e293b;
-      --today-border: #38bdf8;
+      --bg-dark: #121519;           /* Architectural Deep Charcoal */
+      --card-bg: #1a1f26;           /* Slate Surface */
+      --card-bg-elevated: #222933;  /* Elevated Card State */
+      --card-border: #2c3542;       /* Structured Architectural Border */
+      --card-border-subtle: #242c37;
+      --accent: #c28448;            /* Artisan Craft Bronze / Amber */
+      --accent-hover: #d99b5a;      /* Warm Cedar Glow */
+      --accent-muted: rgba(194, 132, 72, 0.16);
+      --text-main: #f5f7fa;         /* Warm Off-White */
+      --text-muted: #9ba6b5;        /* Balanced Slate Gray */
+      --grid-line: #222a36;
+      --today-bg: #202732;
+      --today-border: #c28448;
     }
 
     * {
@@ -47,7 +54,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 clamp(12px, 1.5vw, 24px);
-      background: rgba(15, 20, 28, 0.98);
+      background: rgba(18, 21, 25, 0.98);
       border-bottom: 1px solid var(--card-border);
       z-index: 100;
     }
@@ -65,6 +72,7 @@
       display: flex;
       align-items: center;
       gap: 2px;
+      color: #ffffff;
     }
 
     .brand-logo span {
@@ -75,11 +83,12 @@
       font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
-      background: rgba(56, 189, 248, 0.15);
+      background: var(--accent-muted);
       color: var(--accent);
       padding: 2px 7px;
       border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(194, 132, 72, 0.35);
+      letter-spacing: 0.5px;
     }
 
     .view-toggles {
@@ -131,7 +140,7 @@
     }
 
     .sync-dot.busy {
-      background: #f59e0b;
+      background: var(--accent);
       animation: pulse 1s infinite alternate;
     }
 
@@ -159,17 +168,18 @@
 
     .btn:hover {
       background: var(--card-border);
-      border-color: #3b82f6;
+      border-color: var(--accent);
     }
 
     .btn-primary {
-      background: #0284c7;
-      border-color: #0284c7;
-      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
     }
 
     .btn-primary:hover {
-      background: #0369a1;
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
     }
 
     /* Main Conforming Grid (Zero Overflow) */
@@ -213,6 +223,7 @@
       display: flex;
       align-items: baseline;
       gap: 4px;
+      color: #ffffff;
     }
 
     .time-large .seconds {
@@ -257,6 +268,7 @@
       font-weight: 800;
       letter-spacing: -1px;
       line-height: 1.1;
+      color: #ffffff;
     }
 
     .weather-desc {
@@ -357,6 +369,7 @@
       font-size: clamp(1rem, 1.2vw, 1.25rem);
       font-weight: 800;
       letter-spacing: -0.5px;
+      color: #ffffff;
     }
 
     /* Month Grid Template (5 rows) */
@@ -375,7 +388,7 @@
     }
 
     .weekday-header {
-      background: rgba(15, 20, 28, 0.4);
+      background: rgba(18, 21, 25, 0.7);
       padding: 4px;
       font-size: 0.7rem;
       font-weight: 700;
@@ -414,7 +427,7 @@
 
     .calendar-day-cell.inactive {
       opacity: 0.28;
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .calendar-day-cell.today {
@@ -440,7 +453,7 @@
       font-weight: 700;
       padding: 2px 5px;
       border-radius: 4px;
-      color: #fff;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -448,6 +461,7 @@
       line-height: 1.25;
       flex-shrink: 0;
       transition: filter 0.1s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .event-badge:hover {
@@ -478,15 +492,17 @@
       font-size: clamp(0.95rem, 1.1vw, 1.15rem);
       font-weight: 800;
       letter-spacing: -0.5px;
+      color: #ffffff;
     }
 
     .dispatch-count {
       font-size: 0.72rem;
       font-weight: 700;
-      background: rgba(56, 189, 248, 0.15);
+      background: var(--accent-muted);
       color: var(--accent);
       padding: 2px 7px;
       border-radius: 999px;
+      border: 1px solid rgba(194, 132, 72, 0.35);
     }
 
     .dispatch-list {
@@ -502,18 +518,19 @@
     }
 
     .dispatch-card {
-      background: rgba(15, 20, 28, 0.65);
+      background: rgba(18, 21, 25, 0.75);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
       border-radius: 7px;
       padding: clamp(8px, 0.8vw, 12px) clamp(10px, 0.9vw, 14px);
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .dispatch-card:hover {
-      background: rgba(30, 41, 59, 0.85);
+      background: var(--card-bg-elevated);
+      border-color: #3b4554;
     }
 
     .dispatch-card-title {
@@ -521,6 +538,7 @@
       font-weight: 700;
       margin-bottom: 3px;
       line-height: 1.25;
+      color: #ffffff;
     }
 
     .dispatch-card-time {
@@ -542,8 +560,8 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(10, 12, 15, 0.82);
+      backdrop-filter: blur(5px);
       z-index: 1000;
       display: none;
       align-items: center;
@@ -559,20 +577,21 @@
       max-width: 560px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.75);
     }
 
     .modal-title {
       font-size: 1.15rem;
       font-weight: 800;
       margin-bottom: 14px;
+      color: #ffffff;
     }
 
     .modal-input {
       width: 100%;
-      background: #0f141c;
+      background: #111418;
       border: 1px solid var(--card-border);
-      color: #fff;
+      color: #ffffff;
       padding: 9px 12px;
       border-radius: 7px;
       font-size: 0.88rem;
@@ -602,9 +621,9 @@
     }
 
     .crew-edit-input {
-      background: #0f141c;
+      background: #111418;
       border: 1px solid var(--card-border);
-      color: #fff;
+      color: #ffffff;
       padding: 7px 10px;
       border-radius: 6px;
       font-size: 0.82rem;
@@ -615,7 +634,7 @@
     .crew-color-picker {
       width: 100%;
       height: 32px;
-      background: #0f141c;
+      background: #111418;
       border: 1px solid var(--card-border);
       border-radius: 6px;
       cursor: pointer;
@@ -697,7 +716,7 @@
       <div class="widget weather-widget">
         <div class="weather-header">
           <span>Site Conditions</span>
-          <span style="color: #38bdf8;">Live</span>
+          <span style="color: var(--accent);">Live</span>
         </div>
         <div class="temp-row">
           <div class="current-temp" id="weatherTemp">--°F</div>
@@ -806,7 +825,7 @@
 
       <div id="crewRowsContainer" style="max-height: 260px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;"></div>
 
-      <button class="btn" onclick="addCrewRow('', '', '#38bdf8')" style="margin-bottom: 14px; font-size: 0.78rem;">+ Add New Crew</button>
+      <button class="btn" onclick="addCrewRow('', '', '#c28448')" style="margin-bottom: 14px; font-size: 0.78rem;">+ Add New Crew</button>
 
       <div class="modal-actions" style="justify-content: space-between;">
         <button class="btn" style="color: #f43f5e;" onclick="resetCrewsToDefault()">Reset Defaults</button>
@@ -828,6 +847,7 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
+    // Crew color assignments remain intact
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1111,7 +1131,6 @@
       endDay.setDate(now.getDate() + 6);
       heading.textContent = `7-Day Outlook (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
 
-      // 7 Weekday Headers starting with today
       for (let i = 0; i < 7; i++) {
         const d = new Date(now);
         d.setDate(now.getDate() + i);
@@ -1122,7 +1141,6 @@
         grid.appendChild(header);
       }
 
-      // 7 Full-Height Day Cells
       for (let i = 0; i < 7; i++) {
         const cellDate = new Date(now);
         cellDate.setDate(now.getDate() + i);
@@ -1347,7 +1365,7 @@
       document.getElementById('crewModal').style.display = 'flex';
     }
 
-    function addCrewRow(name = '', keyword = '', color = '#38bdf8') {
+    function addCrewRow(name = '', keyword = '', color = '#c28448') {
       const container = document.getElementById('crewRowsContainer');
       const row = document.createElement('div');
       row.className = 'crew-edit-row';
