@@ -3,175 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DAKboard Pro Smart Office Display</title>
+  <title>DAKboard Pro - Smart Office Display</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b1120;
-      --card-bg: rgba(15, 23, 42, 0.78);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-dark: #0f141c;
+      --card-bg: #18202c;
+      --card-border: #243042;
       --accent: #38bdf8;
-      --tag-joe: #a855f7;
-      --tag-joseph: #10b981;
-      --tag-sam: #f43f5e;
-      --tag-willy: #3b82f6;
-      --tag-pickup: #d97706;
-      --tag-default: #64748b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --grid-line: #1e293b;
+      --today-bg: #1e293b;
+      --today-border: #38bdf8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background-color: var(--bg);
-      background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
-                        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      height: 100vh;
-      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      user-select: none;
     }
 
-    /* Header Nav */
+    /* Top Utility Bar */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
-      background: rgba(15, 23, 42, 0.85);
+      padding: 10px 24px;
+      background: rgba(15, 20, 28, 0.95);
       border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
       backdrop-filter: blur(8px);
-      z-index: 10;
     }
-    .brand {
+
+    .brand-section {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-weight: 700;
-      font-size: 1.15rem;
     }
-    .brand-badge {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .status-panel {
+
+    .brand-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      gap: 6px;
     }
-    .sync-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 5px 12px;
+
+    .brand-logo span {
+      color: var(--accent);
+    }
+
+    .badge-live {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .view-toggles {
+      display: flex;
+      background: var(--card-bg);
+      padding: 3px;
       border-radius: 8px;
       border: 1px solid var(--card-border);
+      gap: 2px;
     }
+
+    .view-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .view-btn.active, .view-btn:hover {
+      background: var(--card-border);
+      color: var(--text-main);
+    }
+
+    .view-btn.active {
+      color: var(--accent);
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
     .sync-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #10b981;
     }
+
     .sync-dot.busy {
-      background: #eab308;
+      background: #f59e0b;
       animation: pulse 1s infinite alternate;
     }
-    @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
 
-    .header-actions {
+    .controls-cluster {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
+
     .btn {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
-      color: var(--text);
-      padding: 6px 12px;
+      color: var(--text-main);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.82rem;
-      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       transition: all 0.2s;
+      font-family: inherit;
     }
+
     .btn:hover {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: var(--card-border);
+      border-color: #3b82f6;
     }
-    .btn.active {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+
     .btn-primary {
       background: #0284c7;
-      border-color: #38bdf8;
+      border-color: #0284c7;
       color: #fff;
     }
-    .btn-primary:hover { background: #0369a1; }
 
-    /* Layout Viewport */
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    /* Primary Dashboard Grid */
     main {
       flex: 1;
-      padding: 16px 20px;
+      padding: 16px 24px;
+      display: grid;
+      grid-template-columns: 240px 1fr 340px;
+      gap: 16px;
       overflow: hidden;
-      display: block;
-      height: calc(100vh - 60px);
+    }
+
+    /* Left Sidebar: Clock, Weather, Bulletin */
+    .sidebar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .widget {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      backdrop-filter: blur(12px);
-      border-radius: 14px;
-      padding: 16px;
-      overflow: hidden;
+      border-radius: 12px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
     }
 
-    /* ====================================================
-       LAYOUT 1: DAK SPLIT VIEW
-       ==================================================== */
-    .layout-split {
-      display: grid;
-      grid-template-columns: 360px 1fr 340px;
-      gap: 16px;
-      height: 100%;
-    }
-    .split-col { display: flex; flex-direction: column; gap: 16px; }
-
-    /* ====================================================
-       LAYOUT 2: BIG MONTH VIEW
-       ==================================================== */
-    .layout-month {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: 14px;
-      height: 100%;
+    .clock-widget {
+      align-items: flex-start;
+      justify-content: center;
     }
 
-    /* ====================================================
-       LAYOUT 3: 7-DAY DISPATCH
-       ==================================================== */
-    .layout-week {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-      height: 100%;
+    .time-large {
+      font-size: 3.25rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
     }
-    .week-col {
+
+    .time-large .seconds {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .date-display {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 8px;
+    }
+
+    .weather-widget {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .weather-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .temp-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .current-temp {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .weather-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .crew-bulletin {
+      flex: 1;
+    }
+
+    .bulletin-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bulletin-content {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .crew-color-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    /* Center: Calendar Grid View */
+    .center-view {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
@@ -179,224 +311,408 @@
       flex-direction: column;
       overflow: hidden;
     }
-    .week-col-header {
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.04);
+
+    .calendar-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--card-border);
-      text-align: center;
-    }
-    .week-col-events {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
     }
 
-    /* ====================================================
-       LAYOUT 4: AGENDA TV
-       ==================================================== */
-    .layout-agenda {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 20px;
-      height: 100%;
-    }
-    .agenda-scroll {
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding-right: 6px;
-    }
-
-    /* Shared Widget Elements */
-    .clock-time {
-      font-size: 3.6rem;
+    .month-title {
+      font-size: 1.25rem;
       font-weight: 800;
-      letter-spacing: -2px;
-      line-height: 1;
+      letter-spacing: -0.5px;
     }
-    .clock-seconds { font-size: 1.8rem; color: var(--text-muted); font-weight: 400; }
-    .clock-date { color: var(--accent); font-size: 1.1rem; margin-top: 6px; font-weight: 600; }
 
-    .weather-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-    .weather-temp { font-size: 2.6rem; font-weight: 700; color: #fff; }
-
-    /* Calendar Grid */
-    .cal-grid {
+    .calendar-grid {
+      flex: 1;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: auto repeat(5, 1fr);
-      gap: 6px;
-      flex: 1;
       overflow-y: auto;
     }
-    .day-name {
-      text-align: center;
+
+    .weekday-header {
+      background: rgba(15, 20, 28, 0.4);
+      padding: 8px;
       font-size: 0.75rem;
       font-weight: 700;
-      color: var(--text-muted);
-      padding: 4px 0;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      text-align: center;
+      border-bottom: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
     }
-    .day-cell {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
+
+    .weekday-header:last-child {
+      border-right: none;
+    }
+
+    .calendar-day-cell {
+      border-right: 1px solid var(--grid-line);
+      border-bottom: 1px solid var(--grid-line);
       padding: 6px;
       display: flex;
       flex-direction: column;
-      min-height: 70px;
+      gap: 4px;
+      min-height: 90px;
       position: relative;
     }
-    .day-cell.today {
-      background: rgba(56, 189, 248, 0.08);
-      border-color: rgba(56, 189, 248, 0.4);
+
+    .calendar-day-cell:nth-child(7n) {
+      border-right: none;
     }
-    .day-cell.drag-over { background: rgba(56, 189, 248, 0.2); }
-    .day-num { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-    .day-cell.today .day-num { color: var(--accent); }
-    .day-events { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; }
-    .cal-pill {
+
+    .calendar-day-cell.inactive {
+      opacity: 0.3;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .calendar-day-cell.today {
+      background: var(--today-bg);
+      box-shadow: inset 0 0 0 1px var(--today-border);
+    }
+
+    .day-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .calendar-day-cell.today .day-num {
+      color: var(--accent);
+    }
+
+    /* Event Badges on Month Grid */
+    .event-badge {
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 700;
       padding: 3px 6px;
       border-radius: 4px;
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: #fff;
-      cursor: grab;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s ease, filter 0.1s ease;
     }
 
-    /* Queue & Agenda Items */
-    .event-card {
-      padding: 12px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.04);
-      border-left: 5px solid var(--tag-default);
+    .event-badge:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    /* Right Sidebar: Today's Dispatch */
+    .sidebar-right {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      overflow: hidden;
     }
-    .event-card-title { font-size: 0.95rem; font-weight: 600; }
-    .event-card-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; }
 
-    /* Modals */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(6px);
-      z-index: 50;
-      justify-content: center;
+    .dispatch-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
       align-items: center;
     }
-    .modal-box {
-      background: #1e293b;
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      width: 520px;
-      max-width: 90vw;
-      padding: 24px;
+
+    .dispatch-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
-    .modal-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; }
-    .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    .form-input {
+
+    .dispatch-count {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .dispatch-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dispatch-card {
+      background: rgba(15, 20, 28, 0.6);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .dispatch-card:hover {
+      background: rgba(30, 41, 59, 0.8);
+      transform: translateX(2px);
+    }
+
+    .dispatch-card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dispatch-card-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dispatch-card-location {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 580px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .modal-input {
       width: 100%;
-      background: #0f172a;
+      background: #0f141c;
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 9px;
+      padding: 10px 12px;
       border-radius: 8px;
       font-size: 0.9rem;
+      margin-top: 6px;
+      margin-bottom: 14px;
+      outline: none;
+      font-family: inherit;
     }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
-    body.kiosk header { display: none; }
-    body.kiosk main { padding: 10px; height: 100vh; }
+    .modal-input:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    /* Alternate Layouts */
+    main.big-month-layout {
+      grid-template-columns: 240px 1fr;
+    }
+    main.big-month-layout .sidebar-right {
+      display: none;
+    }
+
+    main.dispatch-only-layout {
+      grid-template-columns: 240px 1fr;
+    }
+    main.dispatch-only-layout .center-view {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
-  <header id="appHeader">
-    <div class="brand">
-      <span>DAKboard Pro</span>
-      <span class="brand-badge">Office Live</span>
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">DAKboard <span>Pro</span></div>
+      <div class="badge-live">OFFICE LIVE</div>
     </div>
 
-    <!-- Layout Switcher -->
-    <div class="header-actions">
-      <button class="btn active" id="btnSplit" onclick="switchLayout('split')">DAK Split</button>
-      <button class="btn" id="btnMonth" onclick="switchLayout('month')">Big Month</button>
-      <button class="btn" id="btnWeek" onclick="switchLayout('week')">7-Day Dispatch</button>
-      <button class="btn" id="btnAgenda" onclick="switchLayout('agenda')">Agenda TV</button>
+    <div class="view-toggles">
+      <button class="view-btn active" onclick="switchLayout('split')">DAK Split</button>
+      <button class="view-btn" onclick="switchLayout('big-month')">Big Month</button>
+      <button class="view-btn" onclick="switchLayout('dispatch')">7-Day Dispatch</button>
     </div>
 
-    <div class="status-panel">
-      <div class="sync-indicator">
-        <div id="syncDot" class="sync-dot"></div>
-        <span id="syncBadge">Checking Feed...</span>
-        <span id="syncCountdown" style="color: var(--accent);">(next in 60s)</span>
-      </div>
+    <div class="sync-status">
+      <div id="syncDot" class="sync-dot"></div>
+      <span id="syncBadge">Syncing...</span>
     </div>
 
-    <div class="header-actions">
-      <button class="btn" onclick="openAddEventModal()">+ Add Event</button>
-      <button class="btn" onclick="openFeedModal()">⚙️ Feed Setup</button>
-      <button class="btn btn-primary" onclick="toggleKioskMode()">🖥️ TV Kiosk</button>
+    <div class="controls-cluster">
+      <button class="btn" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
+      <button class="btn btn-primary" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
     </div>
   </header>
 
-  <main id="viewport">
-    <!-- Viewports are rendered dynamically by switchLayout() -->
+  <!-- Main View Grid -->
+  <main id="mainContainer">
+    <!-- Left Panel -->
+    <aside class="sidebar-left">
+      <div class="widget clock-widget">
+        <div class="time-large">
+          <span class="clock-hours">--</span>:<span class="clock-minutes">--</span>
+          <span class="seconds clock-seconds">--</span>
+        </div>
+        <div class="date-display clock-date-str">Loading...</div>
+      </div>
+
+      <div class="widget weather-widget">
+        <div class="weather-header">
+          <span>Site Conditions</span>
+          <span style="color: #38bdf8;">Live</span>
+        </div>
+        <div class="temp-row">
+          <div class="current-temp" id="weatherTemp">--°F</div>
+        </div>
+        <div class="weather-desc" id="weatherDesc">Fishers, IN</div>
+      </div>
+
+      <div class="widget crew-bulletin">
+        <div class="bulletin-title">📋 Crew Classification</div>
+        <div class="crew-color-legend">
+          <div class="legend-item"><div class="legend-dot" style="background: #a855f7;"></div> Joe</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #10b981;"></div> Joseph</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #f43f5e;"></div> Sam</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Willy</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #d97706;"></div> Scotty / 84 / Pickup</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Calendar -->
+    <section class="center-view">
+      <div class="calendar-toolbar">
+        <div class="month-title" id="calendarMonthHeading">Month Year</div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Weekday Headers -->
+        <div class="weekday-header">SUN</div>
+        <div class="weekday-header">MON</div>
+        <div class="weekday-header">TUE</div>
+        <div class="weekday-header">WED</div>
+        <div class="weekday-header">THU</div>
+        <div class="weekday-header">FRI</div>
+        <div class="weekday-header">SAT</div>
+        <!-- 35-42 Dynamic Day Cells Rendered Here -->
+      </div>
+    </section>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar-right">
+      <div class="dispatch-header">
+        <div class="dispatch-title">Today's Dispatch</div>
+        <div class="dispatch-count" id="dispatchCountPill">0 scheduled</div>
+      </div>
+      <div class="dispatch-list" id="dispatchQueue">
+        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">Loading today's queue...</div>
+      </div>
+    </aside>
   </main>
 
   <!-- Feed Setup Modal -->
-  <div class="modal-overlay" id="feedModal">
+  <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
-      <div class="form-group">
-        <label class="form-label">Google / Outlook Private .ICS Feed URL</label>
-        <input type="text" id="feedUrlInput" class="form-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Or Import Local .ICS File</label>
-        <input type="file" id="localIcsFileInput" accept=".ics" class="form-input">
-      </div>
-      <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
-        Active Proxy: <code>https://divine-butterfly-e54f.jesseh-a39.workers.dev</code>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        Paste your Google Calendar iCal (.ics) address below. It will be cached for uninterrupted kiosk polling.
       </p>
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
+      <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../public/basic.ics" />
       <div class="modal-actions">
-        <button class="btn" onclick="closeFeedModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveFeedConfig()">Save & Sync Now</button>
+        <button class="btn" onclick="document.getElementById('feedModal').style.display='none'">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFeedUrl()">Save & Sync Now</button>
       </div>
     </div>
   </div>
 
-  <!-- Manual Add Event Modal -->
-  <div class="modal-overlay" id="eventModal">
+  <!-- Job Edit Modal -->
+  <div id="jobEditModal" class="modal-overlay">
     <div class="modal-box">
-      <div class="modal-title">Schedule New Job / Event</div>
-      <div class="form-group">
-        <label class="form-label">Event Summary / Job Name</label>
-        <input type="text" id="eventTitleInput" class="form-input" placeholder="e.g. Joe - Deck Frame Install">
+      <div class="modal-title">Edit Scheduled Job</div>
+
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
+      <input type="text" id="editJobSummary" class="modal-input" style="font-weight: 600;" />
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
+          <input type="datetime-local" id="editJobStart" class="modal-input" />
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
+          <input type="datetime-local" id="editJobEnd" class="modal-input" />
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Date</label>
-        <input type="date" id="eventDateInput" class="form-input">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Location / Site</label>
-        <input type="text" id="eventLocationInput" class="form-input" placeholder="e.g. Fishers, IN">
-      </div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeAddEventModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveManualEvent()">Add to Dispatch</button>
+
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
+      <input type="text" id="editJobLocation" class="modal-input" />
+
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
+      <textarea id="editJobDescription" class="modal-input" style="height: 140px; resize: vertical; line-height: 1.4;"></textarea>
+
+      <input type="hidden" id="editJobId" />
+
+      <div class="modal-actions" style="justify-content: space-between;">
+        <button class="btn" style="color: #f43f5e;" onclick="revertJobOverrides()">Reset to Calendar Feed</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" onclick="document.getElementById('jobEditModal').style.display='none'">Cancel</button>
+          <button class="btn btn-primary" onclick="saveJobEdits()">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>
@@ -407,20 +723,26 @@
     // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
+
     let eventsDatabase = [];
     let currentLayout = 'split';
     let countdownSec = 60;
     let isFetching = false;
+    let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Crew color classification
+    // Crew color classification: Scotty assigned to Amber/Orange (#d97706)
     const CREW_COLORS = {
       'joe': '#a855f7',
       'joseph': '#10b981',
       'sam': '#f43f5e',
       'willy': '#3b82f6',
-      'pickup': '#d97706',
-      '84': '#d97706'
+      'scotty': '#d97706',
+      '84': '#d97706',
+      'pickup': '#d97706'
     };
+
+    // Deterministic crew sorting rank
+    const CREW_ORDER = ['joe', 'joseph', 'sam', 'willy', 'scotty', '84', 'pickup'];
 
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
@@ -431,10 +753,8 @@
     }
 
     // ==========================================
-    // 1. CLOCK & WEATHER
+    // 1. CLOCK & WEATHER ENGINE
     // ==========================================
-    let weatherData = { temp: '--°F', desc: 'Updating...', location: 'Fishers, IN' };
-
     function updateClockDisplay() {
       const now = new Date();
       let hours = now.getHours();
@@ -446,453 +766,263 @@
       document.querySelectorAll('.clock-minutes').forEach(el => el.textContent = minutes);
       document.querySelectorAll('.clock-seconds').forEach(el => el.textContent = seconds);
       document.querySelectorAll('.clock-date-str').forEach(el => {
-        el.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+        el.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
       });
     }
     setInterval(updateClockDisplay, 1000);
+    updateClockDisplay();
 
     async function fetchWeather() {
       try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=39.9567&longitude=-86.0133&current=temperature_2m,weather_code&temperature_unit=fahrenheit');
-        const data = await res.json();
-        if (data.current) {
-          weatherData.temp = `${Math.round(data.current.temperature_2m)}°F`;
-          weatherData.desc = 'Live Conditions';
-          updateWeatherUI();
+        // Open-Meteo for Fishers, IN (Lat: 39.9568, Long: -86.0134)
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0134&current_weather=true&temperature_unit=fahrenheit");
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('weatherTemp').textContent = `${Math.round(data.current_weather.temperature)}°F`;
         }
       } catch (e) {
-        weatherData.desc = 'Offline';
+        console.warn('Weather fetch bypassed:', e);
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 15 * 60 * 1000);
-
-    function updateWeatherUI() {
-      document.querySelectorAll('.weather-temp-val').forEach(el => el.textContent = weatherData.temp);
-      document.querySelectorAll('.weather-desc-val').forEach(el => el.textContent = weatherData.desc);
-    }
+    setInterval(fetchWeather, 900000); // 15 mins
 
     // ==========================================
-// 2. ENHANCED ICS PARSER & TIMEZONE HANDLER
-// ==========================================
-function parseIcsDate(raw) {
-  if (!raw) return new Date();
-  // Strip property name (e.g., DTSTART;TZID=...: or DTSTART:)
-  const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
+    // 2. ICS PARSER WITH TIMEZONE & UN-FOLDING
+    // ==========================================
+    function parseIcsDate(raw) {
+      if (!raw) return new Date();
+      const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
-  // All-day event (YYYYMMDD)
-  if (val.length === 8 && !val.includes('T')) {
-    const y = parseInt(val.slice(0, 4), 10);
-    const m = parseInt(val.slice(4, 6), 10) - 1;
-    const d = parseInt(val.slice(6, 8), 10);
-    return new Date(y, m, d, 0, 0, 0);
-  }
+      // All-day format (YYYYMMDD)
+      if (val.length === 8 && !val.includes('T')) {
+        const y = parseInt(val.slice(0, 4), 10);
+        const m = parseInt(val.slice(4, 6), 10) - 1;
+        const d = parseInt(val.slice(6, 8), 10);
+        return new Date(y, m, d, 0, 0, 0);
+      }
 
-  // UTC Timestamps (e.g., 20261022T143000Z)
-  if (val.includes('Z')) {
-    const clean = val.replace('Z', '');
-    const y = parseInt(clean.slice(0, 4), 10);
-    const m = parseInt(clean.slice(4, 6), 10) - 1;
-    const d = parseInt(clean.slice(6, 8), 10);
-    const hh = parseInt(clean.slice(9, 11), 10);
-    const mm = parseInt(clean.slice(11, 13), 10);
-    const ss = parseInt(clean.slice(13, 15) || '0', 10);
-    return new Date(Date.UTC(y, m, d, hh, mm, ss));
-  }
+      // UTC ISO format (YYYYMMDDTHHMMSSZ)
+      if (val.includes('Z')) {
+        const clean = val.replace('Z', '');
+        const y = parseInt(clean.slice(0, 4), 10);
+        const m = parseInt(clean.slice(4, 6), 10) - 1;
+        const d = parseInt(clean.slice(6, 8), 10);
+        const hh = parseInt(clean.slice(9, 11), 10);
+        const mm = parseInt(clean.slice(11, 13), 10);
+        const ss = parseInt(clean.slice(13, 15) || '0', 10);
+        return new Date(Date.UTC(y, m, d, hh, mm, ss));
+      }
 
-  // Local Timestamps (YYYYMMDDTHHMMSS)
-  if (val.includes('T')) {
-    const parts = val.split('T');
-    const y = parseInt(parts[0].slice(0, 4), 10);
-    const m = parseInt(parts[0].slice(4, 6), 10) - 1;
-    const d = parseInt(parts[0].slice(6, 8), 10);
-    const hh = parseInt(parts[1].slice(0, 2), 10);
-    const mm = parseInt(parts[1].slice(2, 4), 10);
-    return new Date(y, m, d, hh, mm);
-  }
+      // Local format
+      if (val.includes('T')) {
+        const parts = val.split('T');
+        const y = parseInt(parts[0].slice(0, 4), 10);
+        const m = parseInt(parts[0].slice(4, 6), 10) - 1;
+        const d = parseInt(parts[0].slice(6, 8), 10);
+        const hh = parseInt(parts[1].slice(0, 2), 10);
+        const mm = parseInt(parts[1].slice(2, 4), 10);
+        return new Date(y, m, d, hh, mm);
+      }
 
-  return new Date(val);
-}
+      return new Date(val);
+    }
 
-function parseICS(icsText) {
-  const parsed = [];
-  // Unfold folded lines according to RFC 5545 (lines starting with space or tab)
-  const unfolded = icsText.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
-  const lines = unfolded.split(/\r\n|\n|\r/);
-  let inEvent = false;
-  let cur = {};
+    function parseICS(icsText) {
+      const parsed = [];
+      const unfolded = icsText.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
+      const lines = unfolded.split(/\r\n|\n|\r/);
+      let inEvent = false;
+      let cur = {};
 
-  for (let line of lines) {
-    if (line.startsWith('BEGIN:VEVENT')) {
-      inEvent = true;
-      cur = { id: 'evt_' + Math.random().toString(36).substring(2, 9), description: '' };
-    } else if (line.startsWith('END:VEVENT')) {
-      inEvent = false;
-      if (cur.summary && cur.start) {
-        parsed.push(cur);
+      for (let line of lines) {
+        if (line.startsWith('BEGIN:VEVENT')) {
+          inEvent = true;
+          cur = { summary: '', description: '', location: '', rrule: '' };
+        } else if (line.startsWith('END:VEVENT')) {
+          inEvent = false;
+          if (cur.summary && cur.start) {
+            // Generate stable deterministic ID
+            const stableId = 'evt_' + btoa(encodeURIComponent(cur.summary + '_' + cur.start.getTime())).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+            cur.id = stableId;
 
-        // Weekly RRULE expansion
-        if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
-          for (let w = 1; w <= 4; w++) {
-            const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
-            const recEnd = cur.end ? new Date(cur.end.getTime() + w * 7 * 86400000) : recStart;
-            parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart, end: recEnd });
+            // Merge local edits
+            if (localEventOverrides[stableId]) {
+              const ov = localEventOverrides[stableId];
+              if (ov.summary !== undefined) cur.summary = ov.summary;
+              if (ov.location !== undefined) cur.location = ov.location;
+              if (ov.description !== undefined) cur.description = ov.description;
+              if (ov.startTime) cur.start = new Date(ov.startTime);
+              if (ov.endTime) cur.end = new Date(ov.endTime);
+            }
+
+            parsed.push(cur);
+
+            // Expand basic weekly recursions
+            if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
+              for (let w = 1; w <= 4; w++) {
+                const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
+                const recEnd = cur.end ? new Date(cur.end.getTime() + w * 7 * 86400000) : recStart;
+                parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart, end: recEnd });
+              }
+            }
+          }
+        } else if (inEvent) {
+          if (line.startsWith('SUMMARY:')) {
+            cur.summary = line.replace('SUMMARY:', '').trim();
+          } else if (line.startsWith('DTSTART')) {
+            cur.start = parseIcsDate(line);
+          } else if (line.startsWith('DTEND')) {
+            cur.end = parseIcsDate(line);
+          } else if (line.startsWith('LOCATION:')) {
+            cur.location = line.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
+          } else if (line.startsWith('DESCRIPTION:')) {
+            cur.description = line.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
+          } else if (line.startsWith('RRULE:')) {
+            cur.rrule = line.replace('RRULE:', '').trim();
           }
         }
       }
-    } else if (inEvent) {
-      if (line.startsWith('SUMMARY:')) {
-        cur.summary = line.replace('SUMMARY:', '').trim();
-      } else if (line.startsWith('DTSTART')) {
-        cur.start = parseIcsDate(line);
-      } else if (line.startsWith('DTEND')) {
-        cur.end = parseIcsDate(line);
-      } else if (line.startsWith('LOCATION:')) {
-        cur.location = line.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
-      } else if (line.startsWith('DESCRIPTION:')) {
-        // Unescape escaped newlines and commas from Google export
-        cur.description = line.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
-      } else if (line.startsWith('RRULE:')) {
-        cur.rrule = line.replace('RRULE:', '').trim();
-      }
-    }
-  }
 
-  eventsDatabase = parsed;
-  renderCurrentLayout();
-}
-    // ==========================================
-    // 3. LAYOUT RENDERING ENGINES
-    // ==========================================
-    function switchLayout(layoutName) {
-      currentLayout = layoutName;
-      document.querySelectorAll('.header-actions .btn').forEach(b => {
-        b.classList.remove('active');
-        if (b.id === 'btn' + layoutName.charAt(0).toUpperCase() + layoutName.slice(1)) {
-          b.classList.add('active');
-        }
+      // STABLE DETERMINISTIC SORT: Time -> Crew Hierarchy -> Alphabetical
+      parsed.sort((a, b) => {
+        const timeDiff = a.start.getTime() - b.start.getTime();
+        if (timeDiff !== 0) return timeDiff;
+
+        const lowerA = a.summary.toLowerCase();
+        const lowerB = b.summary.toLowerCase();
+        const idxA = CREW_ORDER.findIndex(k => lowerA.includes(k));
+        const idxB = CREW_ORDER.findIndex(k => lowerB.includes(k));
+        const rankA = idxA === -1 ? 99 : idxA;
+        const rankB = idxB === -1 ? 99 : idxB;
+
+        if (rankA !== rankB) return rankA - rankB;
+        return lowerA.localeCompare(lowerB);
       });
+
+      eventsDatabase = parsed;
       renderCurrentLayout();
     }
-function showEventDetails(evtId) {
-  const evt = eventsDatabase.find(e => e.id === evtId);
-  if (!evt) return;
 
-  const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  const descHtml = evt.description 
-    ? evt.description.split('\n').filter(l => l.trim()).map(l => `<li style="margin-bottom: 4px;">${l}</li>`).join('')
-    : '<p style="color: var(--text-muted);">No material notes attached to this event.</p>';
-
-  let modal = document.getElementById('detailsModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'detailsModal';
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-      <div class="modal-box" style="max-height: 85vh; overflow-y: auto;">
-        <div id="modalEventTitle" class="modal-title" style="margin-bottom: 8px;"></div>
-        <div id="modalEventTime" style="color: var(--accent); font-size: 0.9rem; margin-bottom: 12px;"></div>
-        <div style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Material List / Notes:</div>
-        <ul id="modalEventDesc" style="padding-left: 20px; font-size: 0.9rem; line-height: 1.5; color: #fff;"></ul>
-        <div class="modal-actions" style="margin-top: 20px;">
-          <button class="btn btn-primary" onclick="document.getElementById('detailsModal').style.display='none'">Close</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-
-  document.getElementById('modalEventTitle').textContent = evt.summary;
-  document.getElementById('modalEventTime').textContent = `⏰ ${timeStr} • 📍 ${evt.location || 'Site / Office'}`;
-  document.getElementById('modalEventDesc').innerHTML = descHtml;
-  modal.style.display = 'flex';
-}
+    // ==========================================
+    // 3. RENDER VIEWS & GRID ENGINE
+    // ==========================================
     function renderCurrentLayout() {
-      const vp = document.getElementById('viewport');
-      vp.innerHTML = '';
-
-      if (currentLayout === 'split') renderSplitLayout(vp);
-      else if (currentLayout === 'month') renderMonthLayout(vp);
-      else if (currentLayout === 'week') renderWeekLayout(vp);
-      else if (currentLayout === 'agenda') renderAgendaLayout(vp);
-
-      updateClockDisplay();
-      updateWeatherUI();
+      renderCalendarGrid();
+      populateTodayQueue();
     }
 
-    // Layout 1: DAK Split View
-    function renderSplitLayout(container) {
-      container.className = 'layout-split';
-      container.innerHTML = `
-        <div class="split-col">
-          <div class="widget">
-            <div class="clock-time"><span class="clock-hours">12</span>:<span class="clock-minutes">00</span> <span class="clock-seconds">00</span></div>
-            <div class="clock-date clock-date-str">Loading...</div>
-          </div>
-          <div class="widget">
-            <div style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Site Conditions</div>
-            <div class="weather-row">
-              <div class="weather-temp weather-temp-val">--°F</div>
-              <div style="text-align: right;">
-                <div class="weather-desc-val" style="font-weight: 600;">Updating...</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">Fishers, IN</div>
-              </div>
-            </div>
-          </div>
-          <div class="widget" style="flex: 1;">
-            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 8px;">Crew Bulletin & Notes</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-              • Joe: Main Framing & Footers<br>
-              • Joseph: Pergola & Pavilion Trims<br>
-              • Sam: Decking & Railing Installs<br>
-              • Willy: Deliveries & Hardware<br>
-              • 84 / Pickup: Vendor Yard Deliveries
-            </div>
-          </div>
-        </div>
-
-        <div class="widget" style="display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div id="monthYearTitle" style="font-size: 1.3rem; font-weight: 700;"></div>
-          </div>
-          <div class="cal-grid" id="splitCalGrid"></div>
-        </div>
-
-        <div class="widget" style="display: flex; flex-direction: column;">
-          <div style="font-size: 1.1rem; font-weight: 700; padding-bottom: 10px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between;">
-            <span>Today's Dispatch</span>
-            <span id="todayCountBadge" style="color: var(--accent); font-size: 0.85rem;">0 scheduled</span>
-          </div>
-          <div id="splitTodayQueue" style="flex: 1; overflow-y: auto; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
-        </div>
-      `;
-
-      populateCalendarGrid(document.getElementById('splitCalGrid'), document.getElementById('monthYearTitle'));
-      populateTodayQueue(document.getElementById('splitTodayQueue'), document.getElementById('todayCountBadge'));
-    }
-
-    // Layout 2: Big Month View
-    function renderMonthLayout(container) {
-      container.className = 'layout-month';
-      container.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 10px;">
-          <div id="monthYearTitle" style="font-size: 1.6rem; font-weight: 800;"></div>
-          <div style="display: flex; gap: 20px; align-items: center;">
-            <div class="clock-date-str" style="font-weight: 600; color: var(--accent);"></div>
-            <div style="font-weight: 700; font-size: 1.4rem;"><span class="clock-hours">12</span>:<span class="clock-minutes">00</span></div>
-          </div>
-        </div>
-        <div class="widget" style="padding: 10px;">
-          <div class="cal-grid" id="bigMonthGrid"></div>
-        </div>
-      `;
-      populateCalendarGrid(document.getElementById('bigMonthGrid'), document.getElementById('monthYearTitle'));
-    }
-
-    // Layout 3: 7-Day Dispatch
-    function renderWeekLayout(container) {
-      container.className = 'layout-week';
-      const today = new Date();
-      const currDay = today.getDay();
-
-      for (let i = 0; i < 7; i++) {
-        const targetDate = new Date(today);
-        targetDate.setDate(today.getDate() - currDay + i);
-
-        const isToday = targetDate.toDateString() === today.toDateString();
-        const dayEvents = eventsDatabase.filter(e => new Date(e.start).toDateString() === targetDate.toDateString());
-
-        const col = document.createElement('div');
-        col.className = 'week-col';
-        if (isToday) col.style.borderColor = 'rgba(56, 189, 248, 0.4)';
-
-        col.innerHTML = `
-          <div class="week-col-header" style="${isToday ? 'background: rgba(56, 189, 248, 0.15);' : ''}">
-            <div style="font-size: 0.8rem; font-weight: 700; color: ${isToday ? 'var(--accent)' : 'var(--text-muted)'}; text-transform: uppercase;">
-              ${targetDate.toLocaleDateString([], { weekday: 'short' })}
-            </div>
-            <div style="font-size: 1.1rem; font-weight: 800;">${targetDate.getDate()}</div>
-          </div>
-          <div class="week-col-events" id="weekDay_${i}"></div>
-        `;
-
-        const eventsBox = col.querySelector(`#weekDay_${i}`);
-        dayEvents.forEach(evt => {
-          const card = document.createElement('div');
-          card.className = 'event-card';
-          card.style.borderLeftColor = getEventColor(evt.summary);
-          card.innerHTML = `
-            <div class="event-card-title">${evt.summary}</div>
-            <div class="event-card-meta">
-              <span>${evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
-              <span>${evt.location || ''}</span>
-            </div>
-          `;
-          eventsBox.appendChild(card);
-        });
-
-        container.appendChild(col);
-      }
-    }
-
-    // Layout 4: Agenda TV
-    function renderAgendaLayout(container) {
-      container.className = 'layout-agenda';
-      container.innerHTML = `
-        <div class="widget">
-          <div class="clock-time"><span class="clock-hours">12</span>:<span class="clock-minutes">00</span> <span class="clock-seconds">00</span></div>
-          <div class="clock-date clock-date-str" style="margin-bottom: 24px;"></div>
-          <div style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Live Weather</div>
-          <div class="weather-row" style="margin-bottom: 24px;">
-            <div class="weather-temp weather-temp-val">--°F</div>
-            <div style="text-align: right;">
-              <div class="weather-desc-val" style="font-weight: 600;">Updating...</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Fishers, IN</div>
-            </div>
-          </div>
-          <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-            Displays active timeline agenda for upcoming crew projects and material dispatches.
-          </div>
-        </div>
-
-        <div class="widget" style="padding: 20px;">
-          <div style="font-size: 1.3rem; font-weight: 700; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); margin-bottom: 16px;">
-            Upcoming 14-Day Schedule
-          </div>
-          <div class="agenda-scroll" id="agendaScrollList"></div>
-        </div>
-      `;
-
-      const list = document.getElementById('agendaScrollList');
+    function renderCalendarGrid() {
+      const grid = document.getElementById('calendarGrid');
+      const monthTitle = document.getElementById('calendarMonthHeading');
       const now = new Date();
-      now.setHours(0,0,0,0);
+      const year = now.getFullYear();
+      const month = now.getMonth();
 
-      const upcoming = eventsDatabase
-        .filter(e => new Date(e.start) >= now)
-        .sort((a,b) => new Date(a.start) - new Date(b.start));
+      monthTitle.textContent = now.toLocaleDateString([], { month: 'long', year: 'numeric' });
 
-      if (upcoming.length === 0) {
-        list.innerHTML = `<div style="color: var(--text-muted); padding: 20px 0;">No upcoming jobs or events on file.</div>`;
-        return;
+      // Clean existing cells (preserve 7 weekday headers)
+      while (grid.children.length > 7) {
+        grid.removeChild(grid.lastChild);
       }
 
-      upcoming.forEach(evt => {
-        const item = document.createElement('div');
-        item.className = 'event-card';
-        item.style.borderLeftColor = getEventColor(evt.summary);
-        item.innerHTML = `
-          <div class="event-card-title" style="font-size: 1.05rem;">${evt.summary}</div>
-          <div class="event-card-meta">
-            <span>📅 ${evt.start.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at ${evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
-            <span>📍 ${evt.location || 'Site / Office'}</span>
-          </div>
-        `;
-        list.appendChild(item);
-      });
-    }
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthLastDay = new Date(year, month, 0).getDate();
 
-    // Helper: Shared Month Grid & Drag-Drop Rescheduling
-    function populateCalendarGrid(gridEl, titleEl) {
-      gridEl.innerHTML = '';
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      days.forEach(d => {
-        const h = document.createElement('div');
-        h.className = 'day-name';
-        h.textContent = d;
-        gridEl.appendChild(h);
-      });
-
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-
-      if (titleEl) {
-        titleEl.textContent = today.toLocaleDateString([], { month: 'long', year: 'numeric' });
-      }
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const totalDays = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 0; i < firstDay; i++) {
-        const pad = document.createElement('div');
-        pad.className = 'day-cell';
-        pad.style.opacity = '0.2';
-        gridEl.appendChild(pad);
-      }
-
-      for (let d = 1; d <= totalDays; d++) {
+      // Leading days from previous month
+      for (let x = firstDayIndex; x > 0; x--) {
         const cell = document.createElement('div');
-        const isToday = (d === today.getDate());
-        cell.className = `day-cell ${isToday ? 'today' : ''}`;
-        cell.dataset.date = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        cell.className = 'calendar-day-cell inactive';
+        cell.innerHTML = `<span class="day-num">${prevMonthLastDay - x + 1}</span>`;
+        grid.appendChild(cell);
+      }
 
-        // Enable Drag & Drop
-        cell.ondragover = (e) => { e.preventDefault(); cell.classList.add('drag-over'); };
-        cell.ondragleave = () => cell.classList.remove('drag-over');
-        cell.ondrop = (e) => {
-          e.preventDefault();
-          cell.classList.remove('drag-over');
-          const evtId = e.dataTransfer.getData('text/plain');
-          const found = eventsDatabase.find(x => x.id === evtId);
-          if (found) {
-            const targetDate = new Date(cell.dataset.date + 'T09:00:00');
-            found.start = targetDate;
-            renderCurrentLayout();
-          }
-        };
+      // Active month days
+      for (let day = 1; day <= totalDaysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell';
+        const cellDate = new Date(year, month, day);
 
-        const num = document.createElement('div');
-        num.className = 'day-num';
-        num.textContent = d;
-        cell.appendChild(num);
+        if (day === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
+          cell.classList.add('today');
+        }
 
-        const evtsContainer = document.createElement('div');
-        evtsContainer.className = 'day-events';
+        cell.innerHTML = `<span class="day-num">${day}</span>`;
 
+        // Filter events for this cell's date
         const dayEvents = eventsDatabase.filter(e => {
-          const dateObj = new Date(e.start);
-          return dateObj.getFullYear() === year && dateObj.getMonth() === month && dateObj.getDate() === d;
+          return e.start.getFullYear() === cellDate.getFullYear() &&
+                 e.start.getMonth() === cellDate.getMonth() &&
+                 e.start.getDate() === cellDate.getDate();
         });
 
         dayEvents.forEach(evt => {
-          const pill = document.createElement('div');
-          pill.className = 'cal-pill';
-          pill.textContent = evt.summary;
-          pill.style.backgroundColor = getEventColor(evt.summary);
-          pill.draggable = true;
-          pill.ondragstart = (e) => e.dataTransfer.setData('text/plain', evt.id);
-          evtsContainer.appendChild(pill);
+          const badge = document.createElement('div');
+          badge.className = 'event-badge';
+          badge.style.backgroundColor = getEventColor(evt.summary);
+          badge.textContent = evt.summary;
+          badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
+          badge.onclick = (e) => {
+            e.stopPropagation();
+            openJobEditModal(evt.id);
+          };
+          cell.appendChild(badge);
         });
 
-        cell.appendChild(evtsContainer);
-        gridEl.appendChild(cell);
+        grid.appendChild(cell);
+      }
+
+      // Fill remaining cells for standard 35 or 42 grid
+      const totalRendered = firstDayIndex + totalDaysInMonth;
+      const trailingDays = totalRendered > 35 ? (42 - totalRendered) : (35 - totalRendered);
+      for (let i = 1; i <= trailingDays; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell inactive';
+        cell.innerHTML = `<span class="day-num">${i}</span>`;
+        grid.appendChild(cell);
       }
     }
 
-    function populateTodayQueue(container, badgeEl) {
+    function populateTodayQueue() {
+      const container = document.getElementById('dispatchQueue');
+      const countPill = document.getElementById('dispatchCountPill');
+      const now = new Date();
+
+      const todayEvents = eventsDatabase.filter(e => {
+        return e.start.getFullYear() === now.getFullYear() &&
+               e.start.getMonth() === now.getMonth() &&
+               e.start.getDate() === now.getDate();
+      });
+
+      countPill.textContent = `${todayEvents.length} scheduled`;
       container.innerHTML = '';
-      const today = new Date();
-      const todaysEvents = eventsDatabase.filter(e => new Date(e.start).toDateString() === today.toDateString());
 
-      if (badgeEl) badgeEl.textContent = `${todaysEvents.length} scheduled`;
-
-      if (todaysEvents.length === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 8px 0;">No events scheduled for today.</div>`;
+      if (todayEvents.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No events scheduled for today.</div>';
         return;
       }
 
-      todaysEvents.forEach(evt => {
-        const item = document.createElement('div');
-        item.className = 'event-card';
-        item.style.borderLeftColor = getEventColor(evt.summary);
-        item.innerHTML = `
-          <div class="event-card-title">${evt.summary}</div>
-          <div class="event-card-meta">
-            <span>⏰ ${evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+      todayEvents.forEach(evt => {
+        const card = document.createElement('div');
+        card.className = 'dispatch-card';
+        const color = getEventColor(evt.summary);
+        card.style.borderLeftColor = color;
+
+        const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        card.innerHTML = `
+          <div class="dispatch-card-title">
+            <span>${evt.summary}</span>
+          </div>
+          <div class="dispatch-card-time">
+            <span>⏰ ${timeStr}</span>
+          </div>
+          <div class="dispatch-card-location">
             <span>📍 ${evt.location || 'Site / Office'}</span>
           </div>
         `;
-        container.appendChild(item);
+        card.onclick = () => openJobEditModal(evt.id);
+        container.appendChild(card);
       });
     }
 
@@ -900,32 +1030,30 @@ function showEventDetails(evtId) {
     // 4. FAIL-SAFE BACKGROUND SYNC ENGINE
     // ==========================================
     async function triggerSync() {
-      const feedUrl = localStorage.getItem('company_cal_url');
+      let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       const badge = document.getElementById('syncBadge');
       const dot = document.getElementById('syncDot');
 
       if (!feedUrl) {
-        badge.textContent = 'No Feed Configured';
-        dot.className = 'sync-dot';
+        if (badge) badge.textContent = 'No Feed Configured';
+        if (dot) dot.className = 'sync-dot';
         return;
       }
 
       if (isFetching) return;
       isFetching = true;
-      dot.className = 'sync-dot busy';
-      badge.textContent = 'Syncing...';
+      if (dot) dot.className = 'sync-dot busy';
+      if (badge) badge.textContent = 'Syncing...';
 
       try {
         const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
-        const cacheBuster = `&_cb=${Date.now()}`;
-        const target = CLOUDFLARE_WORKER + encodeURIComponent(cleanUrl) + cacheBuster;
+        const finalUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(cleanUrl)}&_t=${Date.now()}`;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-        const res = await fetch(target, {
-          signal: controller.signal
-        });
+        // Simple GET fetch to bypass CORS preflight header rejection
+        const res = await fetch(finalUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -934,103 +1062,141 @@ function showEventDetails(evtId) {
         if (text && text.includes('BEGIN:VCALENDAR')) {
           parseICS(text);
           const timeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-          badge.textContent = `Synced ${timeStr}`;
-          dot.className = 'sync-dot';
+          if (badge) badge.textContent = `Synced ${timeStr}`;
+          if (dot) dot.className = 'sync-dot';
         } else {
-          throw new Error('Invalid ICS structure');
+          throw new Error('Invalid calendar payload');
         }
       } catch (err) {
         console.warn('Sync cycle warning:', err.message);
-        badge.textContent = 'Retrying in 60s';
-        dot.className = 'sync-dot';
+        if (badge) badge.textContent = 'Retrying in 60s';
+        if (dot) dot.className = 'sync-dot';
       } finally {
         isFetching = false;
         countdownSec = 60;
       }
     }
 
-    // Independent 1s countdown loop
+    // Countdown Polling Loop
     setInterval(() => {
-      if (countdownSec > 0) {
-        countdownSec--;
-      } else {
-        countdownSec = 60;
+      countdownSec--;
+      const badge = document.getElementById('syncBadge');
+      if (badge && badge.textContent.includes('Synced')) {
+        const timePart = badge.textContent.split(' (')[0];
+        badge.textContent = `${timePart} (next in ${countdownSec}s)`;
+      } else if (badge && badge.textContent.includes('Retrying')) {
+        badge.textContent = `Retrying in 60s (next in ${countdownSec}s)`;
+      }
+
+      if (countdownSec <= 0) {
         triggerSync();
       }
-      document.getElementById('syncCountdown').textContent = `(next in ${countdownSec}s)`;
     }, 1000);
 
+    // Initial Trigger
+    triggerSync();
+
     // ==========================================
-    // 5. MODAL UTILITIES & LOCAL FILE UPLOAD
+    // 5. MODAL & INTERACTION HANDLERS
     // ==========================================
-    function openFeedModal() {
-      document.getElementById('feedUrlInput').value = localStorage.getItem('company_cal_url') || '';
+    function openFeedSetupModal() {
+      const input = document.getElementById('feedUrlInput');
+      input.value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       document.getElementById('feedModal').style.display = 'flex';
     }
-    function closeFeedModal() { document.getElementById('feedModal').style.display = 'none'; }
 
-    function saveFeedConfig() {
-      const url = document.getElementById('feedUrlInput').value.trim();
-      const fileInput = document.getElementById('localIcsFileInput');
-
-      if (fileInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = (e) => parseICS(e.target.result);
-        reader.readAsText(fileInput.files[0]);
-        closeFeedModal();
-        return;
+    function saveFeedUrl() {
+      const val = document.getElementById('feedUrlInput').value.trim();
+      if (val) {
+        localStorage.setItem('company_cal_url', val);
       }
-
-      if (url) {
-        localStorage.setItem('company_cal_url', url);
-        closeFeedModal();
-        triggerSync();
-      }
+      document.getElementById('feedModal').style.display = 'none';
+      triggerSync();
     }
 
-    function openAddEventModal() {
-      document.getElementById('eventDateInput').value = new Date().toISOString().split('T')[0];
-      document.getElementById('eventModal').style.display = 'flex';
+    function openJobEditModal(evtId) {
+      const evt = eventsDatabase.find(e => e.id === evtId);
+      if (!evt) return;
+
+      document.getElementById('editJobId').value = evt.id;
+      document.getElementById('editJobSummary').value = evt.summary;
+      document.getElementById('editJobLocation').value = evt.location || '';
+      document.getElementById('editJobDescription').value = evt.description || '';
+
+      const toLocalISO = (d) => {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      };
+
+      document.getElementById('editJobStart').value = toLocalISO(evt.start);
+      document.getElementById('editJobEnd').value = evt.end ? toLocalISO(evt.end) : toLocalISO(evt.start);
+
+      document.getElementById('jobEditModal').style.display = 'flex';
     }
-    function closeAddEventModal() { document.getElementById('eventModal').style.display = 'none'; }
 
-    function saveManualEvent() {
-      const summary = document.getElementById('eventTitleInput').value.trim();
-      const dateVal = document.getElementById('eventDateInput').value;
-      const location = document.getElementById('eventLocationInput').value.trim();
+    function saveJobEdits() {
+      const id = document.getElementById('editJobId').value;
+      const evt = eventsDatabase.find(e => e.id === id);
+      if (!evt) return;
 
-      if (!summary || !dateVal) return;
+      const newSummary = document.getElementById('editJobSummary').value.trim();
+      const newLocation = document.getElementById('editJobLocation').value.trim();
+      const newDesc = document.getElementById('editJobDescription').value.trim();
+      const startVal = document.getElementById('editJobStart').value;
+      const endVal = document.getElementById('editJobEnd').value;
 
-      eventsDatabase.push({
-        id: 'manual_' + Date.now(),
-        summary: summary,
-        start: new Date(dateVal + 'T09:00:00'),
-        end: new Date(dateVal + 'T17:00:00'),
-        location: location
-      });
+      localEventOverrides[id] = {
+        summary: newSummary,
+        location: newLocation,
+        description: newDesc,
+        startTime: startVal ? new Date(startVal).toISOString() : evt.start.toISOString(),
+        endTime: endVal ? new Date(endVal).toISOString() : (evt.end ? evt.end.toISOString() : null)
+      };
+      localStorage.setItem('cal_event_overrides', JSON.stringify(localEventOverrides));
 
-      closeAddEventModal();
+      evt.summary = newSummary;
+      evt.location = newLocation;
+      evt.description = newDesc;
+      if (startVal) evt.start = new Date(startVal);
+      if (endVal) evt.end = new Date(endVal);
+
+      document.getElementById('jobEditModal').style.display = 'none';
       renderCurrentLayout();
     }
 
-    function toggleKioskMode() {
+    function revertJobOverrides() {
+      const id = document.getElementById('editJobId').value;
+      if (localEventOverrides[id]) {
+        delete localEventOverrides[id];
+        localStorage.setItem('cal_event_overrides', JSON.stringify(localEventOverrides));
+      }
+      document.getElementById('jobEditModal').style.display = 'none';
+      triggerSync();
+    }
+
+    function switchLayout(layoutName) {
+      const container = document.getElementById('mainContainer');
+      const buttons = document.querySelectorAll('.view-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+
+      container.className = '';
+      if (layoutName === 'big-month') {
+        container.classList.add('big-month-layout');
+      } else if (layoutName === 'dispatch') {
+        container.classList.add('dispatch-only-layout');
+      }
+
+      const activeBtn = Array.from(buttons).find(b => b.getAttribute('onclick').includes(layoutName));
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function toggleFullScreen() {
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-        document.body.classList.add('kiosk');
-        if ('wakeLock' in navigator) {
-          navigator.wakeLock.request('screen').catch(() => {});
-        }
+        document.documentElement.requestFullscreen().catch(err => alert(`Fullscreen error: ${err.message}`));
       } else {
         document.exitFullscreen();
-        document.body.classList.remove('kiosk');
       }
     }
-
-    // Initialize application
-    window.addEventListener('DOMContentLoaded', () => {
-      renderCurrentLayout();
-      triggerSync();
-    });
   </script>
 </body>
 </html>
