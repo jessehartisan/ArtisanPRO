@@ -883,6 +883,7 @@
 
       <div class="controls-cluster">
         <button class="btn" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
+        <button class="btn" style="border-color: var(--accent); color: var(--accent);" onclick="openTimeSheetModal()">⏱️ Log Hours</button>
         <button class="btn btn-primary" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
       </div>
     </div>
@@ -937,6 +938,49 @@
         <div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">Loading today's queue...</div>
       </div>
     </aside>
+
+    <!-- Time Sheet Modal -->
+<div id="timesheetModal" class="modal-overlay">
+  <div class="modal-box" style="max-width: 520px;">
+    <div class="modal-title">⏱️ Submit Field Time Sheet</div>
+    
+    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
+    <select id="tsCrew" class="modal-input" style="font-weight: 600;">
+      <option value="Joe">Amish Joe</option>
+      <option value="Joseph">Amish Joseph</option>
+      <option value="Sam">Amish Sam</option>
+      <option value="Willy">Amish Willy</option>
+      <option value="Chris">Chris</option>
+      <option value="Scotty">Scotty</option>
+      <option value="Other">Other / Sub</option>
+    </select>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div>
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
+        <input type="date" id="tsDate" class="modal-input" />
+      </div>
+      <div>
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
+        <input type="number" step="0.25" id="tsHours" class="modal-input" placeholder="8.0" />
+      </div>
+    </div>
+
+    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
+    <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
+
+    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope / Work Performed & Material Notes</label>
+    <textarea id="tsNotes" class="modal-input" style="height: 100px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+
+    <div class="modal-actions" style="justify-content: space-between;">
+      <span id="tsSubmitStatus" style="font-size: 0.8rem; font-weight: 600; align-self: center;"></span>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" onclick="document.getElementById('timesheetModal').style.display='none'">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitTS" onclick="submitTimeSheet()">Submit Hours</button>
+      </div>
+    </div>
+  </div>
+</div>
   </main>
 
   <!-- Feed Setup Modal -->
@@ -1022,6 +1066,63 @@
   </div>
 
   <script>
+    const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
+
+function openTimeSheetModal() {
+  document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('tsHours').value = '';
+  document.getElementById('tsJob').value = '';
+  document.getElementById('tsNotes').value = '';
+  document.getElementById('tsSubmitStatus').textContent = '';
+  document.getElementById('btnSubmitTS').disabled = false;
+  document.getElementById('timesheetModal').style.display = 'flex';
+}
+
+async function submitTimeSheet() {
+  const crew = document.getElementById('tsCrew').value;
+  const dateWorked = document.getElementById('tsDate').value;
+  const hours = document.getElementById('tsHours').value;
+  const job = document.getElementById('tsJob').value.trim();
+  const notes = document.getElementById('tsNotes').value.trim();
+  const statusEl = document.getElementById('tsSubmitStatus');
+  const btn = document.getElementById('btnSubmitTS');
+
+  if (!hours || !job) {
+    statusEl.style.color = '#f43f5e';
+    statusEl.textContent = 'Please provide hours and job name.';
+    return;
+  }
+
+  statusEl.style.color = 'var(--accent)';
+  statusEl.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    await fetch(TIMESHEET_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors', // Standard Google Apps Script POST behavior
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        crewWorker: crew,
+        dateWorked: dateWorked,
+        hours: hours,
+        jobProject: job,
+        notes: notes
+      })
+    });
+
+    statusEl.style.color = '#10b981';
+    statusEl.textContent = '✓ Logged to Office!';
+    setTimeout(() => {
+      document.getElementById('timesheetModal').style.display = 'none';
+    }, 1200);
+  } catch (err) {
+    statusEl.style.color = '#f43f5e';
+    statusEl.textContent = 'Submission error. Try again.';
+    btn.disabled = false;
+  }
+}
+    
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
 
