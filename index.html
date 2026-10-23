@@ -39,7 +39,6 @@
       position: relative;
     }
 
-    /* FULL-SCREEN WEATHER CANVAS */
     #weatherCanvas {
       position: fixed;
       inset: 0;
@@ -54,7 +53,7 @@
       z-index: 10;
     }
 
-    /* STRICT MONITOR/TV ZERO-SCROLL LOCK (> 1024px) */
+    /* ABSOLUTE MONITOR/TV ZERO-SCROLL LOCK (> 1024px) */
     @media (min-width: 1025px) {
       html, body {
         height: 100vh !important;
@@ -63,7 +62,6 @@
       }
     }
 
-    /* MOBILE / TABLET NATURAL VERTICAL SCROLL (<= 1024px) */
     @media (max-width: 1024px) {
       html, body {
         height: auto;
@@ -73,24 +71,25 @@
       }
     }
 
-    /* Top Utility Bar */
+    /* Ultra-Compact Header (50px fixed) */
     header {
       flex-shrink: 0;
+      height: 50px;
       background: rgba(9, 12, 16, 0.75);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      padding: 4px clamp(8px, 1vw, 16px);
-      gap: 3px;
+      justify-content: center;
+      padding: 0 clamp(8px, 1vw, 16px);
+      gap: 2px;
     }
 
     .header-primary-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
+      flex-wrap: nowrap;
     }
 
     .brand-section {
@@ -100,7 +99,7 @@
     }
 
     .brand-logo {
-      font-size: clamp(1.05rem, 1.2vw, 1.25rem);
+      font-size: clamp(1rem, 1.15vw, 1.2rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -118,22 +117,21 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.45);
       white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .sync-status {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-weight: 500;
     }
@@ -163,8 +161,8 @@
       backdrop-filter: blur(4px);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 3px 9px;
-      font-size: 0.74rem;
+      padding: 3px 8px;
+      font-size: 0.72rem;
       font-weight: 600;
       border-radius: 5px;
       cursor: pointer;
@@ -206,22 +204,20 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 3px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 2px;
     }
 
     .site-conditions-strip {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 600;
       color: var(--text-muted);
       background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(4px);
-      padding: 2px 7px;
-      border-radius: 5px;
+      padding: 1px 6px;
+      border-radius: 4px;
       border: 1px solid var(--card-border);
     }
 
@@ -234,16 +230,15 @@
       color: var(--accent);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       letter-spacing: 0.5px;
     }
 
     .view-toggles {
       display: flex;
       background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(4px);
-      padding: 2px;
-      border-radius: 6px;
+      padding: 1px;
+      border-radius: 5px;
       border: 1px solid var(--card-border);
       gap: 2px;
     }
@@ -252,10 +247,10 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 3px clamp(6px, 0.6vw, 11px);
-      font-size: 0.72rem;
+      padding: 2px clamp(5px, 0.5vw, 9px);
+      font-size: 0.68rem;
       font-weight: 600;
-      border-radius: 4px;
+      border-radius: 3px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
@@ -271,25 +266,24 @@
       color: var(--accent);
     }
 
-    /* Main Grid Frame */
+    /* Main Grid Frame (Strictly Fitted to viewport) */
     main {
       flex: 1;
-      padding: 8px clamp(8px, 1vw, 14px);
+      padding: 6px clamp(6px, 0.8vw, 10px);
       display: grid;
-      grid-template-columns: clamp(200px, 13vw, 240px) 1fr clamp(260px, 17vw, 320px);
-      gap: 8px;
+      grid-template-columns: clamp(190px, 12vw, 220px) 1fr clamp(250px, 16vw, 300px);
+      gap: 6px;
       min-height: 0;
     }
 
     @media (min-width: 1025px) {
       main {
-        height: calc(100vh - 68px) !important;
-        max-height: calc(100vh - 68px) !important;
+        height: calc(100vh - 50px) !important;
+        max-height: calc(100vh - 50px) !important;
         overflow: hidden !important;
       }
     }
 
-    /* Left Sidebar */
     .sidebar-left {
       display: flex;
       flex-direction: column;
@@ -301,8 +295,8 @@
     .widget {
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: clamp(6px, 0.8vw, 10px);
+      border-radius: 7px;
+      padding: 6px 8px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -318,12 +312,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       flex-shrink: 0;
     }
 
     .bulletin-title {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -331,7 +325,6 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .btn-icon-tiny {
@@ -339,9 +332,9 @@
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       cursor: pointer;
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-size: 0.68rem;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 0.65rem;
       transition: all 0.2s;
     }
 
@@ -356,34 +349,31 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       padding-right: 2px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: clamp(0.7rem, 0.75vw, 0.78rem);
+      gap: 5px;
+      font-size: clamp(0.68rem, 0.72vw, 0.75rem);
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 3px;
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
       flex-shrink: 0;
-      box-shadow: 0 0 5px rgba(0,0,0,0.6);
     }
 
-    /* YouTube Music Mini-Widget */
     .yt-music-widget {
       flex-shrink: 0;
-      padding: 6px 8px;
+      padding: 5px 7px;
     }
 
     @media (max-width: 768px) {
@@ -394,11 +384,11 @@
 
     .yt-player-frame-box {
       width: 100%;
-      height: 88px;
-      border-radius: 5px;
+      height: 80px;
+      border-radius: 4px;
       overflow: hidden;
       background: #000;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       position: relative;
     }
 
@@ -412,62 +402,64 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .btn-sm {
-      padding: 2px 6px;
-      font-size: 0.7rem;
+      padding: 2px 5px;
+      font-size: 0.68rem;
     }
 
     /* Center: Calendar Grid View */
     .center-view {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      border-radius: 7px;
       display: flex;
       flex-direction: column;
       min-height: 0;
-      overflow: hidden;
+      height: 100%;
+      overflow: hidden !important;
     }
 
     .calendar-toolbar {
       flex-shrink: 0;
+      height: 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 12px;
+      padding: 0 10px;
       border-bottom: 1px solid var(--card-border);
       background: rgba(0, 0, 0, 0.25);
     }
 
     .month-title {
-      font-size: clamp(0.9rem, 1.1vw, 1.15rem);
+      font-size: clamp(0.85rem, 1vw, 1.05rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
-    /* Strict Proportional Layout on Desktop/TV */
+    /* Zero-Scroll Proportional Math: 5 Equal Rows taking exactly 100% */
     .calendar-grid {
       flex: 1;
+      height: calc(100% - 28px);
       min-height: 0;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: 22px repeat(5, minmax(0, 1fr));
+      grid-template-rows: 20px repeat(5, calc((100% - 20px) / 5)) !important;
       overflow: hidden !important;
       background: transparent !important;
     }
 
     .calendar-grid.seven-day-mode {
-      grid-template-rows: 24px minmax(0, 1fr) !important;
+      grid-template-rows: 22px 1fr !important;
     }
 
     .weekday-header {
       background: rgba(0, 0, 0, 0.35);
-      padding: 2px;
-      font-size: 0.65rem;
+      padding: 1px;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -478,7 +470,6 @@
       justify-content: center;
       border-bottom: 1px solid var(--card-border);
       border-right: 1px solid var(--card-border);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .weekday-header:last-child {
@@ -491,13 +482,13 @@
       padding: 2px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
       min-height: 0;
+      height: 100%;
       overflow-y: auto;
       scrollbar-width: none;
       position: relative;
       background: transparent !important;
-      transition: background 0.2s ease;
     }
 
     .calendar-day-cell::-webkit-scrollbar {
@@ -513,7 +504,7 @@
     }
 
     .calendar-day-cell.inactive {
-      opacity: 0.3;
+      opacity: 0.28;
       background: rgba(0, 0, 0, 0.2) !important;
     }
 
@@ -523,12 +514,11 @@
     }
 
     .day-num {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--text-muted);
       line-height: 1;
       margin-bottom: 1px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .calendar-day-cell.today .day-num {
@@ -537,31 +527,29 @@
     }
 
     .event-badge {
-      font-size: clamp(0.62rem, 0.68vw, 0.72rem);
+      font-size: clamp(0.58rem, 0.64vw, 0.68rem);
       font-weight: 700;
-      padding: 2px 4px;
-      border-radius: 3px;
+      padding: 1px 3px;
+      border-radius: 2px;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
-      line-height: 1.2;
+      line-height: 1.15;
       flex-shrink: 0;
-      transition: filter 0.1s ease, transform 0.1s ease;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6);
     }
 
     .event-badge:hover {
       filter: brightness(1.2);
-      transform: translateY(-1px);
     }
 
     /* Right Sidebar: Today's Dispatch */
     .sidebar-right {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      border-radius: 7px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -570,7 +558,7 @@
 
     .dispatch-header {
       flex-shrink: 0;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
@@ -579,19 +567,18 @@
     }
 
     .dispatch-title {
-      font-size: clamp(0.85rem, 1vw, 1.05rem);
+      font-size: clamp(0.8rem, 0.95vw, 1rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .dispatch-count {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 2px 5px;
+      padding: 1px 5px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.45);
     }
@@ -600,10 +587,10 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 6px;
+      padding: 5px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
       background: transparent !important;
@@ -612,13 +599,12 @@
     .dispatch-card {
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--card-border);
-      border-left: 4px solid var(--accent);
-      border-radius: 5px;
-      padding: clamp(6px, 0.7vw, 9px);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: clamp(5px, 0.6vw, 8px);
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.15s ease, border-color 0.15s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
 
     .dispatch-card:hover {
@@ -627,29 +613,26 @@
     }
 
     .dispatch-card-title {
-      font-size: clamp(0.76rem, 0.84vw, 0.88rem);
+      font-size: clamp(0.72rem, 0.8vw, 0.84rem);
       font-weight: 700;
-      margin-bottom: 2px;
-      line-height: 1.25;
+      margin-bottom: 1px;
+      line-height: 1.2;
       color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
     }
 
     .dispatch-card-time {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .dispatch-card-location {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     /* Modals */
@@ -668,19 +651,19 @@
     .modal-box {
       background: rgba(20, 25, 32, 0.98);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 18px;
+      border-radius: 10px;
+      padding: 16px;
       width: 90%;
-      max-width: 540px;
+      max-width: 520px;
       max-height: 90vh;
       overflow-y: auto;
       box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.9);
     }
 
     .modal-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 800;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: #ffffff;
     }
 
@@ -689,11 +672,11 @@
       background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 8px 11px;
-      border-radius: 6px;
-      font-size: 0.86rem;
-      margin-top: 4px;
-      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      margin-top: 3px;
+      margin-bottom: 8px;
       outline: none;
       font-family: inherit;
     }
@@ -705,45 +688,45 @@
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin-top: 6px;
     }
 
     .crew-edit-row {
       display: grid;
       grid-template-columns: 1fr 1fr 48px 36px;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .crew-edit-input {
       background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
       color: #ffffff;
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 0.82rem;
+      padding: 6px 8px;
+      border-radius: 5px;
+      font-size: 0.8rem;
       font-family: inherit;
       outline: none;
     }
 
     .crew-color-picker {
       width: 100%;
-      height: 32px;
+      height: 30px;
       background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
-      padding: 2px;
+      padding: 1px;
     }
 
     .btn-row-del {
       background: rgba(244, 63, 94, 0.15);
       border: 1px solid rgba(244, 63, 94, 0.3);
       color: #f43f5e;
-      height: 32px;
-      border-radius: 6px;
+      height: 30px;
+      border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
       display: flex;
@@ -758,14 +741,14 @@
 
     @media (min-width: 1025px) {
       main.big-month-layout {
-        grid-template-columns: clamp(200px, 13vw, 240px) 1fr;
+        grid-template-columns: clamp(190px, 12vw, 220px) 1fr;
       }
       main.big-month-layout .sidebar-right {
         display: none;
       }
 
       main.seven-day-layout {
-        grid-template-columns: clamp(200px, 13vw, 240px) 1fr;
+        grid-template-columns: clamp(190px, 12vw, 220px) 1fr;
       }
       main.seven-day-layout .sidebar-right {
         display: none;
@@ -775,6 +758,7 @@
     /* Mobile Phones (<= 768px) */
     @media (max-width: 768px) {
       header {
+        height: auto;
         padding: 6px 8px;
       }
 
@@ -800,8 +784,8 @@
 
       .controls-cluster .btn {
         justify-content: center;
-        padding: 6px 4px;
-        font-size: 0.72rem;
+        padding: 5px 3px;
+        font-size: 0.7rem;
       }
 
       .header-sub-row {
@@ -821,14 +805,14 @@
 
       .view-btn {
         text-align: center;
-        padding: 6px 4px;
+        padding: 5px 3px;
       }
 
       main {
         display: flex;
         flex-direction: column;
-        padding: 8px;
-        gap: 10px;
+        padding: 6px;
+        gap: 8px;
         height: auto !important;
         max-height: none !important;
         overflow: visible !important;
@@ -848,35 +832,14 @@
 
       .calendar-grid {
         grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: 24px repeat(5, minmax(70px, auto)) !important;
+        grid-template-rows: 20px repeat(5, minmax(65px, auto)) !important;
         overflow: visible !important;
-      }
-
-      .weekday-header {
-        font-size: 0.65rem;
-        padding: 6px 2px;
-      }
-
-      .calendar-day-cell {
-        min-height: 75px;
-        padding: 3px;
-      }
-
-      .day-num {
-        font-size: 0.75rem;
-      }
-
-      .event-badge {
-        font-size: 0.72rem;
-        padding: 4px;
-        white-space: normal;
-        word-break: break-word;
       }
 
       .calendar-grid.seven-day-mode {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
       }
 
       .calendar-grid.seven-day-mode .weekday-header {
@@ -887,13 +850,13 @@
         border: 1px solid var(--card-border);
         border-radius: 6px;
         min-height: auto;
-        padding: 8px;
+        padding: 6px;
         background: rgba(0, 0, 0, 0.3) !important;
       }
 
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
-        font-size: 0.88rem;
-        margin-bottom: 4px;
+        font-size: 0.85rem;
+        margin-bottom: 3px;
         display: block;
       }
     }
@@ -901,7 +864,7 @@
 </head>
 <body>
 
-  <!-- Full-Screen Hardware-Accelerated Weather Canvas -->
+  <!-- Full-Screen Weather Canvas -->
   <canvas id="weatherCanvas"></canvas>
 
   <!-- Top Navigation & Status Header -->
@@ -929,7 +892,7 @@
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
-        <span style="color: var(--text-muted); font-size: 0.7rem;" id="weatherConditionLabel">• Live</span>
+        <span style="color: var(--text-muted); font-size: 0.68rem;" id="weatherConditionLabel">• Live</span>
       </div>
 
       <div class="view-toggles">
@@ -969,13 +932,13 @@
           <button class="btn btn-sm" onclick="ytNextTrack()" title="Next">⏭️</button>
         </div>
 
-        <div id="ytConfigDrawer" style="display: none; margin-top: 6px; border-top: 1px solid var(--card-border); padding-top: 5px;">
+        <div id="ytConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
           <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
-          <div style="display: flex; gap: 4px; margin-top: 3px;">
-            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 6px; font-size: 0.72rem;" placeholder="PL... or paste URL" />
-            <button class="btn btn-primary" style="padding: 4px 6px;" onclick="saveCustomPlaylist()">Load</button>
+          <div style="display: flex; gap: 3px; margin-top: 2px;">
+            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="PL... or paste URL" />
+            <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomPlaylist()">Load</button>
           </div>
-          <div id="ytStatusMsg" style="font-size: 0.65rem; margin-top: 3px; font-weight: 600; color: var(--accent);"></div>
+          <div id="ytStatusMsg" style="font-size: 0.65rem; margin-top: 2px; font-weight: 600; color: var(--accent);"></div>
         </div>
       </div>
     </aside>
@@ -997,20 +960,25 @@
         <div class="dispatch-count" id="dispatchCountPill">0 scheduled</div>
       </div>
       <div class="dispatch-list" id="dispatchQueue">
-        <div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">Loading today's queue...</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; padding: 8px;">Loading today's queue...</div>
       </div>
     </aside>
   </main>
 
-  <!-- Feed Setup Modal -->
+  <!-- Feed Setup Modal (Supports Dual Google + Outlook Calendars) -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
-        Paste your Google Calendar iCal (.ics) address below.
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+        Paste your Google Calendar iCal (.ics) and/or Outlook iCal address.
       </p>
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
-      <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../public/basic.ics" />
+      
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Primary Calendar iCal (.ics)</label>
+      <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" />
+      
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Secondary Calendar iCal (Optional Outlook/Vendor)</label>
+      <input type="text" id="feedUrlInput2" class="modal-input" placeholder="https://outlook.office365.com/.../reachcalendar.ics" />
+
       <div class="modal-actions">
         <button class="btn" onclick="document.getElementById('feedModal').style.display='none'">Cancel</button>
         <button class="btn btn-primary" onclick="saveFeedUrl()">Save & Sync Now</button>
@@ -1023,25 +991,25 @@
     <div class="modal-box">
       <div class="modal-title">Edit Scheduled Job</div>
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
       <input type="text" id="editJobSummary" class="modal-input" style="font-weight: 600;" />
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <div>
-          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
+          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
           <input type="datetime-local" id="editJobStart" class="modal-input" />
         </div>
         <div>
-          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
+          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
           <input type="datetime-local" id="editJobEnd" class="modal-input" />
         </div>
       </div>
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
       <input type="text" id="editJobLocation" class="modal-input" />
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
-      <textarea id="editJobDescription" class="modal-input" style="height: 120px; resize: vertical; line-height: 1.4;"></textarea>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
+      <textarea id="editJobDescription" class="modal-input" style="height: 110px; resize: vertical; line-height: 1.4;"></textarea>
 
       <input type="hidden" id="editJobId" />
 
@@ -1057,22 +1025,22 @@
 
   <!-- Crew Classification Manager Modal -->
   <div id="crewModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 580px;">
+    <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
-      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
         Define crew display names, calendar match keywords, and colors.
       </p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 6px; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">
         <div>Display Name</div>
         <div>Match Keyword</div>
         <div>Color</div>
         <div></div>
       </div>
 
-      <div id="crewRowsContainer" style="max-height: 240px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;"></div>
+      <div id="crewRowsContainer" style="max-height: 230px; overflow-y: auto; margin-bottom: 8px; padding-right: 4px;"></div>
 
-      <button class="btn" onclick="addCrewRow('', '', '#c28448')" style="margin-bottom: 12px; font-size: 0.75rem;">+ Add New Crew</button>
+      <button class="btn" onclick="addCrewRow('', '', '#c28448')" style="margin-bottom: 10px; font-size: 0.72rem;">+ Add New Crew</button>
 
       <div class="modal-actions" style="justify-content: space-between;">
         <button class="btn" style="color: #f43f5e;" onclick="resetCrewsToDefault()">Reset Defaults</button>
@@ -1086,10 +1054,10 @@
 
   <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 500px;">
+    <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
       <select id="tsCrew" class="modal-input" style="font-weight: 600;">
         <option value="Amish Joe">Amish Joe</option>
         <option value="Amish Joseph">Amish Joseph</option>
@@ -1100,25 +1068,25 @@
         <option value="Other">Other / Subcontractor</option>
       </select>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
         <div>
-          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
+          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
           <input type="date" id="tsDate" class="modal-input" />
         </div>
         <div>
-          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
+          <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
           <input type="number" step="0.25" id="tsHours" class="modal-input" placeholder="8.0" />
         </div>
       </div>
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
       <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
 
-      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
-      <textarea id="tsNotes" class="modal-input" style="height: 100px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
+      <textarea id="tsNotes" class="modal-input" style="height: 90px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
 
       <div class="modal-actions" style="justify-content: space-between;">
-        <span id="tsSubmitStatus" style="font-size: 0.78rem; font-weight: 700; align-self: center;"></span>
+        <span id="tsSubmitStatus" style="font-size: 0.75rem; font-weight: 700; align-self: center;"></span>
         <div style="display: flex; gap: 6px;">
           <button type="button" class="btn" onclick="document.getElementById('timesheetModal').style.display='none'">Cancel</button>
           <button type="button" class="btn btn-primary" id="btnSubmitTS" onclick="submitTimeSheet(event)">Submit Hours</button>
@@ -1154,7 +1122,7 @@
       { name: 'Sam', keyword: 'sam', color: '#f43f5e' },
       { name: 'Willy', keyword: 'willy', color: '#3b82f6' },
       { name: 'Chris', keyword: 'chris', color: '#eab308' },
-      { name: 'Scotty / 84 / Pickup', keyword: '84,scotty,pickup', color: '#d97706' }
+      { name: 'Scotty / 84 / Pickup', keyword: '84,scotty,pickup,stonepro', color: '#d97706' }
     ];
 
     let crewDefinitions = JSON.parse(localStorage.getItem('crew_classifications')) || DEFAULT_CREW_DEFINITIONS;
@@ -1290,13 +1258,12 @@
     setInterval(fetchWeather, 900000);
 
     // ==========================================
-    // 2. BULLETPROOF ICS PARSER
+    // 2. MULTI-DAY SPAN EXPANDING ICS PARSER
     // ==========================================
     function parseIcsDate(raw) {
       if (!raw) return new Date();
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
-      // All-Day Date: YYYYMMDD
       if (val.length === 8 && !val.includes('T')) {
         const y = parseInt(val.slice(0, 4), 10);
         const m = parseInt(val.slice(4, 6), 10) - 1;
@@ -1304,7 +1271,6 @@
         return new Date(y, m, d, 0, 0, 0);
       }
 
-      // UTC Timestamp: YYYYMMDDTHHMMSSZ
       if (val.includes('Z')) {
         const clean = val.replace('Z', '');
         const y = parseInt(clean.slice(0, 4), 10);
@@ -1316,7 +1282,6 @@
         return new Date(Date.UTC(y, m, d, hh, mm, ss));
       }
 
-      // Local/Floating Timestamp: YYYYMMDDTHHMMSS
       if (val.includes('T')) {
         const parts = val.split('T');
         const y = parseInt(parts[0].slice(0, 4), 10);
@@ -1330,68 +1295,101 @@
       return new Date(val);
     }
 
-    function parseICS(icsText) {
+    function parseICS(icsTextList) {
       const parsed = [];
-      const lines = [];
-      const rawLines = icsText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-      
-      for (let i = 0; i < rawLines.length; i++) {
-        const line = rawLines[i];
-        if (line.length === 0) continue;
-        if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) {
-          lines[lines.length - 1] += line.substring(1);
-        } else {
-          lines.push(line);
+      const texts = Array.isArray(icsTextList) ? icsTextList : [icsTextList];
+
+      for (let icsText of texts) {
+        if (!icsText || !icsText.includes('BEGIN:VCALENDAR')) continue;
+
+        const lines = [];
+        const rawLines = icsText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        for (let i = 0; i < rawLines.length; i++) {
+          const line = rawLines[i];
+          if (line.length === 0) continue;
+          if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) {
+            lines[lines.length - 1] += line.substring(1);
+          } else {
+            lines.push(line);
+          }
         }
-      }
 
-      let inEvent = false;
-      let cur = {};
+        let inEvent = false;
+        let cur = {};
 
-      for (let line of lines) {
-        const trimmed = line.trim();
-        if (trimmed === 'BEGIN:VEVENT') {
-          inEvent = true;
-          cur = { summary: '', description: '', location: '', rrule: '', isAllDay: false };
-        } else if (trimmed === 'END:VEVENT') {
-          inEvent = false;
-          if (cur.summary && cur.start) {
-            const stableId = 'evt_' + btoa(encodeURIComponent(cur.summary + '_' + cur.start.getTime())).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
-            cur.id = stableId;
+        for (let line of lines) {
+          const trimmed = line.trim();
+          if (trimmed === 'BEGIN:VEVENT') {
+            inEvent = true;
+            cur = { summary: '', description: '', location: '', rrule: '', isAllDay: false, start: null, end: null };
+          } else if (trimmed === 'END:VEVENT') {
+            inEvent = false;
+            if (cur.summary && cur.start) {
+              const baseId = 'evt_' + btoa(encodeURIComponent(cur.summary + '_' + cur.start.getTime())).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+              cur.id = baseId;
 
-            if (localEventOverrides[stableId]) {
-              const ov = localEventOverrides[stableId];
-              if (ov.summary !== undefined) cur.summary = ov.summary;
-              if (ov.location !== undefined) cur.location = ov.location;
-              if (ov.description !== undefined) cur.description = ov.description;
-              if (ov.startTime) cur.start = new Date(ov.startTime);
-              if (ov.endTime) cur.end = new Date(ov.endTime);
-            }
+              if (localEventOverrides[baseId]) {
+                const ov = localEventOverrides[baseId];
+                if (ov.summary !== undefined) cur.summary = ov.summary;
+                if (ov.location !== undefined) cur.location = ov.location;
+                if (ov.description !== undefined) cur.description = ov.description;
+                if (ov.startTime) cur.start = new Date(ov.startTime);
+                if (ov.endTime) cur.end = new Date(ov.endTime);
+              }
 
-            parsed.push(cur);
+              // MULTI-DAY SPAN EXPANSION (e.g. Amish Joe McKinney Oct 26-30)
+              if (cur.end && cur.end.getTime() > cur.start.getTime()) {
+                const sDate = new Date(cur.start.getFullYear(), cur.start.getMonth(), cur.start.getDate());
+                let eDate = new Date(cur.end.getFullYear(), cur.end.getMonth(), cur.end.getDate());
+                
+                // For all-day events, DTEND is exclusive (e.g., DTEND: 20261031 means through 20261030)
+                if (cur.isAllDay || (cur.end.getHours() === 0 && cur.end.getMinutes() === 0)) {
+                  eDate = new Date(eDate.getTime() - 86400000);
+                }
 
-            if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
-              for (let w = 1; w <= 4; w++) {
-                const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
-                const recEnd = cur.end ? new Date(cur.end.getTime() + w * 7 * 86400000) : recStart;
-                parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart, end: recEnd });
+                // If event spans across multiple distinct calendar days, create a badge for each day!
+                if (eDate.getTime() > sDate.getTime()) {
+                  let cursor = new Date(sDate);
+                  let dayIdx = 0;
+                  while (cursor.getTime() <= eDate.getTime()) {
+                    parsed.push({
+                      ...cur,
+                      id: `${baseId}_span_${dayIdx}`,
+                      start: new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), cur.start.getHours(), cur.start.getMinutes())
+                    });
+                    cursor.setDate(cursor.getDate() + 1);
+                    dayIdx++;
+                  }
+                } else {
+                  parsed.push(cur);
+                }
+              } else {
+                parsed.push(cur);
+              }
+
+              // Weekly Recurring Expansions
+              if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
+                for (let w = 1; w <= 4; w++) {
+                  const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
+                  parsed.push({ ...cur, id: cur.id + '_rec' + w, start: recStart });
+                }
               }
             }
-          }
-        } else if (inEvent) {
-          if (trimmed.startsWith('SUMMARY:')) {
-            cur.summary = trimmed.replace('SUMMARY:', '').trim();
-          } else if (trimmed.startsWith('DTSTART')) {
-            if (trimmed.includes('VALUE=DATE:')) cur.isAllDay = true;
-            cur.start = parseIcsDate(trimmed);
-          } else if (trimmed.startsWith('DTEND')) {
-            cur.end = parseIcsDate(trimmed);
-          } else if (trimmed.startsWith('LOCATION:')) {
-            cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
-          } else if (trimmed.startsWith('DESCRIPTION:')) {
-            cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
-          } else if (trimmed.startsWith('RRULE:')) {
-            cur.rrule = trimmed.replace('RRULE:', '').trim();
+          } else if (inEvent) {
+            if (trimmed.startsWith('SUMMARY:')) {
+              cur.summary = trimmed.replace('SUMMARY:', '').trim();
+            } else if (trimmed.startsWith('DTSTART')) {
+              if (trimmed.includes('VALUE=DATE:')) cur.isAllDay = true;
+              cur.start = parseIcsDate(trimmed);
+            } else if (trimmed.startsWith('DTEND')) {
+              cur.end = parseIcsDate(trimmed);
+            } else if (trimmed.startsWith('LOCATION:')) {
+              cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
+            } else if (trimmed.startsWith('DESCRIPTION:')) {
+              cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
+            } else if (trimmed.startsWith('RRULE:')) {
+              cur.rrule = trimmed.replace('RRULE:', '').trim();
+            }
           }
         }
       }
@@ -1399,16 +1397,13 @@
       parsed.sort((a, b) => {
         const timeDiff = a.start.getTime() - b.start.getTime();
         if (timeDiff !== 0) return timeDiff;
-
         const rankA = getCrewSortRank(a.summary);
         const rankB = getCrewSortRank(b.summary);
-
         if (rankA !== rankB) return rankA - rankB;
         return (a.summary || '').localeCompare(b.summary || '');
       });
 
       eventsDatabase = parsed;
-      // Persist to local cache so offline or rate-limited displays never go blank
       try {
         localStorage.setItem('cached_events_db', JSON.stringify(eventsDatabase));
       } catch (err) {}
@@ -1552,7 +1547,7 @@
             const badge = document.createElement('div');
             badge.className = 'event-badge';
             badge.style.backgroundColor = getEventColor(evt.summary);
-            badge.style.padding = '4px 6px';
+            badge.style.padding = '3px 6px';
             badge.style.fontSize = '0.72rem';
             badge.style.marginBottom = '2px';
 
@@ -1608,14 +1603,49 @@
     }
 
     // ==========================================
-    // 4. BACKGROUND SYNC (Dual-Proxy Failover)
+    // 4. BACKGROUND SYNC (Dual Google + Outlook)
     // ==========================================
+    async function fetchSingleFeed(feedUrl) {
+      if (!feedUrl) return null;
+      const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
+      const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
+      
+      // Attempt Cloudflare Worker
+      try {
+        const primaryUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`;
+        const c1 = new AbortController();
+        const t1 = setTimeout(() => c1.abort(), 9000);
+        const r1 = await fetch(primaryUrl, { signal: c1.signal, cache: 'no-store' });
+        clearTimeout(t1);
+        if (r1.ok) {
+          const txt = await r1.text();
+          if (txt && txt.includes('BEGIN:VCALENDAR')) return txt;
+        }
+      } catch (e) {}
+
+      // Fallback: Allorigins proxy
+      try {
+        const secondaryUrl = `${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`;
+        const c2 = new AbortController();
+        const t2 = setTimeout(() => c2.abort(), 9000);
+        const r2 = await fetch(secondaryUrl, { signal: c2.signal, cache: 'no-store' });
+        clearTimeout(t2);
+        if (r2.ok) {
+          const txt = await r2.text();
+          if (txt && txt.includes('BEGIN:VCALENDAR')) return txt;
+        }
+      } catch (e) {}
+
+      return null;
+    }
+
     async function triggerSync() {
-      let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
+      let feedUrl1 = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
+      let feedUrl2 = localStorage.getItem('company_cal_url2') || '';
       const badge = document.getElementById('syncBadge');
       const dot = document.getElementById('syncDot');
 
-      if (!feedUrl) {
+      if (!feedUrl1 && !feedUrl2) {
         if (badge) badge.textContent = 'No Feed Configured';
         if (dot) dot.className = 'sync-dot';
         return;
@@ -1627,48 +1657,22 @@
       if (badge) badge.textContent = 'Syncing...';
 
       try {
-        const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
-        // Insert bust parameter directly into the target calendar query
-        const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
-        
-        let text = null;
+        const [res1, res2] = await Promise.all([
+          fetchSingleFeed(feedUrl1),
+          fetchSingleFeed(feedUrl2)
+        ]);
 
-        // Attempt 1: Cloudflare Worker
-        try {
-          const primaryUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`;
-          const controller1 = new AbortController();
-          const tid1 = setTimeout(() => controller1.abort(), 9000);
-          const res1 = await fetch(primaryUrl, { signal: controller1.signal, cache: 'no-store' });
-          clearTimeout(tid1);
-          if (res1.ok) {
-            text = await res1.text();
-          }
-        } catch (e) {
-          console.warn("Primary Cloudflare Worker attempt bypassed, trying secondary proxy...");
-        }
-
-        // Attempt 2: Fallback to AllOrigins proxy if Primary failed or returned invalid data
-        if (!text || !text.includes('BEGIN:VCALENDAR')) {
-          const secondaryUrl = `${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`;
-          const controller2 = new AbortController();
-          const tid2 = setTimeout(() => controller2.abort(), 9000);
-          const res2 = await fetch(secondaryUrl, { signal: controller2.signal, cache: 'no-store' });
-          clearTimeout(tid2);
-          if (res2.ok) {
-            text = await res2.text();
-          }
-        }
-
-        if (text && text.includes('BEGIN:VCALENDAR')) {
-          parseICS(text);
+        const validFeeds = [res1, res2].filter(Boolean);
+        if (validFeeds.length > 0) {
+          parseICS(validFeeds);
           const timeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
           if (badge) badge.textContent = `Synced ${timeStr}`;
           if (dot) dot.className = 'sync-dot';
         } else {
-          throw new Error('Invalid calendar payload from both proxies');
+          throw new Error('Could not pull calendar feed');
         }
       } catch (err) {
-        console.warn('Sync cycle warning:', err.message);
+        console.warn('Sync warning:', err.message);
         if (badge) badge.textContent = 'Retrying in 60s';
         if (dot) dot.className = 'sync-dot';
       } finally {
@@ -1700,16 +1704,16 @@
     // 5. MODAL HANDLERS
     // ==========================================
     function openFeedSetupModal() {
-      const input = document.getElementById('feedUrlInput');
-      input.value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
+      document.getElementById('feedUrlInput').value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
+      document.getElementById('feedUrlInput2').value = localStorage.getItem('company_cal_url2') || '';
       document.getElementById('feedModal').style.display = 'flex';
     }
 
     function saveFeedUrl() {
-      const val = document.getElementById('feedUrlInput').value.trim();
-      if (val) {
-        localStorage.setItem('company_cal_url', val);
-      }
+      const val1 = document.getElementById('feedUrlInput').value.trim();
+      const val2 = document.getElementById('feedUrlInput2').value.trim();
+      if (val1) localStorage.setItem('company_cal_url', val1);
+      localStorage.setItem('company_cal_url2', val2);
       document.getElementById('feedModal').style.display = 'none';
       triggerSync();
     }
@@ -1946,7 +1950,7 @@
         : 'https://jessehartisan.github.io';
 
       ytPlayer = new YT.Player('ytAudioPlayer', {
-        height: '88',
+        height: '80',
         width: '100%',
         playerVars: {
           listType: 'playlist',
@@ -1977,22 +1981,16 @@
     }
 
     function onPlayerError(e) {
-      console.warn("YouTube Player error encountered, code:", e.data);
+      console.warn("YouTube Player error:", e.data);
       const msg = document.getElementById('ytStatusMsg');
-      
       if (e.data === 150 || e.data === 101) {
         if (msg) {
           msg.style.color = '#f59e0b';
-          msg.textContent = 'Skipping track (restricted by artist)...';
+          msg.textContent = 'Skipping track (restricted)...';
         }
         setTimeout(() => {
           if (ytPlayer && typeof ytPlayer.nextVideo === 'function') ytPlayer.nextVideo();
         }, 800);
-      } else {
-        if (msg) {
-          msg.style.color = '#f43f5e';
-          msg.textContent = '⚠️ Embed restricted. Confirm playlist is Public/Unlisted.';
-        }
       }
     }
 
@@ -2039,17 +2037,10 @@
       const raw = input.value;
       const cleanId = extractCleanPlaylistId(raw);
 
-      if (!cleanId) {
-        if (msg) {
-          msg.style.color = '#f43f5e';
-          msg.textContent = 'Please enter a valid Playlist ID or URL.';
-        }
-        return;
-      }
+      if (!cleanId) return;
 
       activePlaylistId = cleanId;
       localStorage.setItem('company_yt_playlist', activePlaylistId);
-      
       instantiatePlayer(activePlaylistId);
 
       if (msg) {
