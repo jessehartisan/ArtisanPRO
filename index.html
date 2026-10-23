@@ -264,7 +264,7 @@
       flex: 1;
       padding: 10px clamp(10px, 1.2vw, 18px);
       display: grid;
-      grid-template-columns: clamp(190px, 13vw, 240px) 1fr clamp(270px, 18vw, 340px);
+      grid-template-columns: clamp(210px, 14vw, 260px) 1fr clamp(270px, 18vw, 340px);
       gap: 10px;
       min-height: 0;
     }
@@ -290,7 +290,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 9px;
-      padding: clamp(8px, 0.9vw, 14px);
+      padding: clamp(8px, 0.9vw, 12px);
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -365,6 +365,39 @@
       flex-shrink: 0;
     }
 
+    /* YouTube Music Mini-Widget */
+    .yt-music-widget {
+      flex-shrink: 0;
+      padding: 8px 10px;
+    }
+
+    .yt-player-frame-box {
+      width: 100%;
+      height: 48px;
+      border-radius: 5px;
+      overflow: hidden;
+      background: #000;
+      margin-bottom: 6px;
+    }
+
+    .yt-player-frame-box iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .yt-ctrl-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 0.72rem;
+    }
+
     /* Center: Calendar Grid View */
     .center-view {
       background: var(--card-bg);
@@ -402,7 +435,7 @@
       overflow: hidden !important;
     }
 
-    /* 7-Day Rolling View Template (1 full-height row) */
+    /* 7-Day Rolling View Template */
     .calendar-grid.seven-day-mode {
       grid-template-rows: 28px minmax(0, 1fr) !important;
     }
@@ -683,14 +716,14 @@
     /* Alternate Layout Modifications (Desktop) */
     @media (min-width: 1025px) {
       main.big-month-layout {
-        grid-template-columns: clamp(190px, 13vw, 240px) 1fr;
+        grid-template-columns: clamp(210px, 14vw, 260px) 1fr;
       }
       main.big-month-layout .sidebar-right {
         display: none;
       }
 
       main.seven-day-layout {
-        grid-template-columns: clamp(190px, 13vw, 240px) 1fr;
+        grid-template-columns: clamp(210px, 14vw, 260px) 1fr;
       }
       main.seven-day-layout .sidebar-right {
         display: none;
@@ -801,7 +834,6 @@
         word-break: break-word;
       }
 
-      /* 7-Day View Single-Column Stack on Mobile */
       .calendar-grid.seven-day-mode {
         display: flex;
         flex-direction: column;
@@ -887,7 +919,7 @@
 
   <!-- Main View Grid -->
   <main id="mainContainer">
-    <!-- Left Panel: Crew Classification -->
+    <!-- Left Panel: Crew Classification & Mini YouTube Music Dock -->
     <aside class="sidebar-left">
       <div class="widget crew-bulletin">
         <div class="bulletin-header-row">
@@ -895,6 +927,32 @@
           <button class="btn-icon-tiny" title="Edit Crews & Colors" onclick="openCrewManagerModal()">⚙️ Edit</button>
         </div>
         <div class="crew-color-legend" id="crewLegendContainer"></div>
+      </div>
+
+      <!-- Mini YouTube Music Dock -->
+      <div class="widget yt-music-widget">
+        <div class="bulletin-header-row">
+          <div class="bulletin-title">🎵 Office Music</div>
+          <button class="btn-icon-tiny" onclick="toggleMusicDrawer()">⚙️ Playlist</button>
+        </div>
+        
+        <div class="yt-player-frame-box">
+          <div id="ytAudioPlayer"></div>
+        </div>
+
+        <div class="yt-ctrl-row">
+          <button class="btn btn-sm" onclick="ytPrevTrack()" title="Previous">⏮️</button>
+          <button class="btn btn-sm btn-primary" id="btnYtPlayPause" onclick="ytTogglePlay()">▶️ Play</button>
+          <button class="btn btn-sm" onclick="ytNextTrack()" title="Next">⏭️</button>
+        </div>
+
+        <div id="ytConfigDrawer" style="display: none; margin-top: 8px; border-top: 1px solid var(--card-border); padding-top: 6px;">
+          <label style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist ID</label>
+          <div style="display: flex; gap: 4px; margin-top: 3px;">
+            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 8px; font-size: 0.75rem;" placeholder="PLxxxxxx or Video ID" />
+            <button class="btn btn-primary" style="padding: 4px 8px;" onclick="saveCustomPlaylist()">Save</button>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -920,7 +978,7 @@
     </aside>
   </main>
 
-  <!-- Feed Setup Modal (Accessible only from Desktop web) -->
+  <!-- Feed Setup Modal (Desktop Admin View) -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -1061,6 +1119,7 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
+    // Default Crew Definitions (Chris: #eab308, Scotty: #d97706)
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1077,6 +1136,26 @@
       localStorage.setItem('crew_classifications', JSON.stringify(crewDefinitions));
     }
 
+    // Google Calendar Standard Colors Map
+    const GOOGLE_COLOR_MAP = {
+      'lavender': '#7986cb',
+      'sage': '#33b679',
+      'grape': '#8e24aa',
+      'flamingo': '#e67c73',
+      'banana': '#f6bf26',
+      'yellow': '#eab308',
+      'tangerine': '#f4511e',
+      'peacock': '#039be5',
+      'graphite': '#616161',
+      'blueberry': '#3f51b5',
+      'basil': '#0b8043',
+      'green': '#10b981',
+      'red': '#f43f5e',
+      'blue': '#3b82f6',
+      'orange': '#d97706',
+      'purple': '#a855f7'
+    };
+
     function renderCrewLegend() {
       const container = document.getElementById('crewLegendContainer');
       if (!container) return;
@@ -1091,6 +1170,19 @@
 
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
+
+      // 1. Check for bracketed hex code: e.g. [#eab308]
+      const hexMatch = (title || '').match(/\[(#[0-9a-fA-F]{3,6})\]/);
+      if (hexMatch) return hexMatch[1];
+
+      // 2. Check for bracketed color name: e.g. [yellow], [green]
+      const nameMatch = (title || '').match(/\[([a-zA-Z]+)\]/);
+      if (nameMatch) {
+        const colorName = nameMatch[1].toLowerCase();
+        if (GOOGLE_COLOR_MAP[colorName]) return GOOGLE_COLOR_MAP[colorName];
+      }
+
+      // 3. Fallback to crew classification rules
       for (const c of crewDefinitions) {
         const keys = c.keyword.split(',').map(k => k.trim().toLowerCase());
         for (const k of keys) {
@@ -1098,6 +1190,10 @@
         }
       }
       return '#475569';
+    }
+
+    function cleanEventTitle(title) {
+      return (title || '').replace(/\[(#[0-9a-fA-F]{3,6}|[a-zA-Z]+)\]\s*/i, '').trim();
     }
 
     function getCrewSortRank(title) {
@@ -1314,7 +1410,7 @@
           const badge = document.createElement('div');
           badge.className = 'event-badge';
           badge.style.backgroundColor = getEventColor(evt.summary);
-          badge.textContent = evt.summary;
+          badge.textContent = cleanEventTitle(evt.summary);
           badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
           badge.onclick = (e) => {
             e.stopPropagation();
@@ -1336,7 +1432,6 @@
       }
     }
 
-    // 7-Day Rolling Calendar View Engine
     function renderSevenDayGrid() {
       const grid = document.getElementById('calendarGrid');
       const heading = document.getElementById('calendarMonthHeading');
@@ -1392,7 +1487,7 @@
             badge.style.marginBottom = '3px';
 
             const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-            badge.textContent = `${evt.summary} (${timeStr})`;
+            badge.textContent = `${cleanEventTitle(evt.summary)} (${timeStr})`;
             badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
             badge.onclick = (e) => {
               e.stopPropagation();
@@ -1433,7 +1528,7 @@
 
         const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         card.innerHTML = `
-          <div class="dispatch-card-title">${evt.summary}</div>
+          <div class="dispatch-card-title">${cleanEventTitle(evt.summary)}</div>
           <div class="dispatch-card-time">⏰ ${timeStr}</div>
           <div class="dispatch-card-location">📍 ${evt.location || 'Site / Office'}</div>
         `;
@@ -1714,6 +1809,93 @@
         statusEl.textContent = 'Network error. Try again.';
         btn.disabled = false;
       }
+    }
+
+    // ==========================================
+    // 8. YOUTUBE MUSIC MINI-PLAYER ENGINE
+    // ==========================================
+    let activePlaylistId = localStorage.getItem('company_yt_playlist') || 'PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5';
+    let ytPlayer = null;
+    let isYtPlaying = false;
+
+    (function initYouTubeAPI() {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    })();
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('ytAudioPlayer', {
+        height: '48',
+        width: '100%',
+        playerVars: {
+          listType: 'playlist',
+          list: activePlaylistId,
+          autoplay: 0,
+          controls: 0,
+          playsinline: 1,
+          modestbranding: 1
+        },
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      const btn = document.getElementById('btnYtPlayPause');
+      if (event.data === YT.PlayerState.PLAYING) {
+        isYtPlaying = true;
+        if (btn) btn.textContent = '⏸️ Pause';
+      } else {
+        isYtPlaying = false;
+        if (btn) btn.textContent = '▶️ Play';
+      }
+    }
+
+    function ytTogglePlay() {
+      if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
+      if (isYtPlaying) {
+        ytPlayer.pauseVideo();
+      } else {
+        ytPlayer.playVideo();
+      }
+    }
+
+    function ytNextTrack() {
+      if (ytPlayer && typeof ytPlayer.nextVideo === 'function') ytPlayer.nextVideo();
+    }
+
+    function ytPrevTrack() {
+      if (ytPlayer && typeof ytPlayer.previousVideo === 'function') ytPlayer.previousVideo();
+    }
+
+    function toggleMusicDrawer() {
+      const drawer = document.getElementById('ytConfigDrawer');
+      const input = document.getElementById('ytPlaylistInput');
+      input.value = activePlaylistId;
+      drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function saveCustomPlaylist() {
+      const input = document.getElementById('ytPlaylistInput');
+      const raw = input.value.trim();
+      if (!raw) return;
+
+      let pId = raw;
+      if (raw.includes('list=')) {
+        pId = raw.split('list=')[1].split('&')[0];
+      }
+
+      activePlaylistId = pId;
+      localStorage.setItem('company_yt_playlist', activePlaylistId);
+      
+      if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
+        ytPlayer.loadPlaylist({ list: activePlaylistId, listType: 'playlist' });
+      }
+
+      document.getElementById('ytConfigDrawer').style.display = 'none';
     }
 
     // View Switching Logic
