@@ -13,13 +13,13 @@
        ======================================================== */
     :root {
       --bg-dark: #090c10;           
-      --card-border: rgba(255, 255, 255, 0.12);    /* Crisp wireframe borders */
+      --card-border: rgba(255, 255, 255, 0.12);
       --accent: #c28448;                            /* Artisan Craft Bronze */
       --accent-hover: #d99b5a;                      /* Warm Cedar Glow */
       --accent-muted: rgba(194, 132, 72, 0.28);
       --text-main: #f5f7fa;                         /* Warm Off-White */
       --text-muted: #9ba6b5;                        /* Balanced Slate Gray */
-      --grid-line: rgba(255, 255, 255, 0.08);       /* Sheer wireframe grid lines */
+      --grid-line: rgba(255, 255, 255, 0.08);
       --today-bg: rgba(194, 132, 72, 0.18);
       --today-border: #c28448;
     }
@@ -31,7 +31,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Base Setup */
     html, body {
       width: 100vw;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -50,10 +49,9 @@
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 1; /* Sits directly behind all transparent panels */
+      z-index: 1;
     }
 
-    /* Header and Main Sit Above the Weather Canvas */
     header, main, .modal-overlay {
       position: relative;
       z-index: 10;
@@ -119,7 +117,6 @@
       color: var(--accent);
     }
 
-    /* Compact Live Date & Time Ticker */
     .compact-datetime-ticker {
       display: flex;
       align-items: center;
@@ -199,7 +196,6 @@
       border-color: var(--accent-hover);
     }
 
-    /* Hide Feed Setup on mobile devices and inside full-screen TV Kiosk mode */
     @media (max-width: 768px) {
       .btn-feed-setup {
         display: none !important;
@@ -210,7 +206,6 @@
       display: none !important;
     }
 
-    /* Sub-Bar: Live Conditions Strip & View Selectors */
     .header-sub-row {
       display: flex;
       justify-content: space-between;
@@ -299,7 +294,7 @@
       }
     }
 
-    /* Left Sidebar: Translucent Wireframe Container */
+    /* Left Sidebar */
     .sidebar-left {
       display: flex;
       flex-direction: column;
@@ -309,7 +304,7 @@
     }
 
     .widget {
-      background: rgba(0, 0, 0, 0.2); /* Transparent to let weather show through */
+      background: rgba(0, 0, 0, 0.2);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       padding: clamp(8px, 0.9vw, 12px);
@@ -390,7 +385,7 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.6);
     }
 
-    /* YouTube Music Mini-Widget */
+    /* YouTube Music Widget: Sized Above 100px to Prevent Embed Rejection */
     .yt-music-widget {
       flex-shrink: 0;
       padding: 8px 10px;
@@ -398,11 +393,12 @@
 
     .yt-player-frame-box {
       width: 100%;
-      height: 48px;
-      border-radius: 5px;
+      height: 110px; /* Complies with YouTube minimum viewport constraints */
+      border-radius: 6px;
       overflow: hidden;
-      background: rgba(0, 0, 0, 0.4);
+      background: #000;
       margin-bottom: 6px;
+      position: relative;
     }
 
     .yt-player-frame-box iframe {
@@ -423,9 +419,9 @@
       font-size: 0.72rem;
     }
 
-    /* Center: Calendar Grid View (100% Transparent Wireframe) */
+    /* Center: Calendar Grid View */
     .center-view {
-      background: rgba(0, 0, 0, 0.15); /* Fully transparent body */
+      background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       display: flex;
@@ -452,7 +448,6 @@
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
-    /* Month Grid Template (Zero-Scroll 5-Row Fixed Partitioning) */
     .calendar-grid {
       flex: 1;
       min-height: 0;
@@ -463,7 +458,6 @@
       background: transparent !important;
     }
 
-    /* 7-Day Rolling View Template */
     .calendar-grid.seven-day-mode {
       grid-template-rows: 28px minmax(0, 1fr) !important;
     }
@@ -489,7 +483,6 @@
       border-right: none;
     }
 
-    /* Completely Transparent Day Cells - Weather Animates Directly Behind */
     .calendar-day-cell {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
@@ -502,7 +495,7 @@
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
       position: relative;
-      background: transparent !important; /* Zero opacity backdrop */
+      background: transparent !important;
       transition: background 0.2s ease;
     }
 
@@ -538,7 +531,6 @@
       font-weight: 800;
     }
 
-    /* Event Badges on Calendar */
     .event-badge {
       font-size: clamp(0.65rem, 0.72vw, 0.74rem);
       font-weight: 700;
@@ -560,7 +552,7 @@
       transform: translateY(-1px);
     }
 
-    /* Right Sidebar: Today's Dispatch (Transparent Wireframe) */
+    /* Right Sidebar: Today's Dispatch */
     .sidebar-right {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
@@ -613,7 +605,7 @@
     }
 
     .dispatch-card {
-      background: rgba(0, 0, 0, 0.35); /* Translucent so weather passes through */
+      background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
       border-radius: 6px;
@@ -930,7 +922,6 @@
 
   <!-- Top Navigation & Status Header -->
   <header>
-    <!-- Row 1: Brand, Date/Time Ticker, Sync Dot, Controls -->
     <div class="header-primary-row">
       <div class="brand-section">
         <div class="brand-logo">Artisan<span>PRO</span></div>
@@ -949,7 +940,6 @@
       </div>
     </div>
 
-    <!-- Row 2: Live Conditions Strip & View Selectors -->
     <div class="header-sub-row">
       <div class="site-conditions-strip">
         <span class="condition-tag">Site Conditions</span>
@@ -1006,7 +996,7 @@
       </div>
     </aside>
 
-    <!-- Center Calendar (Wireframe with Direct Weather Visibility Behind) -->
+    <!-- Center Calendar -->
     <section class="center-view">
       <div class="calendar-toolbar">
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
@@ -1028,7 +1018,7 @@
     </aside>
   </main>
 
-  <!-- Feed Setup Modal (Desktop Admin View) -->
+  <!-- Feed Setup Modal -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -1168,7 +1158,6 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Default Crew Definitions (Chris: #eab308, Scotty: #d97706)
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1920,16 +1909,23 @@
         container.innerHTML = '<div id="ytAudioPlayer"></div>';
       }
 
+      // Origin safety fallback: default to window.location.origin, fallback to https://github.com if local file
+      const currentOrigin = (window.location.protocol.startsWith('http')) 
+        ? window.location.origin 
+        : 'https://jessehartisan.github.io';
+
       ytPlayer = new YT.Player('ytAudioPlayer', {
-        height: '48',
+        height: '110',
         width: '100%',
         playerVars: {
           listType: 'playlist',
           list: playlistId,
           autoplay: 0,
-          controls: 0,
+          controls: 1,
           playsinline: 1,
-          modestbranding: 1
+          enablejsapi: 1,
+          origin: currentOrigin,
+          rel: 0
         },
         events: {
           'onReady': onPlayerReady,
@@ -1950,11 +1946,23 @@
     }
 
     function onPlayerError(e) {
-      console.warn("YouTube Player error:", e.data);
+      console.warn("YouTube Player error encountered, code:", e.data);
       const msg = document.getElementById('ytStatusMsg');
-      if (msg) {
-        msg.style.color = '#f43f5e';
-        msg.textContent = '⚠️ Playlist load error (verify privacy is Unlisted/Public)';
+      
+      // Error 101/150: Track owner prohibits playback in embedded players. Auto-skip to next track in queue.
+      if (e.data === 150 || e.data === 101) {
+        if (msg) {
+          msg.style.color = '#f59e0b';
+          msg.textContent = 'Skipping track (restricted by artist)...';
+        }
+        setTimeout(() => {
+          if (ytPlayer && typeof ytPlayer.nextVideo === 'function') ytPlayer.nextVideo();
+        }, 800);
+      } else {
+        if (msg) {
+          msg.style.color = '#f43f5e';
+          msg.textContent = '⚠️ Embed restricted. Confirm playlist is Public/Unlisted.';
+        }
       }
     }
 
@@ -2085,7 +2093,6 @@
           });
         }
       } else {
-        // Clear sky solar motes
         const count = 45;
         for (let i = 0; i < count; i++) {
           particles.push({
@@ -2196,7 +2203,6 @@
         }
 
       } else {
-        // Clear sky solar motes
         for (let p of particles) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
