@@ -947,11 +947,12 @@
         </div>
 
         <div id="ytConfigDrawer" style="display: none; margin-top: 8px; border-top: 1px solid var(--card-border); padding-top: 6px;">
-          <label style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist ID</label>
+          <label style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
           <div style="display: flex; gap: 4px; margin-top: 3px;">
-            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 8px; font-size: 0.75rem;" placeholder="PLxxxxxx or Video ID" />
-            <button class="btn btn-primary" style="padding: 4px 8px;" onclick="saveCustomPlaylist()">Save</button>
+            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 8px; font-size: 0.75rem;" placeholder="PL... or paste URL" />
+            <button class="btn btn-primary" style="padding: 4px 8px;" onclick="saveCustomPlaylist()">Load</button>
           </div>
+          <div id="ytStatusMsg" style="font-size: 0.68rem; margin-top: 4px; font-weight: 600; color: var(--accent);"></div>
         </div>
       </div>
     </aside>
@@ -1812,12 +1813,30 @@
     }
 
     // ==========================================
-    // 8. YOUTUBE MUSIC MINI-PLAYER ENGINE
+    // 8. ROBUST YOUTUBE MUSIC MINI-PLAYER ENGINE
     // ==========================================
     let activePlaylistId = localStorage.getItem('company_yt_playlist') || 'PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5';
     let ytPlayer = null;
     let isYtPlaying = false;
 
+    // Helper: clean raw inputs and extract exact PL identifier
+    function extractCleanPlaylistId(raw) {
+      if (!raw) return '';
+      let clean = raw.trim();
+
+      // Check if full URL or URI component
+      if (clean.includes('list=')) {
+        const parts = clean.split('list=')[1];
+        clean = parts.split('&')[0].split('#')[0];
+      } else if (clean.includes('youtu.be/')) {
+        const parts = clean.split('youtu.be/')[1];
+        clean = parts.split('?')[0];
+      }
+
+      return clean.trim();
+    }
+
+    // Asynchronously load official YouTube IFrame API
     (function initYouTubeAPI() {
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
@@ -1825,22 +1844,54 @@
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     })();
 
-    function onYouTubeIframeAPIReady() {
+    function instantiatePlayer(playlistId) {
+      // If player already exists, destroy iframe before rebuild
+      if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+        ytPlayer.destroy();
+      }
+
+      // Re-create mount point element
+      const container = document.querySelector('.yt-player-frame-box');
+      if (container) {
+        container.innerHTML = '<div id="ytAudioPlayer"></div>';
+      }
+
       ytPlayer = new YT.Player('ytAudioPlayer', {
         height: '48',
         width: '100%',
         playerVars: {
           listType: 'playlist',
-          list: activePlaylistId,
+          list: playlistId,
           autoplay: 0,
           controls: 0,
           playsinline: 1,
           modestbranding: 1
         },
         events: {
-          'onStateChange': onPlayerStateChange
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError
         }
       });
+    }
+
+    function onYouTubeIframeAPIReady() {
+      instantiatePlayer(activePlaylistId);
+    }
+
+    function onPlayerReady(event) {
+      const btn = document.getElementById('btnYtPlayPause');
+      if (btn) btn.textContent = '▶️ Play';
+      isYtPlaying = false;
+    }
+
+    function onPlayerError(e) {
+      console.warn("YouTube Player error:", e.data);
+      const msg = document.getElementById('ytStatusMsg');
+      if (msg) {
+        msg.style.color = '#f43f5e';
+        msg.textContent = '⚠️ Playlist load error (verify privacy is Unlisted/Public)';
+      }
     }
 
     function onPlayerStateChange(event) {
@@ -1874,28 +1925,41 @@
     function toggleMusicDrawer() {
       const drawer = document.getElementById('ytConfigDrawer');
       const input = document.getElementById('ytPlaylistInput');
+      const msg = document.getElementById('ytStatusMsg');
       input.value = activePlaylistId;
+      if (msg) msg.textContent = '';
       drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
     }
 
     function saveCustomPlaylist() {
       const input = document.getElementById('ytPlaylistInput');
-      const raw = input.value.trim();
-      if (!raw) return;
+      const msg = document.getElementById('ytStatusMsg');
+      const raw = input.value;
+      const cleanId = extractCleanPlaylistId(raw);
 
-      let pId = raw;
-      if (raw.includes('list=')) {
-        pId = raw.split('list=')[1].split('&')[0];
+      if (!cleanId) {
+        if (msg) {
+          msg.style.color = '#f43f5e';
+          msg.textContent = 'Please enter a valid Playlist ID or URL.';
+        }
+        return;
       }
 
-      activePlaylistId = pId;
+      activePlaylistId = cleanId;
       localStorage.setItem('company_yt_playlist', activePlaylistId);
       
-      if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
-        ytPlayer.loadPlaylist({ list: activePlaylistId, listType: 'playlist' });
+      // Re-instantiate player directly with the new playlist ID
+      instantiatePlayer(activePlaylistId);
+
+      if (msg) {
+        msg.style.color = '#10b981';
+        msg.textContent = `✓ Loaded: ${cleanId}`;
       }
 
-      document.getElementById('ytConfigDrawer').style.display = 'none';
+      setTimeout(() => {
+        const drawer = document.getElementById('ytConfigDrawer');
+        if (drawer) drawer.style.display = 'none';
+      }, 1400);
     }
 
     // View Switching Logic
