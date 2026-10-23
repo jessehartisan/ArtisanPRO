@@ -73,7 +73,7 @@
       }
     }
 
-    /* Top Utility Bar (Strict Height to Prevent TV Overflow) */
+    /* Top Utility Bar */
     header {
       flex-shrink: 0;
       background: rgba(9, 12, 16, 0.75);
@@ -494,7 +494,7 @@
       gap: 2px;
       min-height: 0;
       overflow-y: auto;
-      scrollbar-width: none; /* Hide scrollbars inside cells on kiosk */
+      scrollbar-width: none;
       position: relative;
       background: transparent !important;
       transition: background 0.2s ease;
@@ -852,6 +852,27 @@
         overflow: visible !important;
       }
 
+      .weekday-header {
+        font-size: 0.65rem;
+        padding: 6px 2px;
+      }
+
+      .calendar-day-cell {
+        min-height: 75px;
+        padding: 3px;
+      }
+
+      .day-num {
+        font-size: 0.75rem;
+      }
+
+      .event-badge {
+        font-size: 0.72rem;
+        padding: 4px;
+        white-space: normal;
+        word-break: break-word;
+      }
+
       .calendar-grid.seven-day-mode {
         display: flex;
         flex-direction: column;
@@ -1108,14 +1129,20 @@
 
   <script>
     // ==========================================
-    // CONFIGURATION & WORKER PROXY
+    // CONFIGURATION & DUAL-PROXY RESILIENCE
     // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
+    const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     const FALLBACK_PLAYLIST_ID = "PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5";
 
-    let eventsDatabase = [];
+    let eventsDatabase = JSON.parse(localStorage.getItem('cached_events_db') || '[]').map(e => {
+      e.start = new Date(e.start);
+      if (e.end) e.end = new Date(e.end);
+      return e;
+    });
+
     let currentLayout = 'split';
     let countdownSec = 60;
     let isFetching = false;
@@ -1263,19 +1290,18 @@
     setInterval(fetchWeather, 900000);
 
     // ==========================================
-    // 2. ENHANCED ICS PARSER (Fixed Line Unfolding)
+    // 2. BULLETPROOF ICS PARSER
     // ==========================================
     function parseIcsDate(raw) {
       if (!raw) return new Date();
-      // Extract everything after the colon (DTSTART;VALUE=DATE:20261026 -> 20261026)
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
-      // All-Day Event: YYYYMMDD
+      // All-Day Date: YYYYMMDD
       if (val.length === 8 && !val.includes('T')) {
         const y = parseInt(val.slice(0, 4), 10);
         const m = parseInt(val.slice(4, 6), 10) - 1;
         const d = parseInt(val.slice(6, 8), 10);
-        return new Date(y, m, d, 0, 0, 0); // Normalized local midnight
+        return new Date(y, m, d, 0, 0, 0);
       }
 
       // UTC Timestamp: YYYYMMDDTHHMMSSZ
@@ -1290,7 +1316,7 @@
         return new Date(Date.UTC(y, m, d, hh, mm, ss));
       }
 
-      // Floating Local Timestamp: YYYYMMDDTHHMMSS
+      // Local/Floating Timestamp: YYYYMMDDTHHMMSS
       if (val.includes('T')) {
         const parts = val.split('T');
         const y = parseInt(parts[0].slice(0, 4), 10);
@@ -1306,8 +1332,6 @@
 
     function parseICS(icsText) {
       const parsed = [];
-      
-      // Standard RFC 5545 Line Unfolding: Only unfold lines that start with space or tab
       const lines = [];
       const rawLines = icsText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
       
@@ -1346,7 +1370,6 @@
 
             parsed.push(cur);
 
-            // Expand recurring events if weekly
             if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
               for (let w = 1; w <= 4; w++) {
                 const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
@@ -1385,6 +1408,11 @@
       });
 
       eventsDatabase = parsed;
+      // Persist to local cache so offline or rate-limited displays never go blank
+      try {
+        localStorage.setItem('cached_events_db', JSON.stringify(eventsDatabase));
+      } catch (err) {}
+
       renderCurrentLayout();
     }
 
@@ -1580,7 +1608,7 @@
     }
 
     // ==========================================
-    // 4. BACKGROUND SYNC (Cache Busted)
+    // 4. BACKGROUND SYNC (Dual-Proxy Failover)
     // ==========================================
     async function triggerSync() {
       let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
@@ -1600,29 +1628,44 @@
 
       try {
         const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
-        // Append microsecond salt to bypass Cloudflare Worker edge cache
-        const finalUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(cleanUrl)}&_t=${Date.now()}&_salt=${Math.random()}`;
+        // Insert bust parameter directly into the target calendar query
+        const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
+        
+        let text = null;
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
+        // Attempt 1: Cloudflare Worker
+        try {
+          const primaryUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`;
+          const controller1 = new AbortController();
+          const tid1 = setTimeout(() => controller1.abort(), 9000);
+          const res1 = await fetch(primaryUrl, { signal: controller1.signal, cache: 'no-store' });
+          clearTimeout(tid1);
+          if (res1.ok) {
+            text = await res1.text();
+          }
+        } catch (e) {
+          console.warn("Primary Cloudflare Worker attempt bypassed, trying secondary proxy...");
+        }
 
-        const res = await fetch(finalUrl, { 
-          signal: controller.signal,
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-        });
-        clearTimeout(timeoutId);
+        // Attempt 2: Fallback to AllOrigins proxy if Primary failed or returned invalid data
+        if (!text || !text.includes('BEGIN:VCALENDAR')) {
+          const secondaryUrl = `${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`;
+          const controller2 = new AbortController();
+          const tid2 = setTimeout(() => controller2.abort(), 9000);
+          const res2 = await fetch(secondaryUrl, { signal: controller2.signal, cache: 'no-store' });
+          clearTimeout(tid2);
+          if (res2.ok) {
+            text = await res2.text();
+          }
+        }
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const text = await res.text();
         if (text && text.includes('BEGIN:VCALENDAR')) {
           parseICS(text);
           const timeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
           if (badge) badge.textContent = `Synced ${timeStr}`;
           if (dot) dot.className = 'sync-dot';
         } else {
-          throw new Error('Invalid calendar payload');
+          throw new Error('Invalid calendar payload from both proxies');
         }
       } catch (err) {
         console.warn('Sync cycle warning:', err.message);
@@ -1650,6 +1693,7 @@
     }, 1000);
 
     renderCrewLegend();
+    renderCurrentLayout();
     triggerSync();
 
     // ==========================================
