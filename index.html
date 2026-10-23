@@ -8,17 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ========================================================
-       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE (GLASS)
-       ======================================================== */
     :root {
       --bg-dark: #090c10;           
       --card-border: rgba(255, 255, 255, 0.12);
-      --accent: #c28448;                            /* Artisan Craft Bronze */
-      --accent-hover: #d99b5a;                      /* Warm Cedar Glow */
+      --accent: #c28448;                            
+      --accent-hover: #d99b5a;                      
       --accent-muted: rgba(194, 132, 72, 0.28);
-      --text-main: #f5f7fa;                         /* Warm Off-White */
-      --text-muted: #9ba6b5;                        /* Balanced Slate Gray */
+      --text-main: #f5f7fa;                         
+      --text-muted: #9ba6b5;                        
       --grid-line: rgba(255, 255, 255, 0.08);
       --today-bg: rgba(194, 132, 72, 0.18);
       --today-border: #c28448;
@@ -42,7 +39,7 @@
       position: relative;
     }
 
-    /* FULL-SCREEN WEATHER CANVAS BACKGROUND */
+    /* FULL-SCREEN WEATHER CANVAS */
     #weatherCanvas {
       position: fixed;
       inset: 0;
@@ -57,7 +54,7 @@
       z-index: 10;
     }
 
-    /* STRICT ZERO-SCROLL FOR DESKTOP & TV MONITORS (> 1024px) */
+    /* STRICT MONITOR/TV ZERO-SCROLL LOCK (> 1024px) */
     @media (min-width: 1025px) {
       html, body {
         height: 100vh !important;
@@ -66,7 +63,7 @@
       }
     }
 
-    /* NATURAL TOUCH SCROLLING FOR MOBILE / TABLETS (<= 1024px) */
+    /* MOBILE / TABLET NATURAL VERTICAL SCROLL (<= 1024px) */
     @media (max-width: 1024px) {
       html, body {
         height: auto;
@@ -76,16 +73,16 @@
       }
     }
 
-    /* Top Utility Bar */
+    /* Top Utility Bar (Strict Height to Prevent TV Overflow) */
     header {
       flex-shrink: 0;
-      background: rgba(9, 12, 16, 0.65);
+      background: rgba(9, 12, 16, 0.75);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      padding: 6px clamp(10px, 1.2vw, 20px);
-      gap: 5px;
+      padding: 4px clamp(8px, 1vw, 16px);
+      gap: 3px;
     }
 
     .header-primary-row {
@@ -93,17 +90,17 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
     .brand-section {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand-logo {
-      font-size: clamp(1.1rem, 1.3vw, 1.35rem);
+      font-size: clamp(1.05rem, 1.2vw, 1.25rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -120,15 +117,14 @@
     .compact-datetime-ticker {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.76rem;
+      gap: 5px;
+      font-size: 0.74rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 3px 9px;
+      padding: 2px 8px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.45);
-      letter-spacing: 0.2px;
       white-space: nowrap;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
@@ -136,16 +132,15 @@
     .sync-status {
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-size: 0.74rem;
+      gap: 6px;
+      font-size: 0.72rem;
       color: var(--text-muted);
       font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .sync-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #10b981;
       flex-shrink: 0;
@@ -160,7 +155,7 @@
     .controls-cluster {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn {
@@ -168,14 +163,14 @@
       backdrop-filter: blur(4px);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 4px 11px;
-      font-size: 0.76rem;
+      padding: 3px 9px;
+      font-size: 0.74rem;
       font-weight: 600;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.2s;
       font-family: inherit;
     }
@@ -210,23 +205,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 4px;
+      padding-top: 3px;
     }
 
     .site-conditions-strip {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.74rem;
+      gap: 6px;
+      font-size: 0.72rem;
       font-weight: 600;
       color: var(--text-muted);
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(4px);
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 2px 7px;
+      border-radius: 5px;
       border: 1px solid var(--card-border);
     }
 
@@ -239,7 +234,7 @@
       color: var(--accent);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       letter-spacing: 0.5px;
     }
 
@@ -248,7 +243,7 @@
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(4px);
       padding: 2px;
-      border-radius: 7px;
+      border-radius: 6px;
       border: 1px solid var(--card-border);
       gap: 2px;
     }
@@ -257,10 +252,10 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 4px clamp(7px, 0.7vw, 13px);
-      font-size: 0.76rem;
+      padding: 3px clamp(6px, 0.6vw, 11px);
+      font-size: 0.72rem;
       font-weight: 600;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
@@ -276,20 +271,20 @@
       color: var(--accent);
     }
 
-    /* Main Conforming Grid (Desktop/TV) */
+    /* Main Grid Frame */
     main {
       flex: 1;
-      padding: 10px clamp(10px, 1.2vw, 18px);
+      padding: 8px clamp(8px, 1vw, 14px);
       display: grid;
-      grid-template-columns: clamp(210px, 14vw, 260px) 1fr clamp(270px, 18vw, 340px);
-      gap: 10px;
+      grid-template-columns: clamp(200px, 13vw, 240px) 1fr clamp(260px, 17vw, 320px);
+      gap: 8px;
       min-height: 0;
     }
 
     @media (min-width: 1025px) {
       main {
-        height: calc(100vh - 90px);
-        max-height: calc(100vh - 90px);
+        height: calc(100vh - 68px) !important;
+        max-height: calc(100vh - 68px) !important;
         overflow: hidden !important;
       }
     }
@@ -298,7 +293,7 @@
     .sidebar-left {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       min-height: 0;
       overflow: hidden;
     }
@@ -306,8 +301,8 @@
     .widget {
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid var(--card-border);
-      border-radius: 9px;
-      padding: clamp(8px, 0.9vw, 12px);
+      border-radius: 8px;
+      padding: clamp(6px, 0.8vw, 10px);
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -323,19 +318,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       flex-shrink: 0;
     }
 
     .bulletin-title {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
@@ -344,9 +339,9 @@
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       cursor: pointer;
-      padding: 2px 5px;
+      padding: 2px 4px;
       border-radius: 4px;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       transition: all 0.2s;
     }
 
@@ -361,7 +356,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       padding-right: 2px;
     }
 
@@ -369,7 +364,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: clamp(0.72rem, 0.78vw, 0.8rem);
+      font-size: clamp(0.7rem, 0.75vw, 0.78rem);
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
@@ -385,10 +380,10 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.6);
     }
 
-    /* YouTube Music Widget: Hidden on Mobile by Default */
+    /* YouTube Music Mini-Widget */
     .yt-music-widget {
       flex-shrink: 0;
-      padding: 8px 10px;
+      padding: 6px 8px;
     }
 
     @media (max-width: 768px) {
@@ -399,11 +394,11 @@
 
     .yt-player-frame-box {
       width: 100%;
-      height: 110px;
-      border-radius: 6px;
+      height: 88px;
+      border-radius: 5px;
       overflow: hidden;
       background: #000;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       position: relative;
     }
 
@@ -417,19 +412,19 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .btn-sm {
-      padding: 3px 8px;
-      font-size: 0.72rem;
+      padding: 2px 6px;
+      font-size: 0.7rem;
     }
 
     /* Center: Calendar Grid View */
     .center-view {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 9px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -441,37 +436,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-bottom: 1px solid var(--card-border);
       background: rgba(0, 0, 0, 0.25);
     }
 
     .month-title {
-      font-size: clamp(0.95rem, 1.15vw, 1.2rem);
+      font-size: clamp(0.9rem, 1.1vw, 1.15rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
+    /* Strict Proportional Layout on Desktop/TV */
     .calendar-grid {
       flex: 1;
       min-height: 0;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: 24px repeat(5, minmax(0, 1fr));
+      grid-template-rows: 22px repeat(5, minmax(0, 1fr));
       overflow: hidden !important;
       background: transparent !important;
     }
 
     .calendar-grid.seven-day-mode {
-      grid-template-rows: 28px minmax(0, 1fr) !important;
+      grid-template-rows: 24px minmax(0, 1fr) !important;
     }
 
     .weekday-header {
       background: rgba(0, 0, 0, 0.35);
-      padding: 3px;
-      font-size: 0.68rem;
+      padding: 2px;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -492,17 +488,20 @@
     .calendar-day-cell {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
-      padding: 3px;
+      padding: 2px;
       display: flex;
       flex-direction: column;
       gap: 2px;
       min-height: 0;
       overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--card-border) transparent;
+      scrollbar-width: none; /* Hide scrollbars inside cells on kiosk */
       position: relative;
       background: transparent !important;
       transition: background 0.2s ease;
+    }
+
+    .calendar-day-cell::-webkit-scrollbar {
+      display: none;
     }
 
     .calendar-day-cell:hover {
@@ -524,7 +523,7 @@
     }
 
     .day-num {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       color: var(--text-muted);
       line-height: 1;
@@ -538,16 +537,16 @@
     }
 
     .event-badge {
-      font-size: clamp(0.65rem, 0.72vw, 0.74rem);
+      font-size: clamp(0.62rem, 0.68vw, 0.72rem);
       font-weight: 700;
-      padding: 2px 5px;
-      border-radius: 4px;
+      padding: 2px 4px;
+      border-radius: 3px;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
-      line-height: 1.25;
+      line-height: 1.2;
       flex-shrink: 0;
       transition: filter 0.1s ease, transform 0.1s ease;
       box-shadow: 0 1px 4px rgba(0,0,0,0.6);
@@ -562,7 +561,7 @@
     .sidebar-right {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 9px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -571,7 +570,7 @@
 
     .dispatch-header {
       flex-shrink: 0;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
@@ -580,7 +579,7 @@
     }
 
     .dispatch-title {
-      font-size: clamp(0.9rem, 1.05vw, 1.1rem);
+      font-size: clamp(0.85rem, 1vw, 1.05rem);
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
@@ -588,11 +587,11 @@
     }
 
     .dispatch-count {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       background: var(--accent-muted);
       color: var(--accent);
-      padding: 2px 6px;
+      padding: 2px 5px;
       border-radius: 999px;
       border: 1px solid rgba(194, 132, 72, 0.45);
     }
@@ -601,10 +600,10 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 8px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
       background: transparent !important;
@@ -614,8 +613,8 @@
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
-      border-radius: 6px;
-      padding: clamp(7px, 0.8vw, 11px);
+      border-radius: 5px;
+      padding: clamp(6px, 0.7vw, 9px);
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.15s ease, border-color 0.15s ease;
@@ -628,7 +627,7 @@
     }
 
     .dispatch-card-title {
-      font-size: clamp(0.8rem, 0.88vw, 0.92rem);
+      font-size: clamp(0.76rem, 0.84vw, 0.88rem);
       font-weight: 700;
       margin-bottom: 2px;
       line-height: 1.25;
@@ -637,16 +636,16 @@
     }
 
     .dispatch-card-time {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-weight: 600;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .dispatch-card-location {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-top: 3px;
+      margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -757,33 +756,30 @@
       100% { opacity: 1; }
     }
 
-    /* Alternate Layout Modifications (Desktop) */
     @media (min-width: 1025px) {
       main.big-month-layout {
-        grid-template-columns: clamp(210px, 14vw, 260px) 1fr;
+        grid-template-columns: clamp(200px, 13vw, 240px) 1fr;
       }
       main.big-month-layout .sidebar-right {
         display: none;
       }
 
       main.seven-day-layout {
-        grid-template-columns: clamp(210px, 14vw, 260px) 1fr;
+        grid-template-columns: clamp(200px, 13vw, 240px) 1fr;
       }
       main.seven-day-layout .sidebar-right {
         display: none;
       }
     }
 
-    /* ========================================================
-       RESPONSIVE ADAPTATIONS: MOBILE PHONES (<= 768px)
-       ======================================================== */
+    /* Mobile Phones (<= 768px) */
     @media (max-width: 768px) {
       header {
-        padding: 8px 10px;
+        padding: 6px 8px;
       }
 
       .header-primary-row {
-        gap: 6px;
+        gap: 5px;
       }
 
       .brand-section {
@@ -794,7 +790,6 @@
       .sync-status {
         width: 100%;
         justify-content: space-between;
-        margin-top: 2px;
       }
 
       .controls-cluster {
@@ -805,8 +800,8 @@
 
       .controls-cluster .btn {
         justify-content: center;
-        padding: 7px 4px;
-        font-size: 0.74rem;
+        padding: 6px 4px;
+        font-size: 0.72rem;
       }
 
       .header-sub-row {
@@ -826,14 +821,14 @@
 
       .view-btn {
         text-align: center;
-        padding: 8px 4px;
+        padding: 6px 4px;
       }
 
       main {
         display: flex;
         flex-direction: column;
-        padding: 10px;
-        gap: 12px;
+        padding: 8px;
+        gap: 10px;
         height: auto !important;
         max-height: none !important;
         overflow: visible !important;
@@ -853,35 +848,14 @@
 
       .calendar-grid {
         grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: 28px repeat(5, minmax(75px, auto)) !important;
+        grid-template-rows: 24px repeat(5, minmax(70px, auto)) !important;
         overflow: visible !important;
-      }
-
-      .weekday-header {
-        font-size: 0.65rem;
-        padding: 6px 2px;
-      }
-
-      .calendar-day-cell {
-        min-height: 75px;
-        padding: 3px;
-      }
-
-      .day-num {
-        font-size: 0.75rem;
-      }
-
-      .event-badge {
-        font-size: 0.72rem;
-        padding: 4px;
-        white-space: normal;
-        word-break: break-word;
       }
 
       .calendar-grid.seven-day-mode {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
       }
 
       .calendar-grid.seven-day-mode .weekday-header {
@@ -890,33 +864,16 @@
 
       .calendar-grid.seven-day-mode .calendar-day-cell {
         border: 1px solid var(--card-border);
-        border-radius: 8px;
+        border-radius: 6px;
         min-height: auto;
-        padding: 10px;
+        padding: 8px;
         background: rgba(0, 0, 0, 0.3) !important;
       }
 
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
-        font-size: 0.95rem;
-        margin-bottom: 6px;
+        font-size: 0.88rem;
+        margin-bottom: 4px;
         display: block;
-      }
-
-      .modal-box {
-        padding: 16px;
-      }
-
-      .crew-edit-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-
-      .crew-color-picker {
-        grid-column: 1 / 2;
-      }
-
-      .btn-row-del {
-        grid-column: 2 / 3;
       }
     }
   </style>
@@ -951,7 +908,7 @@
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
-        <span style="color: var(--text-muted); font-size: 0.72rem;" id="weatherConditionLabel">• Live</span>
+        <span style="color: var(--text-muted); font-size: 0.7rem;" id="weatherConditionLabel">• Live</span>
       </div>
 
       <div class="view-toggles">
@@ -964,7 +921,7 @@
 
   <!-- Main View Grid -->
   <main id="mainContainer">
-    <!-- Left Panel: Crew Classification & Mini YouTube Music Dock -->
+    <!-- Left Panel -->
     <aside class="sidebar-left">
       <div class="widget crew-bulletin">
         <div class="bulletin-header-row">
@@ -974,7 +931,7 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- Mini YouTube Music Dock (Hidden on mobile via CSS) -->
+      <!-- Mini YouTube Music Dock -->
       <div class="widget yt-music-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🎵 Office Music</div>
@@ -991,13 +948,13 @@
           <button class="btn btn-sm" onclick="ytNextTrack()" title="Next">⏭️</button>
         </div>
 
-        <div id="ytConfigDrawer" style="display: none; margin-top: 8px; border-top: 1px solid var(--card-border); padding-top: 6px;">
-          <label style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
+        <div id="ytConfigDrawer" style="display: none; margin-top: 6px; border-top: 1px solid var(--card-border); padding-top: 5px;">
+          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
           <div style="display: flex; gap: 4px; margin-top: 3px;">
-            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 8px; font-size: 0.75rem;" placeholder="PL... or paste URL" />
-            <button class="btn btn-primary" style="padding: 4px 8px;" onclick="saveCustomPlaylist()">Load</button>
+            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 4px 6px; font-size: 0.72rem;" placeholder="PL... or paste URL" />
+            <button class="btn btn-primary" style="padding: 4px 6px;" onclick="saveCustomPlaylist()">Load</button>
           </div>
-          <div id="ytStatusMsg" style="font-size: 0.68rem; margin-top: 4px; font-weight: 600; color: var(--accent);"></div>
+          <div id="ytStatusMsg" style="font-size: 0.65rem; margin-top: 3px; font-weight: 600; color: var(--accent);"></div>
         </div>
       </div>
     </aside>
@@ -1012,14 +969,14 @@
       </div>
     </section>
 
-    <!-- Right Sidebar: Today's Dispatch -->
+    <!-- Right Sidebar -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
         <div class="dispatch-count" id="dispatchCountPill">0 scheduled</div>
       </div>
       <div class="dispatch-list" id="dispatchQueue">
-        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">Loading today's queue...</div>
+        <div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">Loading today's queue...</div>
       </div>
     </aside>
   </main>
@@ -1028,10 +985,10 @@
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
-        Paste your Google Calendar iCal (.ics) address below. It will be cached for uninterrupted polling.
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+        Paste your Google Calendar iCal (.ics) address below.
       </p>
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Google Calendar iCal URL</label>
       <input type="text" id="feedUrlInput" class="modal-input" placeholder="https://calendar.google.com/calendar/ical/.../public/basic.ics" />
       <div class="modal-actions">
         <button class="btn" onclick="document.getElementById('feedModal').style.display='none'">Cancel</button>
@@ -1045,31 +1002,31 @@
     <div class="modal-box">
       <div class="modal-title">Edit Scheduled Job</div>
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Title / Crew Tag</label>
       <input type="text" id="editJobSummary" class="modal-input" style="font-weight: 600;" />
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <div>
-          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
+          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Start Time</label>
           <input type="datetime-local" id="editJobStart" class="modal-input" />
         </div>
         <div>
-          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
+          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">End Time</label>
           <input type="datetime-local" id="editJobEnd" class="modal-input" />
         </div>
       </div>
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Site Address</label>
       <input type="text" id="editJobLocation" class="modal-input" />
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
-      <textarea id="editJobDescription" class="modal-input" style="height: 140px; resize: vertical; line-height: 1.4;"></textarea>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Material List & Scope Notes</label>
+      <textarea id="editJobDescription" class="modal-input" style="height: 120px; resize: vertical; line-height: 1.4;"></textarea>
 
       <input type="hidden" id="editJobId" />
 
       <div class="modal-actions" style="justify-content: space-between;">
         <button class="btn" style="color: #f43f5e;" onclick="revertJobOverrides()">Reset to Feed</button>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 6px;">
           <button class="btn" onclick="document.getElementById('jobEditModal').style.display='none'">Cancel</button>
           <button class="btn btn-primary" onclick="saveJobEdits()">Save Changes</button>
         </div>
@@ -1079,26 +1036,26 @@
 
   <!-- Crew Classification Manager Modal -->
   <div id="crewModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 600px;">
+    <div class="modal-box" style="max-width: 580px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
-        Define crew display names, calendar match keywords, and colors. Ordering dictates calendar sort rank.
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+        Define crew display names, calendar match keywords, and colors.
       </p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 8px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">
         <div>Display Name</div>
         <div>Match Keyword</div>
         <div>Color</div>
         <div></div>
       </div>
 
-      <div id="crewRowsContainer" style="max-height: 260px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;"></div>
+      <div id="crewRowsContainer" style="max-height: 240px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;"></div>
 
-      <button class="btn" onclick="addCrewRow('', '', '#c28448')" style="margin-bottom: 14px; font-size: 0.78rem;">+ Add New Crew</button>
+      <button class="btn" onclick="addCrewRow('', '', '#c28448')" style="margin-bottom: 12px; font-size: 0.75rem;">+ Add New Crew</button>
 
       <div class="modal-actions" style="justify-content: space-between;">
         <button class="btn" style="color: #f43f5e;" onclick="resetCrewsToDefault()">Reset Defaults</button>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 6px;">
           <button class="btn" onclick="document.getElementById('crewModal').style.display='none'">Cancel</button>
           <button class="btn btn-primary" onclick="saveCrewDefinitions()">Save & Apply</button>
         </div>
@@ -1108,10 +1065,10 @@
 
   <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 520px;">
+    <div class="modal-box" style="max-width: 500px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Crew / Worker</label>
       <select id="tsCrew" class="modal-input" style="font-weight: 600;">
         <option value="Amish Joe">Amish Joe</option>
         <option value="Amish Joseph">Amish Joseph</option>
@@ -1122,26 +1079,26 @@
         <option value="Other">Other / Subcontractor</option>
       </select>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <div>
-          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
+          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Date Worked</label>
           <input type="date" id="tsDate" class="modal-input" />
         </div>
         <div>
-          <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
+          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Hours</label>
           <input type="number" step="0.25" id="tsHours" class="modal-input" placeholder="8.0" />
         </div>
       </div>
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job / Project Name</label>
       <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
 
-      <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
-      <textarea id="tsNotes" class="modal-input" style="height: 110px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+      <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
+      <textarea id="tsNotes" class="modal-input" style="height: 100px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
 
       <div class="modal-actions" style="justify-content: space-between;">
-        <span id="tsSubmitStatus" style="font-size: 0.8rem; font-weight: 700; align-self: center;"></span>
-        <div style="display: flex; gap: 8px;">
+        <span id="tsSubmitStatus" style="font-size: 0.78rem; font-weight: 700; align-self: center;"></span>
+        <div style="display: flex; gap: 6px;">
           <button type="button" class="btn" onclick="document.getElementById('timesheetModal').style.display='none'">Cancel</button>
           <button type="button" class="btn btn-primary" id="btnSubmitTS" onclick="submitTimeSheet(event)">Submit Hours</button>
         </div>
@@ -1156,10 +1113,7 @@
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
-
-    // HARDCODED FALLBACK PLAYLIST ID:
-    // Change this string to your YouTube playlist ID whenever you want all monitors to update at once!
-    const FALLBACK_PLAYLIST_ID = "PLBbQX39HqJRU";
+    const FALLBACK_PLAYLIST_ID = "PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5";
 
     let eventsDatabase = [];
     let currentLayout = 'split';
@@ -1167,7 +1121,6 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
-    // Default Crew Definitions
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1310,19 +1263,22 @@
     setInterval(fetchWeather, 900000);
 
     // ==========================================
-    // 2. ICS PARSER
+    // 2. ENHANCED ICS PARSER (Fixed Line Unfolding)
     // ==========================================
     function parseIcsDate(raw) {
       if (!raw) return new Date();
+      // Extract everything after the colon (DTSTART;VALUE=DATE:20261026 -> 20261026)
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
 
+      // All-Day Event: YYYYMMDD
       if (val.length === 8 && !val.includes('T')) {
         const y = parseInt(val.slice(0, 4), 10);
         const m = parseInt(val.slice(4, 6), 10) - 1;
         const d = parseInt(val.slice(6, 8), 10);
-        return new Date(y, m, d, 0, 0, 0);
+        return new Date(y, m, d, 0, 0, 0); // Normalized local midnight
       }
 
+      // UTC Timestamp: YYYYMMDDTHHMMSSZ
       if (val.includes('Z')) {
         const clean = val.replace('Z', '');
         const y = parseInt(clean.slice(0, 4), 10);
@@ -1334,6 +1290,7 @@
         return new Date(Date.UTC(y, m, d, hh, mm, ss));
       }
 
+      // Floating Local Timestamp: YYYYMMDDTHHMMSS
       if (val.includes('T')) {
         const parts = val.split('T');
         const y = parseInt(parts[0].slice(0, 4), 10);
@@ -1349,16 +1306,30 @@
 
     function parseICS(icsText) {
       const parsed = [];
-      const unfolded = icsText.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
-      const lines = unfolded.split(/\r\n|\n|\r/);
+      
+      // Standard RFC 5545 Line Unfolding: Only unfold lines that start with space or tab
+      const lines = [];
+      const rawLines = icsText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      
+      for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i];
+        if (line.length === 0) continue;
+        if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) {
+          lines[lines.length - 1] += line.substring(1);
+        } else {
+          lines.push(line);
+        }
+      }
+
       let inEvent = false;
       let cur = {};
 
       for (let line of lines) {
-        if (line.startsWith('BEGIN:VEVENT')) {
+        const trimmed = line.trim();
+        if (trimmed === 'BEGIN:VEVENT') {
           inEvent = true;
-          cur = { summary: '', description: '', location: '', rrule: '' };
-        } else if (line.startsWith('END:VEVENT')) {
+          cur = { summary: '', description: '', location: '', rrule: '', isAllDay: false };
+        } else if (trimmed === 'END:VEVENT') {
           inEvent = false;
           if (cur.summary && cur.start) {
             const stableId = 'evt_' + btoa(encodeURIComponent(cur.summary + '_' + cur.start.getTime())).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
@@ -1375,6 +1346,7 @@
 
             parsed.push(cur);
 
+            // Expand recurring events if weekly
             if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
               for (let w = 1; w <= 4; w++) {
                 const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
@@ -1384,18 +1356,19 @@
             }
           }
         } else if (inEvent) {
-          if (line.startsWith('SUMMARY:')) {
-            cur.summary = line.replace('SUMMARY:', '').trim();
-          } else if (line.startsWith('DTSTART')) {
-            cur.start = parseIcsDate(line);
-          } else if (line.startsWith('DTEND')) {
-            cur.end = parseIcsDate(line);
-          } else if (line.startsWith('LOCATION:')) {
-            cur.location = line.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
-          } else if (line.startsWith('DESCRIPTION:')) {
-            cur.description = line.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
-          } else if (line.startsWith('RRULE:')) {
-            cur.rrule = line.replace('RRULE:', '').trim();
+          if (trimmed.startsWith('SUMMARY:')) {
+            cur.summary = trimmed.replace('SUMMARY:', '').trim();
+          } else if (trimmed.startsWith('DTSTART')) {
+            if (trimmed.includes('VALUE=DATE:')) cur.isAllDay = true;
+            cur.start = parseIcsDate(trimmed);
+          } else if (trimmed.startsWith('DTEND')) {
+            cur.end = parseIcsDate(trimmed);
+          } else if (trimmed.startsWith('LOCATION:')) {
+            cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
+          } else if (trimmed.startsWith('DESCRIPTION:')) {
+            cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
+          } else if (trimmed.startsWith('RRULE:')) {
+            cur.rrule = trimmed.replace('RRULE:', '').trim();
           }
         }
       }
@@ -1531,7 +1504,7 @@
         cell.className = 'calendar-day-cell';
         if (i === 0) cell.classList.add('today');
 
-        cell.innerHTML = `<span class="day-num" style="font-size: 0.82rem; font-weight: 800; margin-bottom: 3px;">${cellDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
+        cell.innerHTML = `<span class="day-num" style="font-size: 0.78rem; font-weight: 800; margin-bottom: 2px;">${cellDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
 
         const dayEvents = eventsDatabase.filter(e => {
           return e.start.getFullYear() === cellDate.getFullYear() &&
@@ -1542,8 +1515,8 @@
         if (dayEvents.length === 0) {
           const emptyNotice = document.createElement('div');
           emptyNotice.style.color = 'var(--text-muted)';
-          emptyNotice.style.fontSize = '0.74rem';
-          emptyNotice.style.padding = '3px 0';
+          emptyNotice.style.fontSize = '0.7rem';
+          emptyNotice.style.padding = '2px 0';
           emptyNotice.textContent = 'No jobs scheduled';
           cell.appendChild(emptyNotice);
         } else {
@@ -1551,11 +1524,11 @@
             const badge = document.createElement('div');
             badge.className = 'event-badge';
             badge.style.backgroundColor = getEventColor(evt.summary);
-            badge.style.padding = '5px 7px';
-            badge.style.fontSize = '0.76rem';
-            badge.style.marginBottom = '3px';
+            badge.style.padding = '4px 6px';
+            badge.style.fontSize = '0.72rem';
+            badge.style.marginBottom = '2px';
 
-            const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const timeStr = evt.isAllDay ? 'All Day' : evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
             badge.textContent = `${cleanEventTitle(evt.summary)} (${timeStr})`;
             badge.title = `${evt.summary}\n${evt.location || ''}\n${evt.description || ''}`;
             badge.onclick = (e) => {
@@ -1585,7 +1558,7 @@
       container.innerHTML = '';
 
       if (todayEvents.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 10px;">No events scheduled for today.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.78rem; padding: 8px;">No events scheduled for today.</div>';
         return;
       }
 
@@ -1595,7 +1568,7 @@
         const color = getEventColor(evt.summary);
         card.style.borderLeftColor = color;
 
-        const timeStr = evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const timeStr = evt.isAllDay ? 'All Day' : evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         card.innerHTML = `
           <div class="dispatch-card-title">${cleanEventTitle(evt.summary)}</div>
           <div class="dispatch-card-time">⏰ ${timeStr}</div>
@@ -1607,7 +1580,7 @@
     }
 
     // ==========================================
-    // 4. BACKGROUND SYNC
+    // 4. BACKGROUND SYNC (Cache Busted)
     // ==========================================
     async function triggerSync() {
       let feedUrl = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
@@ -1627,12 +1600,17 @@
 
       try {
         const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
-        const finalUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(cleanUrl)}&_t=${Date.now()}`;
+        // Append microsecond salt to bypass Cloudflare Worker edge cache
+        const finalUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(cleanUrl)}&_t=${Date.now()}&_salt=${Math.random()}`;
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-        const res = await fetch(finalUrl, { signal: controller.signal });
+        const res = await fetch(finalUrl, { 
+          signal: controller.signal,
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
         clearTimeout(timeoutId);
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1924,7 +1902,7 @@
         : 'https://jessehartisan.github.io';
 
       ytPlayer = new YT.Player('ytAudioPlayer', {
-        height: '110',
+        height: '88',
         width: '100%',
         playerVars: {
           listType: 'playlist',
@@ -2232,7 +2210,6 @@
     resizeCanvas();
     renderWeatherAnimation();
 
-    // View Switching Logic
     function switchLayout(layoutName) {
       currentLayout = layoutName;
       const container = document.getElementById('mainContainer');
