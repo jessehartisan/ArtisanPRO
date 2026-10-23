@@ -9,20 +9,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ========================================================
-       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE
+       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE (TRANSLUCENT)
        ======================================================== */
     :root {
-      --bg-dark: #121519;           /* Architectural Deep Charcoal */
-      --card-bg: rgba(26, 31, 38, 0.88);  /* Semi-Translucent Slate Surface */
-      --card-bg-elevated: rgba(34, 41, 51, 0.94);
-      --card-border: #2c3542;       /* Structured Architectural Border */
-      --accent: #c28448;            /* Artisan Craft Bronze */
-      --accent-hover: #d99b5a;      /* Warm Cedar Glow */
-      --accent-muted: rgba(194, 132, 72, 0.16);
-      --text-main: #f5f7fa;         /* Warm Off-White */
-      --text-muted: #9ba6b5;        /* Balanced Slate Gray */
-      --grid-line: #222a36;
-      --today-bg: rgba(32, 39, 50, 0.9);
+      --bg-dark: #0e1115;           
+      --card-bg: rgba(22, 27, 34, 0.55);            /* Translucent Glass Surface */
+      --card-bg-elevated: rgba(30, 37, 46, 0.75);
+      --card-border: rgba(44, 53, 66, 0.6);         /* Subtle translucent border */
+      --accent: #c28448;                            /* Artisan Craft Bronze */
+      --accent-hover: #d99b5a;                      /* Warm Cedar Glow */
+      --accent-muted: rgba(194, 132, 72, 0.22);
+      --text-main: #f5f7fa;                         /* Warm Off-White */
+      --text-muted: #a3afbe;                        /* Balanced Slate Gray */
+      --grid-line: rgba(34, 42, 54, 0.4);
+      --today-bg: rgba(194, 132, 72, 0.12);
       --today-border: #c28448;
     }
 
@@ -52,7 +52,7 @@
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 1; /* Sits behind UI containers */
+      z-index: 1; /* Sits directly behind all transparent panels */
     }
 
     /* Header and Main Sit Above the Weather Canvas */
@@ -83,7 +83,7 @@
     /* Top Utility Bar */
     header {
       flex-shrink: 0;
-      background: rgba(18, 21, 25, 0.94);
+      background: rgba(14, 17, 21, 0.72);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
       display: flex;
@@ -114,6 +114,7 @@
       align-items: center;
       gap: 2px;
       color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
     }
 
     .brand-logo span {
@@ -131,9 +132,10 @@
       color: var(--accent);
       padding: 3px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(194, 132, 72, 0.35);
+      border: 1px solid rgba(194, 132, 72, 0.4);
       letter-spacing: 0.2px;
       white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
 
     .sync-status {
@@ -143,6 +145,7 @@
       font-size: 0.74rem;
       color: var(--text-muted);
       font-weight: 500;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
 
     .sync-dot {
@@ -151,6 +154,7 @@
       border-radius: 50%;
       background: #10b981;
       flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
     }
 
     .sync-dot.busy {
@@ -166,6 +170,7 @@
 
     .btn {
       background: var(--card-bg);
+      backdrop-filter: blur(4px);
       border: 1px solid var(--card-border);
       color: var(--text-main);
       padding: 4px 11px;
@@ -181,7 +186,7 @@
     }
 
     .btn:hover {
-      background: var(--card-border);
+      background: var(--card-bg-elevated);
       border-color: var(--accent);
     }
 
@@ -214,7 +219,7 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
-      border-top: 1px solid rgba(44, 53, 66, 0.4);
+      border-top: 1px solid rgba(44, 53, 66, 0.3);
       padding-top: 4px;
     }
 
@@ -225,7 +230,8 @@
       font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
-      background: rgba(18, 21, 25, 0.85);
+      background: rgba(14, 17, 21, 0.6);
+      backdrop-filter: blur(4px);
       padding: 3px 8px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
@@ -246,7 +252,8 @@
 
     .view-toggles {
       display: flex;
-      background: var(--card-bg);
+      background: rgba(14, 17, 21, 0.6);
+      backdrop-filter: blur(4px);
       padding: 2px;
       border-radius: 7px;
       border: 1px solid var(--card-border);
@@ -268,7 +275,7 @@
     }
 
     .view-btn.active, .view-btn:hover {
-      background: var(--card-border);
+      background: rgba(194, 132, 72, 0.25);
       color: var(--text-main);
     }
 
@@ -337,6 +344,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
 
     .btn-icon-tiny {
@@ -351,7 +359,7 @@
     }
 
     .btn-icon-tiny:hover {
-      background: var(--card-border);
+      background: var(--card-bg-elevated);
       color: var(--accent);
     }
 
@@ -374,6 +382,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
 
     .legend-dot {
@@ -381,6 +390,7 @@
       height: 8px;
       border-radius: 3px;
       flex-shrink: 0;
+      box-shadow: 0 0 4px rgba(0,0,0,0.4);
     }
 
     /* YouTube Music Mini-Widget */
@@ -394,7 +404,7 @@
       height: 48px;
       border-radius: 5px;
       overflow: hidden;
-      background: #000;
+      background: rgba(0, 0, 0, 0.6);
       margin-bottom: 6px;
     }
 
@@ -435,6 +445,7 @@
       align-items: center;
       padding: 8px 14px;
       border-bottom: 1px solid var(--card-border);
+      background: rgba(14, 17, 21, 0.35);
     }
 
     .month-title {
@@ -442,6 +453,7 @@
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
     /* Month Grid Template (Zero-Scroll 5-Row Fixed Partitioning) */
@@ -452,6 +464,7 @@
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: 24px repeat(5, minmax(0, 1fr));
       overflow: hidden !important;
+      background: transparent;
     }
 
     /* 7-Day Rolling View Template */
@@ -460,7 +473,7 @@
     }
 
     .weekday-header {
-      background: rgba(18, 21, 25, 0.75);
+      background: rgba(14, 17, 21, 0.55);
       padding: 3px;
       font-size: 0.68rem;
       font-weight: 700;
@@ -473,6 +486,7 @@
       justify-content: center;
       border-bottom: 1px solid var(--card-border);
       border-right: 1px solid var(--card-border);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     }
 
     .weekday-header:last-child {
@@ -491,6 +505,12 @@
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
       position: relative;
+      background: rgba(18, 22, 28, 0.25); /* Highly translucent to allow weather to shine through */
+      transition: background 0.2s ease;
+    }
+
+    .calendar-day-cell:hover {
+      background: rgba(30, 37, 46, 0.45);
     }
 
     .calendar-day-cell:nth-child(7n) {
@@ -498,8 +518,8 @@
     }
 
     .calendar-day-cell.inactive {
-      opacity: 0.28;
-      background: rgba(0, 0, 0, 0.35);
+      opacity: 0.35;
+      background: rgba(0, 0, 0, 0.45);
     }
 
     .calendar-day-cell.today {
@@ -513,10 +533,12 @@
       color: var(--text-muted);
       line-height: 1;
       margin-bottom: 1px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .calendar-day-cell.today .day-num {
       color: var(--accent);
+      font-weight: 800;
     }
 
     /* Event Badges on Calendar */
@@ -532,12 +554,13 @@
       cursor: pointer;
       line-height: 1.25;
       flex-shrink: 0;
-      transition: filter 0.1s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      transition: filter 0.1s ease, transform 0.1s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
 
     .event-badge:hover {
       filter: brightness(1.2);
+      transform: translateY(-1px);
     }
 
     /* Right Sidebar: Today's Dispatch */
@@ -559,6 +582,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(14, 17, 21, 0.35);
     }
 
     .dispatch-title {
@@ -566,6 +590,7 @@
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
     .dispatch-count {
@@ -575,7 +600,7 @@
       color: var(--accent);
       padding: 2px 6px;
       border-radius: 999px;
-      border: 1px solid rgba(194, 132, 72, 0.35);
+      border: 1px solid rgba(194, 132, 72, 0.4);
     }
 
     .dispatch-list {
@@ -588,10 +613,12 @@
       gap: 6px;
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
+      background: transparent;
     }
 
     .dispatch-card {
-      background: rgba(18, 21, 25, 0.75);
+      background: rgba(18, 22, 28, 0.55);
+      backdrop-filter: blur(4px);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
       border-radius: 6px;
@@ -599,11 +626,12 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.15s ease, border-color 0.15s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .dispatch-card:hover {
-      background: var(--card-bg-elevated);
-      border-color: #3b4554;
+      background: rgba(30, 37, 46, 0.75);
+      border-color: rgba(59, 69, 84, 0.8);
     }
 
     .dispatch-card-title {
@@ -612,6 +640,7 @@
       margin-bottom: 2px;
       line-height: 1.25;
       color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     }
 
     .dispatch-card-time {
@@ -634,7 +663,7 @@
       position: fixed;
       inset: 0;
       background: rgba(10, 12, 15, 0.85);
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
       z-index: 1000;
       display: none;
       align-items: center;
@@ -643,7 +672,7 @@
     }
 
     .modal-box {
-      background: #1a1f26;
+      background: rgba(26, 31, 38, 0.95);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 18px;
@@ -651,7 +680,7 @@
       max-width: 540px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.85);
     }
 
     .modal-title {
@@ -663,7 +692,7 @@
 
     .modal-input {
       width: 100%;
-      background: #111418;
+      background: rgba(14, 17, 21, 0.8);
       border: 1px solid var(--card-border);
       color: #ffffff;
       padding: 8px 11px;
@@ -695,7 +724,7 @@
     }
 
     .crew-edit-input {
-      background: #111418;
+      background: rgba(14, 17, 21, 0.8);
       border: 1px solid var(--card-border);
       color: #ffffff;
       padding: 7px 10px;
@@ -708,7 +737,7 @@
     .crew-color-picker {
       width: 100%;
       height: 32px;
-      background: #111418;
+      background: rgba(14, 17, 21, 0.8);
       border: 1px solid var(--card-border);
       border-radius: 6px;
       cursor: pointer;
@@ -869,7 +898,7 @@
         border-radius: 8px;
         min-height: auto;
         padding: 10px;
-        background: rgba(18, 21, 25, 0.75);
+        background: rgba(18, 22, 28, 0.45);
       }
 
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
@@ -1134,7 +1163,6 @@
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
     
-    // Configured Google Apps Script Web App Endpoint
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
 
     let eventsDatabase = [];
@@ -1160,7 +1188,6 @@
       localStorage.setItem('crew_classifications', JSON.stringify(crewDefinitions));
     }
 
-    // Google Calendar Standard Colors Map
     const GOOGLE_COLOR_MAP = {
       'lavender': '#7986cb',
       'sage': '#33b679',
@@ -1195,18 +1222,15 @@
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
 
-      // 1. Check for bracketed hex code: e.g. [#eab308]
       const hexMatch = (title || '').match(/\[(#[0-9a-fA-F]{3,6})\]/);
       if (hexMatch) return hexMatch[1];
 
-      // 2. Check for bracketed color name: e.g. [yellow], [green]
       const nameMatch = (title || '').match(/\[([a-zA-Z]+)\]/);
       if (nameMatch) {
         const colorName = nameMatch[1].toLowerCase();
         if (GOOGLE_COLOR_MAP[colorName]) return GOOGLE_COLOR_MAP[colorName];
       }
 
-      // 3. Fallback to crew classification rules
       for (const c of crewDefinitions) {
         const keys = c.keyword.split(',').map(k => k.trim().toLowerCase());
         for (const k of keys) {
@@ -1250,7 +1274,6 @@
     setInterval(updateHeaderTicker, 1000);
     updateHeaderTicker();
 
-    // Map WMO codes to friendly weather labels and canvas effect modes
     function interpretWmoCode(code) {
       if (code === 0) return { label: 'Clear Sky', mode: 'clear' };
       if (code === 1 || code === 2) return { label: 'Partly Cloudy', mode: 'clear' };
@@ -1281,7 +1304,6 @@
             conditionLabel.textContent = `• ${info.label}`;
           }
 
-          // Trigger corresponding background canvas visual mode
           setWeatherEffectMode(info.mode);
         }
       } catch (e) {
@@ -1289,7 +1311,7 @@
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 900000); // Check every 15 minutes
+    setInterval(fetchWeather, 900000);
 
     // ==========================================
     // 2. ICS PARSER
@@ -2012,7 +2034,7 @@
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
     let animationFrameId = null;
-    let weatherMode = 'clear'; // 'clear', 'clouds', 'rain', 'thunder', 'snow', 'fog'
+    let weatherMode = 'clear';
 
     let particles = [];
     let splashes = [];
@@ -2032,50 +2054,50 @@
       clouds = [];
 
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
-        const count = weatherMode === 'thunder' ? 140 : 85;
+        const count = weatherMode === 'thunder' ? 180 : 120;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            speed: 12 + Math.random() * 8,
-            length: 14 + Math.random() * 12,
-            opacity: 0.25 + Math.random() * 0.35
+            speed: 13 + Math.random() * 9,
+            length: 16 + Math.random() * 14,
+            opacity: 0.35 + Math.random() * 0.45
           });
         }
       } else if (weatherMode === 'snow') {
-        const count = 70;
+        const count = 90;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: 1.5 + Math.random() * 2.5,
-            speed: 1 + Math.random() * 2,
-            drift: (Math.random() - 0.5) * 1.5,
-            opacity: 0.3 + Math.random() * 0.4
+            radius: 1.8 + Math.random() * 2.8,
+            speed: 1.2 + Math.random() * 2.2,
+            drift: (Math.random() - 0.5) * 1.8,
+            opacity: 0.45 + Math.random() * 0.4
           });
         }
       } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
-        const count = 6;
+        const count = 8;
         for (let i = 0; i < count; i++) {
           clouds.push({
             x: Math.random() * canvas.width,
             y: (canvas.height / count) * i + Math.random() * 40,
-            radius: 180 + Math.random() * 160,
-            speed: 0.2 + Math.random() * 0.4,
-            opacity: weatherMode === 'fog' ? 0.08 : 0.05
+            radius: 200 + Math.random() * 200,
+            speed: 0.3 + Math.random() * 0.5,
+            opacity: weatherMode === 'fog' ? 0.14 : 0.08
           });
         }
       } else {
         // Clear sky: subtle solar dust motes
-        const count = 25;
+        const count = 35;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: 1 + Math.random() * 2,
+            radius: 1.2 + Math.random() * 2.2,
             speedY: -0.2 - Math.random() * 0.3,
             speedX: (Math.random() - 0.5) * 0.3,
-            opacity: 0.15 + Math.random() * 0.25
+            opacity: 0.25 + Math.random() * 0.35
           });
         }
       }
@@ -2090,12 +2112,10 @@
     function renderWeatherAnimation() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Rain & Thunderstorm renderer
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
-        // Lightning flash
         if (weatherMode === 'thunder') {
           if (Math.random() < 0.008) {
-            lightningFlash = 0.35 + Math.random() * 0.3;
+            lightningFlash = 0.45 + Math.random() * 0.35;
           }
           if (lightningFlash > 0) {
             ctx.fillStyle = `rgba(255, 255, 255, ${lightningFlash})`;
@@ -2104,8 +2124,8 @@
           }
         }
 
-        ctx.strokeStyle = 'rgba(180, 210, 240, 0.45)';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = 'rgba(190, 220, 255, 0.6)';
+        ctx.lineWidth = 1.3;
 
         for (let p of particles) {
           ctx.beginPath();
@@ -2114,16 +2134,15 @@
           ctx.stroke();
 
           p.y += p.speed;
-          p.x -= 1.2; // Gentle crosswind
+          p.x -= 1.2;
 
-          // Hit screen bottom -> spawn water ripple splash
           if (p.y >= canvas.height - 4) {
             splashes.push({
               x: p.x,
               y: canvas.height - 3,
               radius: 1,
-              maxRadius: 4 + Math.random() * 6,
-              opacity: 0.45
+              maxRadius: 5 + Math.random() * 7,
+              opacity: 0.65
             });
 
             p.y = -20;
@@ -2131,15 +2150,14 @@
           }
         }
 
-        // Animate & draw splashes hitting bottom of monitor
         for (let i = splashes.length - 1; i >= 0; i--) {
           const s = splashes[i];
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(180, 210, 240, ${s.opacity})`;
+          ctx.strokeStyle = `rgba(190, 220, 255, ${s.opacity})`;
           ctx.stroke();
 
-          s.radius += 0.8;
+          s.radius += 0.9;
           s.opacity -= 0.04;
 
           if (s.opacity <= 0 || s.radius >= s.maxRadius) {
@@ -2147,7 +2165,6 @@
           }
         }
 
-      // Snow renderer
       } else if (weatherMode === 'snow') {
         for (let p of particles) {
           ctx.beginPath();
@@ -2164,12 +2181,11 @@
           }
         }
 
-      // Fog & Cloud renderer
       } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
         for (let c of clouds) {
           const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius);
-          grad.addColorStop(0, `rgba(160, 175, 195, ${c.opacity})`);
-          grad.addColorStop(1, 'rgba(18, 21, 25, 0)');
+          grad.addColorStop(0, `rgba(170, 185, 205, ${c.opacity})`);
+          grad.addColorStop(1, 'rgba(14, 17, 21, 0)');
 
           ctx.fillStyle = grad;
           ctx.beginPath();
@@ -2182,12 +2198,12 @@
           }
         }
 
-      // Clear sky subtle solar dust
       } else {
+        // Clear sky solar motes
         for (let p of particles) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(194, 132, 72, ${p.opacity})`; // Artisan amber glow
+          ctx.fillStyle = `rgba(194, 132, 72, ${p.opacity})`;
           ctx.fill();
 
           p.y += p.speedY;
@@ -2202,7 +2218,6 @@
       animationFrameId = requestAnimationFrame(renderWeatherAnimation);
     }
 
-    // Initialize Canvas on page load
     resizeCanvas();
     renderWeatherAnimation();
 
