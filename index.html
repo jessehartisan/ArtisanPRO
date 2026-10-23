@@ -9,20 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ========================================================
-       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE (TRANSLUCENT)
+       ARTISAN OUTDOOR CRAFTSMAN BRAND THEME PALETTE (GLASS)
        ======================================================== */
     :root {
-      --bg-dark: #0e1115;           
-      --card-bg: rgba(22, 27, 34, 0.55);            /* Translucent Glass Surface */
-      --card-bg-elevated: rgba(30, 37, 46, 0.75);
-      --card-border: rgba(44, 53, 66, 0.6);         /* Subtle translucent border */
+      --bg-dark: #090c10;           
+      --card-border: rgba(255, 255, 255, 0.12);    /* Crisp wireframe borders */
       --accent: #c28448;                            /* Artisan Craft Bronze */
       --accent-hover: #d99b5a;                      /* Warm Cedar Glow */
-      --accent-muted: rgba(194, 132, 72, 0.22);
+      --accent-muted: rgba(194, 132, 72, 0.28);
       --text-main: #f5f7fa;                         /* Warm Off-White */
-      --text-muted: #a3afbe;                        /* Balanced Slate Gray */
-      --grid-line: rgba(34, 42, 54, 0.4);
-      --today-bg: rgba(194, 132, 72, 0.12);
+      --text-muted: #9ba6b5;                        /* Balanced Slate Gray */
+      --grid-line: rgba(255, 255, 255, 0.08);       /* Sheer wireframe grid lines */
+      --today-bg: rgba(194, 132, 72, 0.18);
       --today-border: #c28448;
     }
 
@@ -83,7 +81,7 @@
     /* Top Utility Bar */
     header {
       flex-shrink: 0;
-      background: rgba(14, 17, 21, 0.72);
+      background: rgba(9, 12, 16, 0.65);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
       display: flex;
@@ -114,7 +112,7 @@
       align-items: center;
       gap: 2px;
       color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
     .brand-logo span {
@@ -132,10 +130,10 @@
       color: var(--accent);
       padding: 3px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(194, 132, 72, 0.4);
+      border: 1px solid rgba(194, 132, 72, 0.45);
       letter-spacing: 0.2px;
       white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .sync-status {
@@ -145,7 +143,7 @@
       font-size: 0.74rem;
       color: var(--text-muted);
       font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .sync-dot {
@@ -154,7 +152,7 @@
       border-radius: 50%;
       background: #10b981;
       flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
     }
 
     .sync-dot.busy {
@@ -169,7 +167,7 @@
     }
 
     .btn {
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(4px);
       border: 1px solid var(--card-border);
       color: var(--text-main);
@@ -186,7 +184,7 @@
     }
 
     .btn:hover {
-      background: var(--card-bg-elevated);
+      background: rgba(255, 255, 255, 0.12);
       border-color: var(--accent);
     }
 
@@ -219,7 +217,7 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
-      border-top: 1px solid rgba(44, 53, 66, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       padding-top: 4px;
     }
 
@@ -230,7 +228,7 @@
       font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
-      background: rgba(14, 17, 21, 0.6);
+      background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(4px);
       padding: 3px 8px;
       border-radius: 6px;
@@ -252,7 +250,7 @@
 
     .view-toggles {
       display: flex;
-      background: rgba(14, 17, 21, 0.6);
+      background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(4px);
       padding: 2px;
       border-radius: 7px;
@@ -275,7 +273,7 @@
     }
 
     .view-btn.active, .view-btn:hover {
-      background: rgba(194, 132, 72, 0.25);
+      background: rgba(194, 132, 72, 0.3);
       color: var(--text-main);
     }
 
@@ -301,7 +299,7 @@
       }
     }
 
-    /* Left Sidebar */
+    /* Left Sidebar: Translucent Wireframe Container */
     .sidebar-left {
       display: flex;
       flex-direction: column;
@@ -311,8 +309,7 @@
     }
 
     .widget {
-      background: var(--card-bg);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.2); /* Transparent to let weather show through */
       border: 1px solid var(--card-border);
       border-radius: 9px;
       padding: clamp(8px, 0.9vw, 12px);
@@ -344,11 +341,11 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .btn-icon-tiny {
-      background: transparent;
+      background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       cursor: pointer;
@@ -359,7 +356,7 @@
     }
 
     .btn-icon-tiny:hover {
-      background: var(--card-bg-elevated);
+      background: rgba(255, 255, 255, 0.16);
       color: var(--accent);
     }
 
@@ -382,7 +379,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .legend-dot {
@@ -390,7 +387,7 @@
       height: 8px;
       border-radius: 3px;
       flex-shrink: 0;
-      box-shadow: 0 0 4px rgba(0,0,0,0.4);
+      box-shadow: 0 0 5px rgba(0,0,0,0.6);
     }
 
     /* YouTube Music Mini-Widget */
@@ -404,7 +401,7 @@
       height: 48px;
       border-radius: 5px;
       overflow: hidden;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.4);
       margin-bottom: 6px;
     }
 
@@ -426,10 +423,9 @@
       font-size: 0.72rem;
     }
 
-    /* Center: Calendar Grid View */
+    /* Center: Calendar Grid View (100% Transparent Wireframe) */
     .center-view {
-      background: var(--card-bg);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.15); /* Fully transparent body */
       border: 1px solid var(--card-border);
       border-radius: 9px;
       display: flex;
@@ -445,7 +441,7 @@
       align-items: center;
       padding: 8px 14px;
       border-bottom: 1px solid var(--card-border);
-      background: rgba(14, 17, 21, 0.35);
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .month-title {
@@ -453,7 +449,7 @@
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
     /* Month Grid Template (Zero-Scroll 5-Row Fixed Partitioning) */
@@ -464,7 +460,7 @@
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: 24px repeat(5, minmax(0, 1fr));
       overflow: hidden !important;
-      background: transparent;
+      background: transparent !important;
     }
 
     /* 7-Day Rolling View Template */
@@ -473,7 +469,7 @@
     }
 
     .weekday-header {
-      background: rgba(14, 17, 21, 0.55);
+      background: rgba(0, 0, 0, 0.35);
       padding: 3px;
       font-size: 0.68rem;
       font-weight: 700;
@@ -486,13 +482,14 @@
       justify-content: center;
       border-bottom: 1px solid var(--card-border);
       border-right: 1px solid var(--card-border);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .weekday-header:last-child {
       border-right: none;
     }
 
+    /* Completely Transparent Day Cells - Weather Animates Directly Behind */
     .calendar-day-cell {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
@@ -505,12 +502,12 @@
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
       position: relative;
-      background: rgba(18, 22, 28, 0.25); /* Highly translucent to allow weather to shine through */
+      background: transparent !important; /* Zero opacity backdrop */
       transition: background 0.2s ease;
     }
 
     .calendar-day-cell:hover {
-      background: rgba(30, 37, 46, 0.45);
+      background: rgba(255, 255, 255, 0.04) !important;
     }
 
     .calendar-day-cell:nth-child(7n) {
@@ -518,12 +515,12 @@
     }
 
     .calendar-day-cell.inactive {
-      opacity: 0.35;
-      background: rgba(0, 0, 0, 0.45);
+      opacity: 0.3;
+      background: rgba(0, 0, 0, 0.2) !important;
     }
 
     .calendar-day-cell.today {
-      background: var(--today-bg);
+      background: var(--today-bg) !important;
       box-shadow: inset 0 0 0 1px var(--today-border);
     }
 
@@ -533,7 +530,7 @@
       color: var(--text-muted);
       line-height: 1;
       margin-bottom: 1px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .calendar-day-cell.today .day-num {
@@ -555,7 +552,7 @@
       line-height: 1.25;
       flex-shrink: 0;
       transition: filter 0.1s ease, transform 0.1s ease;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.6);
     }
 
     .event-badge:hover {
@@ -563,10 +560,9 @@
       transform: translateY(-1px);
     }
 
-    /* Right Sidebar: Today's Dispatch */
+    /* Right Sidebar: Today's Dispatch (Transparent Wireframe) */
     .sidebar-right {
-      background: var(--card-bg);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.15);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       display: flex;
@@ -582,7 +578,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(14, 17, 21, 0.35);
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .dispatch-title {
@@ -590,7 +586,7 @@
       font-weight: 800;
       letter-spacing: -0.5px;
       color: #ffffff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
     .dispatch-count {
@@ -600,7 +596,7 @@
       color: var(--accent);
       padding: 2px 6px;
       border-radius: 999px;
-      border: 1px solid rgba(194, 132, 72, 0.4);
+      border: 1px solid rgba(194, 132, 72, 0.45);
     }
 
     .dispatch-list {
@@ -613,12 +609,11 @@
       gap: 6px;
       scrollbar-width: thin;
       scrollbar-color: var(--card-border) transparent;
-      background: transparent;
+      background: transparent !important;
     }
 
     .dispatch-card {
-      background: rgba(18, 22, 28, 0.55);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.35); /* Translucent so weather passes through */
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--accent);
       border-radius: 6px;
@@ -626,12 +621,12 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.15s ease, border-color 0.15s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
     .dispatch-card:hover {
-      background: rgba(30, 37, 46, 0.75);
-      border-color: rgba(59, 69, 84, 0.8);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .dispatch-card-title {
@@ -640,13 +635,14 @@
       margin-bottom: 2px;
       line-height: 1.25;
       color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
     }
 
     .dispatch-card-time {
       font-size: 0.72rem;
       color: var(--text-muted);
       font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .dispatch-card-location {
@@ -656,13 +652,14 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(10, 12, 15, 0.85);
+      background: rgba(5, 7, 10, 0.88);
       backdrop-filter: blur(8px);
       z-index: 1000;
       display: none;
@@ -672,7 +669,7 @@
     }
 
     .modal-box {
-      background: rgba(26, 31, 38, 0.95);
+      background: rgba(20, 25, 32, 0.98);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 18px;
@@ -680,7 +677,7 @@
       max-width: 540px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.85);
+      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.9);
     }
 
     .modal-title {
@@ -692,7 +689,7 @@
 
     .modal-input {
       width: 100%;
-      background: rgba(14, 17, 21, 0.8);
+      background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
       color: #ffffff;
       padding: 8px 11px;
@@ -724,7 +721,7 @@
     }
 
     .crew-edit-input {
-      background: rgba(14, 17, 21, 0.8);
+      background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
       color: #ffffff;
       padding: 7px 10px;
@@ -737,7 +734,7 @@
     .crew-color-picker {
       width: 100%;
       height: 32px;
-      background: rgba(14, 17, 21, 0.8);
+      background: rgba(10, 13, 17, 0.9);
       border: 1px solid var(--card-border);
       border-radius: 6px;
       cursor: pointer;
@@ -898,7 +895,7 @@
         border-radius: 8px;
         min-height: auto;
         padding: 10px;
-        background: rgba(18, 22, 28, 0.45);
+        background: rgba(0, 0, 0, 0.3) !important;
       }
 
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
@@ -1009,7 +1006,7 @@
       </div>
     </aside>
 
-    <!-- Center Calendar -->
+    <!-- Center Calendar (Wireframe with Direct Weather Visibility Behind) -->
     <section class="center-view">
       <div class="calendar-toolbar">
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
@@ -2054,50 +2051,50 @@
       clouds = [];
 
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
-        const count = weatherMode === 'thunder' ? 180 : 120;
+        const count = weatherMode === 'thunder' ? 240 : 160;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            speed: 13 + Math.random() * 9,
-            length: 16 + Math.random() * 14,
-            opacity: 0.35 + Math.random() * 0.45
+            speed: 15 + Math.random() * 10,
+            length: 18 + Math.random() * 16,
+            opacity: 0.5 + Math.random() * 0.45
           });
         }
       } else if (weatherMode === 'snow') {
-        const count = 90;
+        const count = 110;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: 1.8 + Math.random() * 2.8,
-            speed: 1.2 + Math.random() * 2.2,
-            drift: (Math.random() - 0.5) * 1.8,
-            opacity: 0.45 + Math.random() * 0.4
+            radius: 2 + Math.random() * 3,
+            speed: 1.5 + Math.random() * 2.5,
+            drift: (Math.random() - 0.5) * 2,
+            opacity: 0.6 + Math.random() * 0.35
           });
         }
       } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
-        const count = 8;
+        const count = 10;
         for (let i = 0; i < count; i++) {
           clouds.push({
             x: Math.random() * canvas.width,
             y: (canvas.height / count) * i + Math.random() * 40,
-            radius: 200 + Math.random() * 200,
-            speed: 0.3 + Math.random() * 0.5,
-            opacity: weatherMode === 'fog' ? 0.14 : 0.08
+            radius: 220 + Math.random() * 220,
+            speed: 0.3 + Math.random() * 0.6,
+            opacity: weatherMode === 'fog' ? 0.2 : 0.12
           });
         }
       } else {
-        // Clear sky: subtle solar dust motes
-        const count = 35;
+        // Clear sky solar motes
+        const count = 45;
         for (let i = 0; i < count; i++) {
           particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: 1.2 + Math.random() * 2.2,
-            speedY: -0.2 - Math.random() * 0.3,
-            speedX: (Math.random() - 0.5) * 0.3,
-            opacity: 0.25 + Math.random() * 0.35
+            radius: 1.5 + Math.random() * 2.5,
+            speedY: -0.2 - Math.random() * 0.4,
+            speedX: (Math.random() - 0.5) * 0.4,
+            opacity: 0.35 + Math.random() * 0.4
           });
         }
       }
@@ -2115,7 +2112,7 @@
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
         if (weatherMode === 'thunder') {
           if (Math.random() < 0.008) {
-            lightningFlash = 0.45 + Math.random() * 0.35;
+            lightningFlash = 0.55 + Math.random() * 0.35;
           }
           if (lightningFlash > 0) {
             ctx.fillStyle = `rgba(255, 255, 255, ${lightningFlash})`;
@@ -2124,8 +2121,8 @@
           }
         }
 
-        ctx.strokeStyle = 'rgba(190, 220, 255, 0.6)';
-        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = 'rgba(210, 235, 255, 0.75)';
+        ctx.lineWidth = 1.4;
 
         for (let p of particles) {
           ctx.beginPath();
@@ -2141,8 +2138,8 @@
               x: p.x,
               y: canvas.height - 3,
               radius: 1,
-              maxRadius: 5 + Math.random() * 7,
-              opacity: 0.65
+              maxRadius: 6 + Math.random() * 8,
+              opacity: 0.8
             });
 
             p.y = -20;
@@ -2154,10 +2151,10 @@
           const s = splashes[i];
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(190, 220, 255, ${s.opacity})`;
+          ctx.strokeStyle = `rgba(210, 235, 255, ${s.opacity})`;
           ctx.stroke();
 
-          s.radius += 0.9;
+          s.radius += 1.0;
           s.opacity -= 0.04;
 
           if (s.opacity <= 0 || s.radius >= s.maxRadius) {
@@ -2169,7 +2166,7 @@
         for (let p of particles) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(240, 248, 255, ${p.opacity})`;
+          ctx.fillStyle = `rgba(245, 250, 255, ${p.opacity})`;
           ctx.fill();
 
           p.y += p.speed;
@@ -2184,8 +2181,8 @@
       } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
         for (let c of clouds) {
           const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius);
-          grad.addColorStop(0, `rgba(170, 185, 205, ${c.opacity})`);
-          grad.addColorStop(1, 'rgba(14, 17, 21, 0)');
+          grad.addColorStop(0, `rgba(180, 195, 215, ${c.opacity})`);
+          grad.addColorStop(1, 'rgba(9, 12, 16, 0)');
 
           ctx.fillStyle = grad;
           ctx.beginPath();
