@@ -385,15 +385,21 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.6);
     }
 
-    /* YouTube Music Widget: Sized Above 100px to Prevent Embed Rejection */
+    /* YouTube Music Widget: Hidden on Mobile by Default */
     .yt-music-widget {
       flex-shrink: 0;
       padding: 8px 10px;
     }
 
+    @media (max-width: 768px) {
+      .yt-music-widget {
+        display: none !important;
+      }
+    }
+
     .yt-player-frame-box {
       width: 100%;
-      height: 110px; /* Complies with YouTube minimum viewport constraints */
+      height: 110px;
       border-radius: 6px;
       overflow: hidden;
       background: #000;
@@ -968,7 +974,7 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- Mini YouTube Music Dock -->
+      <!-- Mini YouTube Music Dock (Hidden on mobile via CSS) -->
       <div class="widget yt-music-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🎵 Office Music</div>
@@ -1149,8 +1155,11 @@
     // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
-    
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
+
+    // HARDCODED FALLBACK PLAYLIST ID:
+    // Change this string to your YouTube playlist ID whenever you want all monitors to update at once!
+    const FALLBACK_PLAYLIST_ID = "PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5";
 
     let eventsDatabase = [];
     let currentLayout = 'split';
@@ -1158,6 +1167,7 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
 
+    // Default Crew Definitions
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
       { name: 'Joseph', keyword: 'joseph', color: '#10b981' },
@@ -1873,7 +1883,7 @@
     // ==========================================
     // 8. ROBUST YOUTUBE MUSIC MINI-PLAYER ENGINE
     // ==========================================
-    let activePlaylistId = localStorage.getItem('company_yt_playlist') || 'PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5';
+    let activePlaylistId = localStorage.getItem('company_yt_playlist') || FALLBACK_PLAYLIST_ID;
     let ytPlayer = null;
     let isYtPlaying = false;
 
@@ -1909,7 +1919,6 @@
         container.innerHTML = '<div id="ytAudioPlayer"></div>';
       }
 
-      // Origin safety fallback: default to window.location.origin, fallback to https://github.com if local file
       const currentOrigin = (window.location.protocol.startsWith('http')) 
         ? window.location.origin 
         : 'https://jessehartisan.github.io';
@@ -1949,7 +1958,6 @@
       console.warn("YouTube Player error encountered, code:", e.data);
       const msg = document.getElementById('ytStatusMsg');
       
-      // Error 101/150: Track owner prohibits playback in embedded players. Auto-skip to next track in queue.
       if (e.data === 150 || e.data === 101) {
         if (msg) {
           msg.style.color = '#f59e0b';
