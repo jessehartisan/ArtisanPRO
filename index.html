@@ -13,8 +13,8 @@
        ======================================================== */
     :root {
       --bg-dark: #121519;           /* Architectural Deep Charcoal */
-      --card-bg: #1a1f26;           /* Slate Surface */
-      --card-bg-elevated: #222933;  /* Elevated Card State */
+      --card-bg: rgba(26, 31, 38, 0.88);  /* Semi-Translucent Slate Surface */
+      --card-bg-elevated: rgba(34, 41, 51, 0.94);
       --card-border: #2c3542;       /* Structured Architectural Border */
       --accent: #c28448;            /* Artisan Craft Bronze */
       --accent-hover: #d99b5a;      /* Warm Cedar Glow */
@@ -22,7 +22,7 @@
       --text-main: #f5f7fa;         /* Warm Off-White */
       --text-muted: #9ba6b5;        /* Balanced Slate Gray */
       --grid-line: #222a36;
-      --today-bg: #202732;
+      --today-bg: rgba(32, 39, 50, 0.9);
       --today-border: #c28448;
     }
 
@@ -42,6 +42,23 @@
       display: flex;
       flex-direction: column;
       user-select: none;
+      position: relative;
+    }
+
+    /* FULL-SCREEN WEATHER CANVAS BACKGROUND */
+    #weatherCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1; /* Sits behind UI containers */
+    }
+
+    /* Header and Main Sit Above the Weather Canvas */
+    header, main, .modal-overlay {
+      position: relative;
+      z-index: 10;
     }
 
     /* STRICT ZERO-SCROLL FOR DESKTOP & TV MONITORS (> 1024px) */
@@ -66,9 +83,9 @@
     /* Top Utility Bar */
     header {
       flex-shrink: 0;
-      background: rgba(18, 21, 25, 0.98);
+      background: rgba(18, 21, 25, 0.94);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
-      z-index: 100;
       display: flex;
       flex-direction: column;
       padding: 6px clamp(10px, 1.2vw, 20px);
@@ -208,7 +225,7 @@
       font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
-      background: rgba(18, 21, 25, 0.7);
+      background: rgba(18, 21, 25, 0.85);
       padding: 3px 8px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
@@ -288,6 +305,7 @@
 
     .widget {
       background: var(--card-bg);
+      backdrop-filter: blur(6px);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       padding: clamp(8px, 0.9vw, 12px);
@@ -401,6 +419,7 @@
     /* Center: Calendar Grid View */
     .center-view {
       background: var(--card-bg);
+      backdrop-filter: blur(6px);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       display: flex;
@@ -441,7 +460,7 @@
     }
 
     .weekday-header {
-      background: rgba(18, 21, 25, 0.7);
+      background: rgba(18, 21, 25, 0.75);
       padding: 3px;
       font-size: 0.68rem;
       font-weight: 700;
@@ -480,7 +499,7 @@
 
     .calendar-day-cell.inactive {
       opacity: 0.28;
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.35);
     }
 
     .calendar-day-cell.today {
@@ -524,6 +543,7 @@
     /* Right Sidebar: Today's Dispatch */
     .sidebar-right {
       background: var(--card-bg);
+      backdrop-filter: blur(6px);
       border: 1px solid var(--card-border);
       border-radius: 9px;
       display: flex;
@@ -614,7 +634,7 @@
       position: fixed;
       inset: 0;
       background: rgba(10, 12, 15, 0.85);
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(6px);
       z-index: 1000;
       display: none;
       align-items: center;
@@ -623,7 +643,7 @@
     }
 
     .modal-box {
-      background: var(--card-bg);
+      background: #1a1f26;
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 18px;
@@ -849,7 +869,7 @@
         border-radius: 8px;
         min-height: auto;
         padding: 10px;
-        background: rgba(18, 21, 25, 0.6);
+        background: rgba(18, 21, 25, 0.75);
       }
 
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num {
@@ -879,6 +899,9 @@
 </head>
 <body>
 
+  <!-- Full-Screen Hardware-Accelerated Weather Canvas -->
+  <canvas id="weatherCanvas"></canvas>
+
   <!-- Top Navigation & Status Header -->
   <header>
     <!-- Row 1: Brand, Date/Time Ticker, Sync Dot, Controls -->
@@ -906,7 +929,7 @@
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
-        <span style="color: var(--text-muted); font-size: 0.72rem;">• Live</span>
+        <span style="color: var(--text-muted); font-size: 0.72rem;" id="weatherConditionLabel">• Live</span>
       </div>
 
       <div class="view-toggles">
@@ -1227,19 +1250,46 @@
     setInterval(updateHeaderTicker, 1000);
     updateHeaderTicker();
 
+    // Map WMO codes to friendly weather labels and canvas effect modes
+    function interpretWmoCode(code) {
+      if (code === 0) return { label: 'Clear Sky', mode: 'clear' };
+      if (code === 1 || code === 2) return { label: 'Partly Cloudy', mode: 'clear' };
+      if (code === 3) return { label: 'Overcast', mode: 'clouds' };
+      if (code === 45 || code === 48) return { label: 'Fog / Mist', mode: 'fog' };
+      if ((code >= 51 && code <= 57) || (code >= 61 && code <= 67) || (code >= 80 && code <= 82)) {
+        return { label: 'Raining', mode: 'rain' };
+      }
+      if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
+        return { label: 'Snowing', mode: 'snow' };
+      }
+      if (code >= 95 && code <= 99) return { label: 'Thunderstorms', mode: 'thunder' };
+      return { label: 'Live', mode: 'clear' };
+    }
+
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0134&current_weather=true&temperature_unit=fahrenheit");
         if (res.ok) {
           const data = await res.json();
-          document.getElementById('weatherTemp').textContent = `${Math.round(data.current_weather.temperature)}°F`;
+          const temp = Math.round(data.current_weather.temperature);
+          const weatherCode = data.current_weather.weathercode;
+          const info = interpretWmoCode(weatherCode);
+
+          document.getElementById('weatherTemp').textContent = `${temp}°F`;
+          const conditionLabel = document.getElementById('weatherConditionLabel');
+          if (conditionLabel) {
+            conditionLabel.textContent = `• ${info.label}`;
+          }
+
+          // Trigger corresponding background canvas visual mode
+          setWeatherEffectMode(info.mode);
         }
       } catch (e) {
         console.warn('Weather fetch bypassed:', e);
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 900000);
+    setInterval(fetchWeather, 900000); // Check every 15 minutes
 
     // ==========================================
     // 2. ICS PARSER
@@ -1819,12 +1869,10 @@
     let ytPlayer = null;
     let isYtPlaying = false;
 
-    // Helper: clean raw inputs and extract exact PL identifier
     function extractCleanPlaylistId(raw) {
       if (!raw) return '';
       let clean = raw.trim();
 
-      // Check if full URL or URI component
       if (clean.includes('list=')) {
         const parts = clean.split('list=')[1];
         clean = parts.split('&')[0].split('#')[0];
@@ -1836,7 +1884,6 @@
       return clean.trim();
     }
 
-    // Asynchronously load official YouTube IFrame API
     (function initYouTubeAPI() {
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
@@ -1845,12 +1892,10 @@
     })();
 
     function instantiatePlayer(playlistId) {
-      // If player already exists, destroy iframe before rebuild
       if (ytPlayer && typeof ytPlayer.destroy === 'function') {
         ytPlayer.destroy();
       }
 
-      // Re-create mount point element
       const container = document.querySelector('.yt-player-frame-box');
       if (container) {
         container.innerHTML = '<div id="ytAudioPlayer"></div>';
@@ -1948,7 +1993,6 @@
       activePlaylistId = cleanId;
       localStorage.setItem('company_yt_playlist', activePlaylistId);
       
-      // Re-instantiate player directly with the new playlist ID
       instantiatePlayer(activePlaylistId);
 
       if (msg) {
@@ -1961,6 +2005,206 @@
         if (drawer) drawer.style.display = 'none';
       }, 1400);
     }
+
+    // ==========================================
+    // 9. FULL-SCREEN BACKGROUND WEATHER ANIMATION
+    // ==========================================
+    const canvas = document.getElementById('weatherCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+    let weatherMode = 'clear'; // 'clear', 'clouds', 'rain', 'thunder', 'snow', 'fog'
+
+    let particles = [];
+    let splashes = [];
+    let clouds = [];
+    let lightningFlash = 0;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initWeatherParticles();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function initWeatherParticles() {
+      particles = [];
+      splashes = [];
+      clouds = [];
+
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        const count = weatherMode === 'thunder' ? 140 : 85;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            speed: 12 + Math.random() * 8,
+            length: 14 + Math.random() * 12,
+            opacity: 0.25 + Math.random() * 0.35
+          });
+        }
+      } else if (weatherMode === 'snow') {
+        const count = 70;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 1.5 + Math.random() * 2.5,
+            speed: 1 + Math.random() * 2,
+            drift: (Math.random() - 0.5) * 1.5,
+            opacity: 0.3 + Math.random() * 0.4
+          });
+        }
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        const count = 6;
+        for (let i = 0; i < count; i++) {
+          clouds.push({
+            x: Math.random() * canvas.width,
+            y: (canvas.height / count) * i + Math.random() * 40,
+            radius: 180 + Math.random() * 160,
+            speed: 0.2 + Math.random() * 0.4,
+            opacity: weatherMode === 'fog' ? 0.08 : 0.05
+          });
+        }
+      } else {
+        // Clear sky: subtle solar dust motes
+        const count = 25;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 1 + Math.random() * 2,
+            speedY: -0.2 - Math.random() * 0.3,
+            speedX: (Math.random() - 0.5) * 0.3,
+            opacity: 0.15 + Math.random() * 0.25
+          });
+        }
+      }
+    }
+
+    function setWeatherEffectMode(newMode) {
+      if (weatherMode === newMode) return;
+      weatherMode = newMode;
+      initWeatherParticles();
+    }
+
+    function renderWeatherAnimation() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Rain & Thunderstorm renderer
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        // Lightning flash
+        if (weatherMode === 'thunder') {
+          if (Math.random() < 0.008) {
+            lightningFlash = 0.35 + Math.random() * 0.3;
+          }
+          if (lightningFlash > 0) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${lightningFlash})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            lightningFlash -= 0.04;
+          }
+        }
+
+        ctx.strokeStyle = 'rgba(180, 210, 240, 0.45)';
+        ctx.lineWidth = 1.2;
+
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - 2, p.y + p.length);
+          ctx.stroke();
+
+          p.y += p.speed;
+          p.x -= 1.2; // Gentle crosswind
+
+          // Hit screen bottom -> spawn water ripple splash
+          if (p.y >= canvas.height - 4) {
+            splashes.push({
+              x: p.x,
+              y: canvas.height - 3,
+              radius: 1,
+              maxRadius: 4 + Math.random() * 6,
+              opacity: 0.45
+            });
+
+            p.y = -20;
+            p.x = Math.random() * (canvas.width + 100);
+          }
+        }
+
+        // Animate & draw splashes hitting bottom of monitor
+        for (let i = splashes.length - 1; i >= 0; i--) {
+          const s = splashes[i];
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(180, 210, 240, ${s.opacity})`;
+          ctx.stroke();
+
+          s.radius += 0.8;
+          s.opacity -= 0.04;
+
+          if (s.opacity <= 0 || s.radius >= s.maxRadius) {
+            splashes.splice(i, 1);
+          }
+        }
+
+      // Snow renderer
+      } else if (weatherMode === 'snow') {
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(240, 248, 255, ${p.opacity})`;
+          ctx.fill();
+
+          p.y += p.speed;
+          p.x += Math.sin(p.y * 0.02) * p.drift;
+
+          if (p.y >= canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+          }
+        }
+
+      // Fog & Cloud renderer
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        for (let c of clouds) {
+          const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius);
+          grad.addColorStop(0, `rgba(160, 175, 195, ${c.opacity})`);
+          grad.addColorStop(1, 'rgba(18, 21, 25, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          c.x += c.speed;
+          if (c.x - c.radius > canvas.width) {
+            c.x = -c.radius;
+          }
+        }
+
+      // Clear sky subtle solar dust
+      } else {
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(194, 132, 72, ${p.opacity})`; // Artisan amber glow
+          ctx.fill();
+
+          p.y += p.speedY;
+          p.x += p.speedX;
+
+          if (p.y <= -10) p.y = canvas.height + 10;
+          if (p.x <= -10) p.x = canvas.width + 10;
+          if (p.x > canvas.width + 10) p.x = -10;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(renderWeatherAnimation);
+    }
+
+    // Initialize Canvas on page load
+    resizeCanvas();
+    renderWeatherAnimation();
 
     // View Switching Logic
     function switchLayout(layoutName) {
