@@ -1784,7 +1784,7 @@
     }
 
     // ==========================================
-    // 7. TIME SHEET & URL-ENCODED RECEIPT HANDLER
+    // 7. RELIABLE TIMESHEET & DIRECT JSON UPLOAD
     // ==========================================
     function openTimeSheetModal() {
       document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
@@ -1807,7 +1807,7 @@
       });
     }
 
-    function compressImage(file, maxDimension = 1200, quality = 0.7) {
+    function compressImage(file, maxDimension = 1000, quality = 0.65) {
       return new Promise(async (resolve) => {
         if (!file.type.startsWith('image/')) {
           const b64 = await fileToBase64(file);
@@ -1862,46 +1862,52 @@
       statusEl.style.color = 'var(--accent)';
       btn.disabled = true;
 
-      let receiptBase64 = '';
-      let receiptName = '';
-      let receiptType = '';
+      let receiptBase64 = null;
+      let receiptName = null;
+      let receiptType = null;
 
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        statusEl.textContent = 'Compressing receipt image...';
+        statusEl.textContent = 'Compressing image...';
         try {
           const compressed = await compressImage(file);
           receiptBase64 = compressed.base64;
           receiptType = compressed.type;
           receiptName = `${dateWorked}_${crew}_${job.replace(/\s+/g, '_')}_receipt.jpg`;
         } catch (e) {
-          console.error("Compression error:", e);
+          console.error("Image processing error:", e);
         }
       }
 
       statusEl.textContent = 'Submitting to office...';
 
-      // Standard form url encoding guarantees Google Apps Script receives the full Base64 string
-      const formData = new URLSearchParams();
-      formData.append('crewWorker', crew);
-      formData.append('dateWorked', dateWorked);
-      formData.append('hours', hours);
-      formData.append('jobProject', job);
-      formData.append('notes', notes);
-      formData.append('receiptBase64', receiptBase64);
-      formData.append('receiptName', receiptName);
-      formData.append('receiptType', receiptType);
+      const payload = {
+        crewWorker: crew,
+        dateWorked: dateWorked,
+        hours: hours,
+        jobProject: job,
+        notes: notes,
+        receiptBase64: receiptBase64,
+        receiptName: receiptName,
+        receiptType: receiptType
+      };
 
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
         await fetch(TIMESHEET_ENDPOINT, {
           method: 'POST',
           mode: 'no-cors',
           cache: 'no-cache',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'text/plain;charset=utf-8'
           },
-          body: formData.toString()
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         statusEl.style.color = '#10b981';
         statusEl.textContent = '✓ Logged to Office!';
@@ -1915,7 +1921,7 @@
       } catch (err) {
         console.error("Timesheet submission error:", err);
         statusEl.style.color = '#f43f5e';
-        statusEl.textContent = 'Network error. Try again.';
+        statusEl.textContent = 'Network timeout. Check connection.';
         btn.disabled = false;
       }
     }
@@ -1992,7 +1998,7 @@
     }
 
     function onPlayerError(e) {
-      console.warn("YouTube Player error:", e.data);
+      console.warn("YouTube Player error encountered, code:", e.data);
       const msg = document.getElementById('ytStatusMsg');
       if (e.data === 150 || e.data === 101) {
         if (msg) {
