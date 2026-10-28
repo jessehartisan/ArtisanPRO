@@ -39,6 +39,7 @@
       position: relative;
     }
 
+    /* FULL-SCREEN WEATHER CANVAS */
     #weatherCanvas {
       position: fixed;
       inset: 0;
@@ -53,7 +54,7 @@
       z-index: 10;
     }
 
-    /* ABSOLUTE MONITOR/TV ZERO-SCROLL LOCK (> 1024px) */
+    /* ZERO-SCROLL MONITOR & TV KIOSK LOCK (> 1024px) */
     @media (min-width: 1025px) {
       html, body {
         height: 100vh !important;
@@ -71,7 +72,7 @@
       }
     }
 
-    /* Ultra-Compact Header (50px fixed) */
+    /* Fixed Height Utility Bar */
     header {
       flex-shrink: 0;
       height: 50px;
@@ -266,7 +267,7 @@
       color: var(--accent);
     }
 
-    /* Main Grid Frame (Strictly Fitted to viewport) */
+    /* Main Grid Frame */
     main {
       flex: 1;
       padding: 6px clamp(6px, 0.8vw, 10px);
@@ -371,6 +372,7 @@
       flex-shrink: 0;
     }
 
+    /* Music Player Widget (Hidden on mobile) */
     .yt-music-widget {
       flex-shrink: 0;
       padding: 5px 7px;
@@ -440,7 +442,7 @@
       color: #ffffff;
     }
 
-    /* Zero-Scroll Proportional Math: 5 Equal Rows taking exactly 100% */
+    /* 5 Rows Perfectly Divided to Prevent TV Scroll */
     .calendar-grid {
       flex: 1;
       height: calc(100% - 28px);
@@ -864,7 +866,7 @@
 </head>
 <body>
 
-  <!-- Full-Screen Weather Canvas -->
+  <!-- Full-Screen Hardware-Accelerated Weather Canvas -->
   <canvas id="weatherCanvas"></canvas>
 
   <!-- Top Navigation & Status Header -->
@@ -915,7 +917,7 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- Mini YouTube Music Dock -->
+      <!-- Mini YouTube Music Dock (Hidden on mobile) -->
       <div class="widget yt-music-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🎵 Office Music</div>
@@ -970,7 +972,7 @@
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
       <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
-        Paste your Google Calendar iCal (.ics) and/or Outlook iCal address.
+        Paste your Google Calendar iCal (.ics) and/or Outlook iCal address below.
       </p>
       
       <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Primary Calendar iCal (.ics)</label>
@@ -1052,7 +1054,7 @@
     </div>
   </div>
 
-  <!-- Field Time Sheet Modal -->
+  <!-- Field Time Sheet Modal with Receipt Upload -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -1083,7 +1085,10 @@
       <input type="text" id="tsJob" class="modal-input" placeholder="e.g. Byram, Christie, Bower" />
 
       <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
-      <textarea id="tsNotes" class="modal-input" style="height: 90px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+      <textarea id="tsNotes" class="modal-input" style="height: 85px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
+
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Attach Receipt / Packing Slip (Photo/PDF)</label>
+      <input type="file" id="tsReceipt" accept="image/*,application/pdf" capture="environment" class="modal-input" style="padding: 4px;" />
 
       <div class="modal-actions" style="justify-content: space-between;">
         <span id="tsSubmitStatus" style="font-size: 0.75rem; font-weight: 700; align-self: center;"></span>
@@ -1342,12 +1347,10 @@
                 const sDate = new Date(cur.start.getFullYear(), cur.start.getMonth(), cur.start.getDate());
                 let eDate = new Date(cur.end.getFullYear(), cur.end.getMonth(), cur.end.getDate());
                 
-                // For all-day events, DTEND is exclusive (e.g., DTEND: 20261031 means through 20261030)
                 if (cur.isAllDay || (cur.end.getHours() === 0 && cur.end.getMinutes() === 0)) {
                   eDate = new Date(eDate.getTime() - 86400000);
                 }
 
-                // If event spans across multiple distinct calendar days, create a badge for each day!
                 if (eDate.getTime() > sDate.getTime()) {
                   let cursor = new Date(sDate);
                   let dayIdx = 0;
@@ -1367,7 +1370,6 @@
                 parsed.push(cur);
               }
 
-              // Weekly Recurring Expansions
               if (cur.rrule && cur.rrule.includes('FREQ=WEEKLY')) {
                 for (let w = 1; w <= 4; w++) {
                   const recStart = new Date(cur.start.getTime() + w * 7 * 86400000);
@@ -1581,7 +1583,7 @@
       container.innerHTML = '';
 
       if (todayEvents.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.78rem; padding: 8px;">No events scheduled for today.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 8px;">No events scheduled for today.</div>';
         return;
       }
 
@@ -1610,7 +1612,6 @@
       const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
       const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
       
-      // Attempt Cloudflare Worker
       try {
         const primaryUrl = `${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`;
         const c1 = new AbortController();
@@ -1623,7 +1624,6 @@
         }
       } catch (e) {}
 
-      // Fallback: Allorigins proxy
       try {
         const secondaryUrl = `${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`;
         const c2 = new AbortController();
@@ -1832,13 +1832,15 @@
     }
 
     // ==========================================
-    // 7. FIELD TIME SHEET HANDLER
+    // 7. FIELD TIME SHEET & RECEIPT HANDLER
     // ==========================================
     function openTimeSheetModal() {
       document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
       document.getElementById('tsHours').value = '';
       document.getElementById('tsJob').value = '';
       document.getElementById('tsNotes').value = '';
+      const fileInput = document.getElementById('tsReceipt');
+      if (fileInput) fileInput.value = '';
       document.getElementById('tsSubmitStatus').textContent = '';
       document.getElementById('btnSubmitTS').disabled = false;
       document.getElementById('timesheetModal').style.display = 'flex';
@@ -1847,19 +1849,14 @@
     async function submitTimeSheet(event) {
       if (event) event.preventDefault();
 
-      const crewEl = document.getElementById('tsCrew');
-      const dateEl = document.getElementById('tsDate');
-      const hoursEl = document.getElementById('tsHours');
-      const jobEl = document.getElementById('tsJob');
-      const notesEl = document.getElementById('tsNotes');
+      const crew = document.getElementById('tsCrew').value;
+      const dateWorked = document.getElementById('tsDate').value;
+      const hours = document.getElementById('tsHours').value;
+      const job = document.getElementById('tsJob').value.trim();
+      const notes = document.getElementById('tsNotes').value.trim();
+      const fileInput = document.getElementById('tsReceipt');
       const statusEl = document.getElementById('tsSubmitStatus');
       const btn = document.getElementById('btnSubmitTS');
-
-      const crew = crewEl ? crewEl.value : '';
-      const dateWorked = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
-      const hours = hoursEl ? hoursEl.value : '';
-      const job = jobEl ? jobEl.value.trim() : '';
-      const notes = notesEl ? notesEl.value.trim() : '';
 
       if (!hours || !job) {
         statusEl.style.color = '#f43f5e';
@@ -1868,15 +1865,42 @@
       }
 
       statusEl.style.color = 'var(--accent)';
-      statusEl.textContent = 'Submitting to office...';
+      statusEl.textContent = 'Uploading & submitting...';
       btn.disabled = true;
+
+      const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(file);
+        });
+      };
+
+      let receiptBase64 = null;
+      let receiptName = null;
+      let receiptType = null;
+
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        receiptName = `${dateWorked}_${crew}_${job.replace(/\s+/g, '_')}_${file.name}`;
+        receiptType = file.type;
+        try {
+          receiptBase64 = await readFileAsBase64(file);
+        } catch (e) {
+          console.warn("Could not encode receipt image:", e);
+        }
+      }
 
       const payload = {
         crewWorker: crew,
         dateWorked: dateWorked,
         hours: hours,
         jobProject: job,
-        notes: notes
+        notes: notes,
+        receiptBase64: receiptBase64,
+        receiptName: receiptName,
+        receiptType: receiptType
       };
 
       try {
@@ -1897,6 +1921,7 @@
           document.getElementById('timesheetModal').style.display = 'none';
           btn.disabled = false;
           statusEl.textContent = '';
+          if (fileInput) fileInput.value = '';
         }, 1400);
       } catch (err) {
         console.error("Timesheet submission error:", err);
@@ -1981,7 +2006,7 @@
     }
 
     function onPlayerError(e) {
-      console.warn("YouTube Player error:", e.data);
+      console.warn("YouTube Player error encountered, code:", e.data);
       const msg = document.getElementById('ytStatusMsg');
       if (e.data === 150 || e.data === 101) {
         if (msg) {
