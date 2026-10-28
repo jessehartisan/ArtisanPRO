@@ -53,7 +53,6 @@
       z-index: 10;
     }
 
-    /* Zero-Scroll Monitor & TV Kiosk Lock */
     @media (min-width: 1025px) {
       html, body {
         height: 100vh !important;
@@ -62,7 +61,6 @@
       }
     }
 
-    /* Mobile Natural Touch Scrolling */
     @media (max-width: 1024px) {
       html, body {
         height: auto;
@@ -858,10 +856,8 @@
 </head>
 <body>
 
-  <!-- Full-Screen Weather Canvas -->
   <canvas id="weatherCanvas"></canvas>
 
-  <!-- Top Navigation & Status Header -->
   <header>
     <div class="header-primary-row">
       <div class="brand-section">
@@ -897,9 +893,7 @@
     </div>
   </header>
 
-  <!-- Main View Grid -->
   <main id="mainContainer">
-    <!-- Left Panel -->
     <aside class="sidebar-left">
       <div class="widget crew-bulletin">
         <div class="bulletin-header-row">
@@ -909,7 +903,6 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- Mini YouTube Music Dock -->
       <div class="widget yt-music-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🎵 Office Music</div>
@@ -937,17 +930,13 @@
       </div>
     </aside>
 
-    <!-- Center Calendar -->
     <section class="center-view">
       <div class="calendar-toolbar">
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
-      <div class="calendar-grid" id="calendarGrid">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
     </section>
 
-    <!-- Right Sidebar -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
@@ -1017,7 +1006,7 @@
     </div>
   </div>
 
-  <!-- Crew Classification Manager Modal -->
+  <!-- Crew Manager Modal -->
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
@@ -1046,7 +1035,7 @@
     </div>
   </div>
 
-  <!-- Field Time Sheet Modal with Receipt Upload -->
+  <!-- Time Sheet Modal with Encoded File Upload -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -1079,7 +1068,7 @@
       <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Work Performed</label>
       <textarea id="tsNotes" class="modal-input" style="height: 85px; resize: vertical;" placeholder="Framing, footers poured, Trex decking laid, hardware run to 84 Lumber..."></textarea>
 
-      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Attach Receipt / Packing Slip (Photo/PDF)</label>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Attach Receipt / Slip (Photo/PDF)</label>
       <input type="file" id="tsReceipt" accept="image/*,application/pdf" capture="environment" class="modal-input" style="padding: 4px;" />
 
       <div class="modal-actions" style="justify-content: space-between;">
@@ -1093,9 +1082,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // CONFIGURATION & DUAL-PROXY RESILIENCE
-    // ==========================================
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
@@ -1162,16 +1148,13 @@
 
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
-
       const hexMatch = (title || '').match(/\[(#[0-9a-fA-F]{3,6})\]/);
       if (hexMatch) return hexMatch[1];
-
       const nameMatch = (title || '').match(/\[([a-zA-Z]+)\]/);
       if (nameMatch) {
         const colorName = nameMatch[1].toLowerCase();
         if (GOOGLE_COLOR_MAP[colorName]) return GOOGLE_COLOR_MAP[colorName];
       }
-
       for (const c of crewDefinitions) {
         const keys = c.keyword.split(',').map(k => k.trim().toLowerCase());
         for (const k of keys) {
@@ -1196,16 +1179,12 @@
       return 99;
     }
 
-    // ==========================================
-    // 1. DATE, TIME TICKER & WEATHER ENGINE
-    // ==========================================
     function updateHeaderTicker() {
       const now = new Date();
       let hours = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12 || 12;
-
       const dateStr = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
       const ticker = document.getElementById('headerDateTimeTicker');
       if (ticker) {
@@ -1238,13 +1217,11 @@
           const temp = Math.round(data.current_weather.temperature);
           const weatherCode = data.current_weather.weathercode;
           const info = interpretWmoCode(weatherCode);
-
           document.getElementById('weatherTemp').textContent = `${temp}°F`;
           const conditionLabel = document.getElementById('weatherConditionLabel');
           if (conditionLabel) {
             conditionLabel.textContent = `• ${info.label}`;
           }
-
           setWeatherEffectMode(info.mode);
         }
       } catch (e) {
@@ -1254,9 +1231,6 @@
     fetchWeather();
     setInterval(fetchWeather, 900000);
 
-    // ==========================================
-    // 2. MULTI-DAY SPAN EXPANDING ICS PARSER
-    // ==========================================
     function parseIcsDate(raw) {
       if (!raw) return new Date();
       const val = raw.includes(':') ? raw.split(':').pop().trim() : raw.trim();
@@ -1334,7 +1308,6 @@
                 if (ov.endTime) cur.end = new Date(ov.endTime);
               }
 
-              // Multi-day span expansion across covered dates
               if (cur.end && cur.end.getTime() > cur.start.getTime()) {
                 const sDate = new Date(cur.start.getFullYear(), cur.start.getMonth(), cur.start.getDate());
                 let eDate = new Date(cur.end.getFullYear(), cur.end.getMonth(), cur.end.getDate());
@@ -1405,9 +1378,6 @@
       renderCurrentLayout();
     }
 
-    // ==========================================
-    // 3. RENDER VIEWS
-    // ==========================================
     function renderCurrentLayout() {
       renderCrewLegend();
       if (currentLayout === '7-day') {
@@ -1596,9 +1566,6 @@
       });
     }
 
-    // ==========================================
-    // 4. BACKGROUND SYNC (Dual Google + Outlook)
-    // ==========================================
     async function fetchSingleFeed(feedUrl) {
       if (!feedUrl) return null;
       const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
@@ -1692,9 +1659,6 @@
     renderCurrentLayout();
     triggerSync();
 
-    // ==========================================
-    // 5. MODAL HANDLERS
-    // ==========================================
     function openFeedSetupModal() {
       document.getElementById('feedUrlInput').value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       document.getElementById('feedUrlInput2').value = localStorage.getItem('company_cal_url2') || '';
@@ -1726,7 +1690,6 @@
 
       document.getElementById('editJobStart').value = toLocalISO(evt.start);
       document.getElementById('editJobEnd').value = evt.end ? toLocalISO(evt.end) : toLocalISO(evt.start);
-
       document.getElementById('jobEditModal').style.display = 'flex';
     }
 
@@ -1770,9 +1733,6 @@
       triggerSync();
     }
 
-    // ==========================================
-    // 6. CREW CLASSIFICATION MANAGER
-    // ==========================================
     function openCrewManagerModal() {
       const container = document.getElementById('crewRowsContainer');
       container.innerHTML = '';
@@ -1824,7 +1784,7 @@
     }
 
     // ==========================================
-    // 7. TIME SHEET & COMPRESSED RECEIPT HANDLER
+    // 7. TIME SHEET & URL-ENCODED RECEIPT HANDLER
     // ==========================================
     function openTimeSheetModal() {
       document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
@@ -1902,13 +1862,11 @@
       statusEl.style.color = 'var(--accent)';
       btn.disabled = true;
 
-      let receiptBase64 = null;
-      let receiptName = null;
-      let receiptType = null;
-      let receiptAttempted = false;
+      let receiptBase64 = '';
+      let receiptName = '';
+      let receiptType = '';
 
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
-        receiptAttempted = true;
         const file = fileInput.files[0];
         statusEl.textContent = 'Compressing receipt image...';
         try {
@@ -1923,17 +1881,16 @@
 
       statusEl.textContent = 'Submitting to office...';
 
-      const payload = {
-        crewWorker: crew,
-        dateWorked: dateWorked,
-        hours: hours,
-        jobProject: job,
-        notes: notes,
-        receiptBase64: receiptBase64,
-        receiptName: receiptName,
-        receiptType: receiptType,
-        receiptAttempted: receiptAttempted
-      };
+      // Standard form url encoding guarantees Google Apps Script receives the full Base64 string
+      const formData = new URLSearchParams();
+      formData.append('crewWorker', crew);
+      formData.append('dateWorked', dateWorked);
+      formData.append('hours', hours);
+      formData.append('jobProject', job);
+      formData.append('notes', notes);
+      formData.append('receiptBase64', receiptBase64);
+      formData.append('receiptName', receiptName);
+      formData.append('receiptType', receiptType);
 
       try {
         await fetch(TIMESHEET_ENDPOINT, {
@@ -1941,9 +1898,9 @@
           mode: 'no-cors',
           cache: 'no-cache',
           headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
+            'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: JSON.stringify(payload)
+          body: formData.toString()
         });
 
         statusEl.style.color = '#10b981';
@@ -1963,9 +1920,6 @@
       }
     }
 
-    // ==========================================
-    // 8. ROBUST YOUTUBE MUSIC MINI-PLAYER ENGINE
-    // ==========================================
     let activePlaylistId = localStorage.getItem('company_yt_playlist') || FALLBACK_PLAYLIST_ID;
     let ytPlayer = null;
     let isYtPlaying = false;
@@ -2038,7 +1992,7 @@
     }
 
     function onPlayerError(e) {
-      console.warn("YouTube Player error encountered, code:", e.data);
+      console.warn("YouTube Player error:", e.data);
       const msg = document.getElementById('ytStatusMsg');
       if (e.data === 150 || e.data === 101) {
         if (msg) {
@@ -2111,9 +2065,6 @@
       }, 1400);
     }
 
-    // ==========================================
-    // 9. FULL-SCREEN BACKGROUND WEATHER ANIMATION
-    // ==========================================
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
     let animationFrameId = null;
