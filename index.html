@@ -229,7 +229,7 @@
 </div>
 
         <div id="ytConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
-          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
+          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">https://music.youtube.com/playlist?list=PLVB8RXQBEV78&si=KK8Flxu8fmtp68md</label>
           <div style="display: flex; gap: 3px; margin-top: 2px;">
             <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="PL... or paste URL" />
             <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomPlaylist()">Load</button>
@@ -347,7 +347,7 @@
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
-    const FALLBACK_PLAYLIST_ID = "PLw-VjHDlEOgs658kAHR_LAa4Pvv-nD6u5";
+    const FALLBACK_PLAYLIST_ID = "PLVB8RXQBEV78&si=KK8Flxu8fmtp68md";
 
     let eventsDatabase = JSON.parse(localStorage.getItem('cached_events_db') || '[]').map(e => {
       e.start = new Date(e.start);
