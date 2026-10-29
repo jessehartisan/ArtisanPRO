@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     :root {
       --bg-dark: #090c10;           
@@ -173,7 +171,12 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.6);
       border: 1px solid var(--card-border);
     }
-    #radarMap { width: 100%; height: 100%; }
+    #windyFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 5px;
+    }
 
     .site-metrics-grid {
       display: grid;
@@ -355,7 +358,7 @@
       .sidebar-right { order: 1; }
       .center-view { order: 2; }
       .sidebar-left { order: 3; }
-      .radar-container-box { min-height: 140px; height: 140px; }
+      .radar-container-box { min-height: 220px !important; height: 220px !important; width: 100% !important; position: relative !important; }
       .calendar-grid { grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, minmax(65px, auto)) !important; overflow: visible !important; }
       .calendar-grid.seven-day-mode { display: flex; flex-direction: column; gap: 5px; }
       .calendar-grid.seven-day-mode .weekday-header { display: none; }
@@ -403,16 +406,20 @@
   </header>
 
   <main id="mainContainer">
-    <!-- Left Sidebar: Live Doppler Radar Tile + Site Weather Metrics -->
+    <!-- Left Sidebar: Windy Live Doppler Radar & Local Weather Telemetry -->
     <aside class="sidebar-left">
       <div class="widget radar-widget-card">
         <div class="bulletin-header-row">
           <div class="bulletin-title">📡 Live Doppler Radar</div>
-          <button class="btn-icon-tiny" onclick="recenterRadar()" title="Recenter to Shop">📍 Center</button>
+          <button class="btn-icon-tiny" onclick="reloadWindyRadar()" title="Reload Radar">🔄 Refresh</button>
         </div>
         
         <div class="radar-container-box">
-          <div id="radarMap"></div>
+          <iframe 
+            id="windyFrame"
+            src="https://embed.windy.com/embed2.html?lat=39.957&lon=-86.013&detailLat=39.957&detailLon=-86.013&width=400&height=300&zoom=8&level=surface&overlay=radar&product=radar&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=mph&metricTemp=%C2%B0F&radarRange=-1" 
+            frameborder="0">
+          </iframe>
         </div>
 
         <div class="site-metrics-grid">
@@ -487,6 +494,7 @@
     </aside>
   </main>
 
+  <!-- Feed Setup Modal -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -501,6 +509,7 @@
     </div>
   </div>
 
+  <!-- Job Edit / View Modal -->
   <div id="jobEditModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="jobEditModalTitle">Edit Scheduled Job</div>
@@ -525,6 +534,7 @@
     </div>
   </div>
 
+  <!-- Backlog / Staging Job Modal -->
   <div id="backlogModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="backlogModalTitle">Project Pipeline Item</div>
@@ -551,6 +561,7 @@
     </div>
   </div>
 
+  <!-- Crew Color Setup Modal -->
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
@@ -572,6 +583,7 @@
     </div>
   </div>
 
+  <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -602,7 +614,6 @@
   </div>
 
   <script>
-    const CARTO_API_KEY = "cb1_4xst_1_1e9a6f80e80fb1cbe18a9c29";
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
@@ -1345,71 +1356,15 @@
       }
     }
 
-    // Leaflet Doppler Radar Engine with Authenticated CartoDB Base Map
-    let leafletMap = null;
-    let radarLayer = null;
-    const SHOP_COORDS = [39.9568, -86.0134];
-
-    function initRadarMap() {
-      if (leafletMap) return;
-      leafletMap = L.map('radarMap', {
-        center: SHOP_COORDS,
-        zoom: 8,
-        zoomControl: false,
-        attributionControl: false
-      });
-
-      // Authenticated CartoDB Dark Matter Raster Endpoint
-      const cartoRasterUrl = `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=${CARTO_API_KEY}`;
-      
-      L.tileLayer(cartoRasterUrl, {
-        subdomains: 'abcd',
-        maxZoom: 14
-      }).addTo(leafletMap);
-
-      // Shop Pin Marker
-      const shopIcon = L.divIcon({
-        className: 'custom-shop-pin',
-        html: `<div style="background: #c28448; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 8px rgba(194,132,72,0.9);"></div>`,
-        iconSize: [10, 10],
-        iconAnchor: [5, 5]
-      });
-      L.marker(SHOP_COORDS, { icon: shopIcon }).addTo(leafletMap);
-
-      updateRadarOverlay();
-      setInterval(updateRadarOverlay, 300000);
-    }
-
-    async function updateRadarOverlay() {
-      try {
-        const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.radar && data.radar.past && data.radar.past.length > 0) {
-            const latest = data.radar.past[data.radar.past.length - 1];
-            const radarPath = latest.path;
-
-            if (radarLayer) leafletMap.removeLayer(radarLayer);
-            radarLayer = L.tileLayer(`https://tilecache.rainviewer.com${radarPath}/256/{z}/{x}/{y}/2/1_1.png`, {
-              opacity: 0.65,
-              zIndex: 100
-            }).addTo(leafletMap);
-          }
-        }
-      } catch (e) {}
-    }
-
-    function recenterRadar() {
-      if (leafletMap) {
-        leafletMap.setView(SHOP_COORDS, 8);
+    function reloadWindyRadar() {
+      const frame = document.getElementById('windyFrame');
+      if (frame) {
+        const src = frame.src;
+        frame.src = '';
+        frame.src = src;
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(initRadarMap, 300);
-    });
-
-    // Realistic Weather Animation Engine
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
     let animationFrameId = null;
@@ -1699,9 +1654,6 @@
       Array.from(document.querySelectorAll('.view-btn')).find(b => b.getAttribute('onclick').includes(layoutName)).classList.add('active');
       
       renderCurrentLayout();
-      if (layoutName !== 'backlog' && leafletMap) {
-        setTimeout(() => leafletMap.invalidateSize(), 200);
-      }
     }
 
     function toggleFullScreen() {
