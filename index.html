@@ -60,7 +60,7 @@
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
-    @media (max-width: 768px) { .btn-feed-setup { display: none !important; } }
+    @media (max-width: 768px) { .btn-feed-setup, .btn-crew-setup { display: none !important; } }
     :fullscreen .btn-feed-setup, :-webkit-full-screen .btn-feed-setup { display: none !important; }
 
     .header-sub-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 2px; }
@@ -89,33 +89,92 @@
     .view-btn.active, .view-btn:hover { background: rgba(194, 132, 72, 0.3); color: var(--text-main); }
     .view-btn.active { color: var(--accent); }
 
-    main { flex: 1; padding: 6px clamp(6px, 0.8vw, 10px); display: grid; grid-template-columns: clamp(190px, 12vw, 220px) 1fr clamp(250px, 16vw, 300px); gap: 6px; min-height: 0; }
+    /* Widescreen Multi-Column Grid - Expanded left rail for full video footprint */
+    main { 
+      flex: 1; 
+      padding: 6px clamp(6px, 0.8vw, 10px); 
+      display: grid; 
+      grid-template-columns: clamp(240px, 18vw, 320px) 1fr clamp(250px, 16vw, 300px); 
+      gap: 6px; 
+      min-height: 0; 
+    }
     @media (min-width: 1025px) { main { height: calc(100vh - 50px) !important; max-height: calc(100vh - 50px) !important; overflow: hidden !important; } }
 
-    .sidebar-left { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; }
-    .widget { background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); border-radius: 7px; padding: 6px 8px; display: flex; flex-direction: column; min-height: 0; }
-    .crew-bulletin { flex: 1; min-height: 0; overflow: hidden; }
-    .bulletin-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-shrink: 0; }
-    .bulletin-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); display: flex; align-items: center; gap: 4px; }
-    .btn-icon-tiny { background: rgba(255,255,255,0.08); border: 1px solid var(--card-border); color: var(--text-muted); cursor: pointer; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem; transition: all 0.2s; }
-    .btn-icon-tiny:hover { background: rgba(255,255,255,0.16); color: var(--accent); }
-    .crew-color-legend { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; padding-right: 2px; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: clamp(0.68rem, 0.72vw, 0.75rem); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+    .sidebar-left { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+      min-height: 0; 
+      height: 100%;
+      overflow: hidden; 
+    }
 
-    .yt-showcase-widget { flex-shrink: 0; padding: 5px 7px; }
+    .widget { 
+      background: rgba(0,0,0,0.2); 
+      border: 1px solid var(--card-border); 
+      border-radius: 7px; 
+      padding: 6px 8px; 
+      display: flex; 
+      flex-direction: column; 
+      min-height: 0; 
+    }
+
+    /* Showcase takes full height of left column */
+    .yt-showcase-widget { 
+      flex: 1; 
+      padding: 6px; 
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+    }
     @media (max-width: 768px) { .yt-showcase-widget { display: none !important; } }
     
+    .bulletin-header-row { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 6px; 
+      flex-shrink: 0; 
+    }
+    .bulletin-title { 
+      font-size: 0.72rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px; 
+      color: var(--text-main); 
+      display: flex; 
+      align-items: center; 
+      gap: 4px; 
+    }
+    .btn-icon-tiny { 
+      background: rgba(255,255,255,0.08); 
+      border: 1px solid var(--card-border); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 0.65rem; 
+      transition: all 0.2s; 
+    }
+    .btn-icon-tiny:hover { 
+      background: rgba(255,255,255,0.16); 
+      color: var(--accent); 
+    }
+
+    /* Video player scaled to 16:9 ratio and fills available area */
     .yt-player-frame-box { 
       width: 100%; 
-      height: 95px; 
-      border-radius: 4px; 
+      flex: 1;
+      min-height: 160px;
+      border-radius: 6px; 
       overflow: hidden; 
       background: #000; 
-      margin-bottom: 4px; 
       position: relative; 
       z-index: 50; 
       pointer-events: auto; 
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      display: flex;
     }
     .yt-player-frame-box iframe { 
       width: 100%; 
@@ -170,9 +229,9 @@
     @keyframes pulse { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
     @media (min-width: 1025px) {
-      main.big-month-layout { grid-template-columns: clamp(190px, 12vw, 220px) 1fr; }
+      main.big-month-layout { grid-template-columns: clamp(240px, 18vw, 320px) 1fr; }
       main.big-month-layout .sidebar-right { display: none; }
-      main.seven-day-layout { grid-template-columns: clamp(190px, 12vw, 220px) 1fr; }
+      main.seven-day-layout { grid-template-columns: clamp(240px, 18vw, 320px) 1fr; }
       main.seven-day-layout .sidebar-right { display: none; }
     }
 
@@ -215,6 +274,7 @@
       </div>
       <div class="controls-cluster">
         <button class="btn" style="border-color: var(--accent); color: var(--accent);" onclick="openTimeSheetModal()">⏱️ Log Hours</button>
+        <button class="btn btn-crew-setup" onclick="openCrewManagerModal()">🎨 Crew Colors</button>
         <button class="btn btn-feed-setup" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
         <button class="btn btn-primary" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
       </div>
@@ -235,16 +295,8 @@
   </header>
 
   <main id="mainContainer">
+    <!-- Optimized Left Sidebar: Video Player expands to full available column height -->
     <aside class="sidebar-left">
-      <div class="widget crew-bulletin">
-        <div class="bulletin-header-row">
-          <div class="bulletin-title">📋 Crew Classification</div>
-          <button class="btn-icon-tiny" title="Edit Crews & Colors" onclick="openCrewManagerModal()">⚙️ Edit</button>
-        </div>
-        <div class="crew-color-legend" id="crewLegendContainer"></div>
-      </div>
-
-      <!-- Artisan YouTube Channel Showcase Widget -->
       <div class="widget yt-showcase-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🔨 Artisan Showcase</div>
@@ -260,11 +312,11 @@
           </iframe>
         </div>
 
-        <div id="showcaseConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
+        <div id="showcaseConfigDrawer" style="display: none; margin-top: 6px; border-top: 1px solid var(--card-border); padding-top: 6px;">
           <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Channel, Playlist, or Video ID</label>
-          <div style="display: flex; gap: 3px; margin-top: 2px;">
-            <input type="text" id="showcaseInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="UC..., UU..., or PL..." />
-            <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomShowcase()">Save</button>
+          <div style="display: flex; gap: 4px; margin-top: 3px;">
+            <input type="text" id="showcaseInput" class="modal-input" style="margin: 0; padding: 4px 6px; font-size: 0.72rem;" placeholder="UC..., UU..., or PL..." />
+            <button class="btn btn-primary" style="padding: 4px 8px;" onclick="saveCustomShowcase()">Save</button>
           </div>
         </div>
       </div>
@@ -329,6 +381,9 @@
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+        Define calendar keyword triggers and badge highlight colors for field workers and pickups.
+      </p>
       <div style="display: grid; grid-template-columns: 1fr 1fr 48px 36px; gap: 6px; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">
         <div>Display Name</div><div>Match Keyword</div><div>Color</div><div></div>
       </div>
@@ -416,18 +471,6 @@
       'graphite': '#616161', 'blueberry': '#3f51b5', 'basil': '#0b8043', 'green': '#10b981',
       'red': '#f43f5e', 'blue': '#3b82f6', 'orange': '#d97706', 'purple': '#a855f7'
     };
-
-    function renderCrewLegend() {
-      const container = document.getElementById('crewLegendContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      crewDefinitions.forEach(c => {
-        const item = document.createElement('div');
-        item.className = 'legend-item';
-        item.innerHTML = `<div class="legend-dot" style="background: ${c.color};"></div> ${c.name}`;
-        container.appendChild(item);
-      });
-    }
 
     function getEventColor(title) {
       const lower = (title || '').toLowerCase();
@@ -568,7 +611,6 @@
     }
 
     function renderCurrentLayout() {
-      renderCrewLegend();
       if (currentLayout === '7-day') renderSevenDayGrid();
       else renderCalendarGrid();
       populateTodayQueue();
@@ -644,15 +686,33 @@
 
     function populateTodayQueue() {
       const container = document.getElementById('dispatchQueue');
+      const countPill = document.getElementById('dispatchCountPill');
       const now = new Date();
-      const todayEvents = eventsDatabase.filter(e => e.start.getFullYear() === now.getFullYear() && e.start.getMonth() === now.getMonth() && e.start.getDate() === now.getDate());
-      document.getElementById('dispatchCountPill').textContent = `${todayEvents.length} scheduled`;
+
+      const todayEvents = eventsDatabase.filter(e => {
+        return e.start.getFullYear() === now.getFullYear() &&
+               e.start.getMonth() === now.getMonth() &&
+               e.start.getDate() === now.getDate();
+      });
+
+      countPill.textContent = `${todayEvents.length} scheduled`;
       container.innerHTML = '';
-      if (todayEvents.length === 0) { container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 8px;">No events scheduled for today.</div>'; return; }
+
+      if (todayEvents.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 8px;">No events scheduled for today.</div>';
+        return;
+      }
+
       todayEvents.forEach(evt => {
-        const card = document.createElement('div'); card.className = 'dispatch-card';
+        const card = document.createElement('div');
+        card.className = 'dispatch-card';
         card.style.borderLeftColor = getEventColor(evt.summary);
-        card.innerHTML = `<div class="dispatch-card-title">${cleanEventTitle(evt.summary)}</div><div class="dispatch-card-time">⏰ ${evt.isAllDay ? 'All Day' : evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div><div class="dispatch-card-location">📍 ${evt.location || 'Site / Office'}</div>`;
+        const timeStr = evt.isAllDay ? 'All Day' : evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        card.innerHTML = `
+          <div class="dispatch-card-title">${cleanEventTitle(evt.summary)}</div>
+          <div class="dispatch-card-time">⏰ ${timeStr}</div>
+          <div class="dispatch-card-location">📍 ${evt.location || 'Site / Office'}</div>
+        `;
         card.onclick = () => openJobEditModal(evt.id);
         container.appendChild(card);
       });
@@ -703,7 +763,8 @@
       if (countdownSec <= 0) triggerSync();
     }, 1000);
 
-    renderCrewLegend(); renderCurrentLayout(); triggerSync();
+    renderCurrentLayout(); 
+    triggerSync();
 
     function openFeedSetupModal() {
       document.getElementById('feedUrlInput').value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
@@ -863,7 +924,6 @@
       let playlistId = "";
       let videoId = "";
 
-      // Channel ID to Uploads Playlist conversion
       if (raw.startsWith("UC")) {
         playlistId = "UU" + raw.slice(2);
       } else if (raw.includes("list=")) {
