@@ -1359,12 +1359,12 @@
         attributionControl: false
       });
 
-      // Primary: Authenticated Dark Matter Base Map using provided CartoDB key
-      const cartoUrl = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`;
-      const baseLayer = L.tileLayer(cartoUrl, {
+      // Authenticated CartoDB Dark Matter Raster Endpoint
+      const cartoRasterUrl = `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=${CARTO_API_KEY}`;
+      
+      L.tileLayer(cartoRasterUrl, {
         subdomains: 'abcd',
-        maxZoom: 14,
-        errorTileUrl: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+        maxZoom: 14
       }).addTo(leafletMap);
 
       // Shop Pin Marker
