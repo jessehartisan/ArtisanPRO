@@ -916,13 +916,14 @@
       }
     }
 
-    // ==========================================
-    // ARTISAN SHOWCASE AUTOPLAY ENGINE
-    // ==========================================
+   // Anchor video ID guaranteed to load on TV engines
+    const ARTISAN_FEATURED_VIDEO = "5hJN-NBYNLo";
+    const ARTISAN_UPLOADS_PLAYLIST = "UUGktfVW9wTRBqeoi-xT3BUA";
+
     function buildShowcaseUrl(idOrUrl) {
       const raw = (idOrUrl || ARTISAN_UPLOADS_PLAYLIST).trim();
       let playlistId = "";
-      let videoId = "";
+      let videoId = ARTISAN_FEATURED_VIDEO;
 
       if (raw.startsWith("UC")) {
         playlistId = "UU" + raw.slice(2);
@@ -934,50 +935,16 @@
         videoId = raw.split("watch?v=")[1].split("&")[0];
       } else if (raw.includes("youtu.be/")) {
         videoId = raw.split("youtu.be/")[1].split("?")[0];
-      } else {
+      } else if (raw.length === 11) {
         videoId = raw;
       }
 
+      // Anchoring to an explicit video ID while looping the playlist satisfies TV browser security
       if (playlistId) {
-        return `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&autoplay=1&mute=1&loop=1&controls=1&modestbranding=1&playsinline=1`;
+        return `https://www.youtube-nocookie.com/embed/${videoId}?list=${playlistId}&autoplay=1&mute=1&loop=1&playsinline=1&controls=1&modestbranding=1`;
       }
 
-      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&playsinline=1`;
-    }
-
-    function initShowcasePlayer() {
-      const saved = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
-      const frame = document.getElementById('artisanShowcaseFrame');
-      if (frame) {
-        frame.src = buildShowcaseUrl(saved);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', initShowcasePlayer);
-
-    function toggleShowcaseDrawer() {
-      const drawer = document.getElementById('showcaseConfigDrawer');
-      const input = document.getElementById('showcaseInput');
-      if (input) {
-        input.value = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
-      }
-      if (drawer) {
-        drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
-      }
-    }
-
-    function saveCustomShowcase() {
-      const input = document.getElementById('showcaseInput');
-      if (!input) return;
-      const val = input.value.trim();
-      if (!val) return;
-
-      localStorage.setItem('artisan_showcase_id', val);
-      const frame = document.getElementById('artisanShowcaseFrame');
-      if (frame) {
-        frame.src = buildShowcaseUrl(val);
-      }
-      document.getElementById('showcaseConfigDrawer').style.display = 'none';
+      return `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&mute=1&loop=1&playsinline=1&controls=1&modestbranding=1`;
     }
 
     // ==========================================
