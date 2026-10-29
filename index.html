@@ -1174,8 +1174,18 @@
       animationFrameId = requestAnimationFrame(renderWeatherAnimation);
     }
 
-    resizeCanvas();
+    resizeCanvas();ddd
     renderWeatherAnimation();
+    
+    let testWeatherIdx = 0;
+function cycleWeatherTest() {
+  const testModes = ['thunder', 'rain', 'snow', 'fog', 'clear'];
+  testWeatherIdx = (testWeatherIdx + 1) % testModes.length;
+  const nextMode = testModes[testWeatherIdx];
+  setWeatherEffectMode(nextMode);
+  const label = document.getElementById('weatherConditionLabel');
+  if (label) label.textContent = `• Test: ${nextMode.toUpperCase()}`;
+}
 
     function switchLayout(layoutName) {
       currentLayout = layoutName;
