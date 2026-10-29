@@ -75,6 +75,7 @@
       padding: 1px 6px; 
       border-radius: 4px; 
       border: 1px solid var(--card-border); 
+      cursor: pointer;
       transition: background 0.2s;
     }
     .site-conditions-strip:hover {
@@ -102,12 +103,12 @@
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: clamp(0.68rem, 0.72vw, 0.75rem); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
 
-    .yt-music-widget { flex-shrink: 0; padding: 5px 7px; }
-    @media (max-width: 768px) { .yt-music-widget { display: none !important; } }
+    .yt-showcase-widget { flex-shrink: 0; padding: 5px 7px; }
+    @media (max-width: 768px) { .yt-showcase-widget { display: none !important; } }
     
     .yt-player-frame-box { 
       width: 100%; 
-      height: 90px; 
+      height: 95px; 
       border-radius: 4px; 
       overflow: hidden; 
       background: #000; 
@@ -219,7 +220,7 @@
       </div>
     </div>
     <div class="header-sub-row">
-      <div class="site-conditions-strip" style="cursor: pointer;" onclick="cycleWeatherTest()" title="Click to cycle realistic weather effects">
+      <div class="site-conditions-strip" onclick="cycleWeatherTest()" title="Click to cycle realistic weather effects">
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
@@ -243,27 +244,27 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- TV & Desktop Optimized YouTube Music Widget -->
-      <div class="widget yt-music-widget">
+      <!-- Artisan YouTube Channel Showcase Widget -->
+      <div class="widget yt-showcase-widget">
         <div class="bulletin-header-row">
-          <div class="bulletin-title">🎵 Office Music</div>
-          <button class="btn-icon-tiny" onclick="toggleMusicDrawer()">⚙️ Playlist</button>
+          <div class="bulletin-title">🔨 Artisan Showcase</div>
+          <button class="btn-icon-tiny" onclick="toggleShowcaseDrawer()">⚙️ Setup</button>
         </div>
         
         <div class="yt-player-frame-box">
           <iframe 
-            id="ytIframe" 
-            src="https://www.youtube.com/embed?listType=playlist&list=PLVB8RXQBEV78&enablejsapi=1&origin=https://jessehartisan.github.io" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            id="artisanShowcaseFrame" 
+            src="" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
           </iframe>
         </div>
 
-        <div id="ytConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
-          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
+        <div id="showcaseConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
+          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Channel, Playlist, or Video ID</label>
           <div style="display: flex; gap: 3px; margin-top: 2px;">
-            <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="PL... or paste URL" />
-            <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomPlaylist()">Load</button>
+            <input type="text" id="showcaseInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="UC..., UU..., or PL..." />
+            <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomShowcase()">Save</button>
           </div>
         </div>
       </div>
@@ -376,8 +377,8 @@
     // Bound Web App Endpoint from Artisan TimeSheet Engine
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     
-    // Master baked-in playlist ID
-    const DEFAULT_OFFICE_PLAYLIST = "PLVB8RXQBEV78";
+    // Artisan Outdoor Craftsman Channel Uploads Playlist (UCGktfVW9wTRBqeoi-xT3BUA -> UUGktfVW9wTRBqeoi-xT3BUA)
+    const ARTISAN_UPLOADS_PLAYLIST = "UUGktfVW9wTRBqeoi-xT3BUA";
 
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
@@ -854,62 +855,69 @@
       }
     }
 
-    // Universal YouTube Playlist URL Handler
-    function parseYouTubeUrl(raw) {
-      const originParam = "origin=" + encodeURIComponent(window.location.origin);
-      if (!raw) return `https://www.youtube.com/embed?listType=playlist&list=${DEFAULT_OFFICE_PLAYLIST}&enablejsapi=1&${originParam}`;
-      const clean = raw.trim();
-
-      if (clean.includes("list=")) {
-        const listId = clean.split("list=")[1].split("&")[0].split("#")[0];
-        return `https://www.youtube.com/embed?listType=playlist&list=${listId}&enablejsapi=1&${originParam}`;
-      }
-
-      if (clean.startsWith("PL") || clean.startsWith("RD") || clean.startsWith("UU")) {
-        return `https://www.youtube.com/embed?listType=playlist&list=${clean}&enablejsapi=1&${originParam}`;
-      }
-
+    // ==========================================
+    // ARTISAN SHOWCASE AUTOPLAY ENGINE
+    // ==========================================
+    function buildShowcaseUrl(idOrUrl) {
+      const raw = (idOrUrl || ARTISAN_UPLOADS_PLAYLIST).trim();
+      let playlistId = "";
       let videoId = "";
-      if (clean.includes("youtu.be/")) {
-        videoId = clean.split("youtu.be/")[1].split("?")[0].split("&")[0];
-      } else if (clean.includes("watch?v=")) {
-        videoId = clean.split("watch?v=")[1].split("&")[0];
-      } else if (!clean.includes("/")) {
-        videoId = clean;
+
+      // Channel ID to Uploads Playlist conversion
+      if (raw.startsWith("UC")) {
+        playlistId = "UU" + raw.slice(2);
+      } else if (raw.includes("list=")) {
+        playlistId = raw.split("list=")[1].split("&")[0];
+      } else if (raw.startsWith("PL") || raw.startsWith("UU")) {
+        playlistId = raw;
+      } else if (raw.includes("watch?v=")) {
+        videoId = raw.split("watch?v=")[1].split("&")[0];
+      } else if (raw.includes("youtu.be/")) {
+        videoId = raw.split("youtu.be/")[1].split("?")[0];
+      } else {
+        videoId = raw;
       }
 
-      if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&${originParam}`;
+      if (playlistId) {
+        return `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&autoplay=1&mute=1&loop=1&controls=1&modestbranding=1&playsinline=1`;
       }
 
-      return `https://www.youtube.com/embed?listType=playlist&list=${DEFAULT_OFFICE_PLAYLIST}&enablejsapi=1&${originParam}`;
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&playsinline=1`;
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const saved = localStorage.getItem('company_yt_playlist');
-      if (saved && saved.length < 14 && saved !== DEFAULT_OFFICE_PLAYLIST) {
-        localStorage.removeItem('company_yt_playlist');
-      }
-
-      const activeList = localStorage.getItem('company_yt_playlist') || DEFAULT_OFFICE_PLAYLIST;
-      const frame = document.getElementById('ytIframe');
+    function initShowcasePlayer() {
+      const saved = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
+      const frame = document.getElementById('artisanShowcaseFrame');
       if (frame) {
-        frame.src = parseYouTubeUrl(activeList);
+        frame.src = buildShowcaseUrl(saved);
       }
-    });
-
-    function toggleMusicDrawer() {
-      const drawer = document.getElementById('ytConfigDrawer');
-      document.getElementById('ytPlaylistInput').value = localStorage.getItem('company_yt_playlist') || DEFAULT_OFFICE_PLAYLIST;
-      drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
     }
 
-    function saveCustomPlaylist() {
-      const raw = document.getElementById('ytPlaylistInput').value;
-      if (!raw) return;
-      localStorage.setItem('company_yt_playlist', raw);
-      document.getElementById('ytIframe').src = parseYouTubeUrl(raw);
-      document.getElementById('ytConfigDrawer').style.display = 'none';
+    window.addEventListener('DOMContentLoaded', initShowcasePlayer);
+
+    function toggleShowcaseDrawer() {
+      const drawer = document.getElementById('showcaseConfigDrawer');
+      const input = document.getElementById('showcaseInput');
+      if (input) {
+        input.value = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
+      }
+      if (drawer) {
+        drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function saveCustomShowcase() {
+      const input = document.getElementById('showcaseInput');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      localStorage.setItem('artisan_showcase_id', val);
+      const frame = document.getElementById('artisanShowcaseFrame');
+      if (frame) {
+        frame.src = buildShowcaseUrl(val);
+      }
+      document.getElementById('showcaseConfigDrawer').style.display = 'none';
     }
 
     // ==========================================
