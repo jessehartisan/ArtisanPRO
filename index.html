@@ -89,8 +89,24 @@
 
     .yt-music-widget { flex-shrink: 0; padding: 5px 7px; }
     @media (max-width: 768px) { .yt-music-widget { display: none !important; } }
-    .yt-player-frame-box { width: 100%; height: 90px; border-radius: 4px; overflow: hidden; background: #000; margin-bottom: 4px; position: relative; }
-    .yt-player-frame-box iframe { width: 100%; height: 100%; border: none; }
+    
+    .yt-player-frame-box { 
+      width: 100%; 
+      height: 90px; 
+      border-radius: 4px; 
+      overflow: hidden; 
+      background: #000; 
+      margin-bottom: 4px; 
+      position: relative; 
+      z-index: 50; 
+      pointer-events: auto; 
+    }
+    .yt-player-frame-box iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: none; 
+      pointer-events: auto; 
+    }
 
     .center-view { background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); border-radius: 7px; display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden !important; }
     .calendar-toolbar { flex-shrink: 0; height: 28px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--card-border); background: rgba(0,0,0,0.25); }
@@ -212,7 +228,7 @@
         <div class="crew-color-legend" id="crewLegendContainer"></div>
       </div>
 
-      <!-- TV-Safe Universal YouTube Player -->
+      <!-- TV & Desktop Optimized YouTube Music Widget -->
       <div class="widget yt-music-widget">
         <div class="bulletin-header-row">
           <div class="bulletin-title">🎵 Office Music</div>
@@ -222,7 +238,7 @@
         <div class="yt-player-frame-box">
           <iframe 
             id="ytIframe" 
-            src="https://www.youtube-nocookie.com/embed/videoseries?list=PLVB8RXQBEV78" 
+            src="https://www.youtube.com/embed?listType=playlist&list=PLVB8RXQBEV78&enablejsapi=1&origin=https://jessehartisan.github.io" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             allowfullscreen>
           </iframe>
@@ -342,10 +358,10 @@
   </div>
 
   <script>
-    // Bounded Web App Endpoint from Artisan TimeSheet Engine
+    // Bound Web App Endpoint from Artisan TimeSheet Engine
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     
-    // Baked-in YouTube Playlist ID
+    // Master baked-in playlist ID
     const DEFAULT_OFFICE_PLAYLIST = "PLVB8RXQBEV78";
 
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
@@ -517,9 +533,9 @@
           } else if (inEvent) {
             if (trimmed.startsWith('SUMMARY:')) cur.summary = trimmed.replace('SUMMARY:', '').trim();
             else if (trimmed.startsWith('DTSTART')) { if (trimmed.includes('VALUE=DATE:')) cur.isAllDay = true; cur.start = parseIcsDate(trimmed); }
-            else if (trimmed.startsWith('DTEND')) cur.end = parseIcsDate(trimmed);
-            else if (trimmed.startsWith('LOCATION:')) cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim();
-            else if (trimmed.startsWith('DESCRIPTION:')) cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim();
+            else if (trimmed.startsWith('DTEND')) { cur.end = parseIcsDate(trimmed); }
+            else if (trimmed.startsWith('LOCATION:')) { cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim(); }
+            else if (trimmed.startsWith('DESCRIPTION:')) { cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim(); }
           }
         }
       }
@@ -823,18 +839,19 @@
       }
     }
 
-    // Universal YouTube Playlist Engine with clean embed parsing
+    // Universal YouTube Playlist URL Handler
     function parseYouTubeUrl(raw) {
-      if (!raw) return `https://www.youtube-nocookie.com/embed/videoseries?list=${DEFAULT_OFFICE_PLAYLIST}`;
+      const originParam = "origin=" + encodeURIComponent(window.location.origin);
+      if (!raw) return `https://www.youtube.com/embed?listType=playlist&list=${DEFAULT_OFFICE_PLAYLIST}&enablejsapi=1&${originParam}`;
       const clean = raw.trim();
 
       if (clean.includes("list=")) {
         const listId = clean.split("list=")[1].split("&")[0].split("#")[0];
-        return `https://www.youtube-nocookie.com/embed/videoseries?list=${listId}`;
+        return `https://www.youtube.com/embed?listType=playlist&list=${listId}&enablejsapi=1&${originParam}`;
       }
 
       if (clean.startsWith("PL") || clean.startsWith("RD") || clean.startsWith("UU")) {
-        return `https://www.youtube-nocookie.com/embed/videoseries?list=${clean}`;
+        return `https://www.youtube.com/embed?listType=playlist&list=${clean}&enablejsapi=1&${originParam}`;
       }
 
       let videoId = "";
@@ -847,14 +864,13 @@
       }
 
       if (videoId) {
-        return `https://www.youtube-nocookie.com/embed/${videoId}`;
+        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&${originParam}`;
       }
 
-      return `https://www.youtube-nocookie.com/embed/videoseries?list=${DEFAULT_OFFICE_PLAYLIST}`;
+      return `https://www.youtube.com/embed?listType=playlist&list=${DEFAULT_OFFICE_PLAYLIST}&enablejsapi=1&${originParam}`;
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Clear out any old malformed playlist IDs saved in the monitor's localStorage
       const saved = localStorage.getItem('company_yt_playlist');
       if (saved && saved.length < 14 && saved !== DEFAULT_OFFICE_PLAYLIST) {
         localStorage.removeItem('company_yt_playlist');
