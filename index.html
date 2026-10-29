@@ -799,17 +799,62 @@
         }
       }
 
+     // Merge local in-app custom manual events with multi-day day-cell expansion
       customManualEvents.forEach(item => {
-        parsed.push({
-          id: item.id,
-          summary: item.summary,
-          location: item.location || '',
-          description: item.description || '',
-          start: new Date(item.start),
-          end: item.end ? new Date(item.end) : null,
-          isAllDay: item.isAllDay || false,
-          isManual: true
-        });
+        const mStart = new Date(item.start);
+        const mEnd = item.end ? new Date(item.end) : null;
+
+        if (mEnd && mEnd.getTime() > mStart.getTime()) {
+          const sDate = new Date(mStart.getFullYear(), mStart.getMonth(), mStart.getDate());
+          let eDate = new Date(mEnd.getFullYear(), mEnd.getMonth(), mEnd.getDate());
+
+          // If ending at midnight or all-day flag, adjust boundary so it doesn't spill into an extra day
+          if (item.isAllDay || (mEnd.getHours() === 0 && mEnd.getMinutes() === 0)) {
+            eDate = new Date(eDate.getTime() - 86400000);
+          }
+
+          if (eDate.getTime() > sDate.getTime()) {
+            let cursor = new Date(sDate);
+            let dayIdx = 0;
+            while (cursor.getTime() <= eDate.getTime()) {
+              parsed.push({
+                id: item.id,
+                subId: `${item.id}_span_${dayIdx}`,
+                summary: item.summary,
+                location: item.location || '',
+                description: item.description || '',
+                start: new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), mStart.getHours(), mStart.getMinutes()),
+                end: mEnd,
+                isAllDay: item.isAllDay || false,
+                isManual: true
+              });
+              cursor.setDate(cursor.getDate() + 1);
+              dayIdx++;
+            }
+          } else {
+            parsed.push({
+              id: item.id,
+              summary: item.summary,
+              location: item.location || '',
+              description: item.description || '',
+              start: mStart,
+              end: mEnd,
+              isAllDay: item.isAllDay || false,
+              isManual: true
+            });
+          }
+        } else {
+          parsed.push({
+            id: item.id,
+            summary: item.summary,
+            location: item.location || '',
+            description: item.description || '',
+            start: mStart,
+            end: mEnd,
+            isAllDay: item.isAllDay || false,
+            isManual: true
+          });
+        }
       });
 
       parsed.sort((a, b) => {
