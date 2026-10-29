@@ -75,7 +75,11 @@
       color: #ffffff;
     }
 
-    @media (max-width: 768px) { .btn-feed-setup, .btn-crew-setup { display: none !important; } }
+    @media (max-width: 768px) { 
+      .btn-feed-setup, 
+      .btn-crew-setup,
+      .btn-kiosk-mode { display: none !important; } 
+    }
     :fullscreen .btn-feed-setup, :-webkit-full-screen .btn-feed-setup { display: none !important; }
 
     .header-sub-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 3px; }
@@ -284,14 +288,17 @@
 
     @keyframes pulse { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
-    /* Mobile Responsive Overhauls: Priority 1 to Active Workspace, Unrestricted Scrolling */
+    /* Mobile Responsive Layout: Priority to Active Calendar / Schedule */
     @media (max-width: 768px) {
       header { height: auto; padding: 8px 10px; gap: 6px; }
       .header-primary-row { flex-direction: column; align-items: stretch; gap: 8px; }
       .brand-block { align-items: flex-start; }
       .brand-row { width: 100%; justify-content: space-between; }
+      
+      /* 2-Button Grid on Mobile (Log Hours & Add Event) */
       .controls-cluster { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      .controls-cluster .btn { justify-content: center; padding: 8px 6px; font-size: 0.76rem; width: 100%; }
+      .controls-cluster .btn { justify-content: center; padding: 9px 6px; font-size: 0.78rem; width: 100%; }
+      
       .header-sub-row { flex-direction: column; align-items: stretch; gap: 5px; }
       .site-conditions-strip { justify-content: space-between; }
       .view-toggles { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 2px; }
@@ -307,7 +314,6 @@
         overflow: visible !important; 
       }
       
-      /* Calendar/Workspace is always first on mobile */
       .center-view { 
         order: 1; 
         height: auto !important; 
@@ -318,7 +324,7 @@
         order: 2; 
       }
 
-      /* In 7-Day View or Big Month on mobile, hide the duplicate Today's Dispatch entirely */
+      /* In 7-Day View or Big Month on mobile, hide the Today's Dispatch panel */
       main.seven-day-layout .sidebar-right,
       main.big-month-layout .sidebar-right {
         display: none !important;
@@ -389,7 +395,7 @@
         <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Event</button>
         <button class="btn btn-crew-setup" onclick="openCrewManagerModal()">🎨 Crew Colors</button>
         <button class="btn btn-feed-setup" onclick="openFeedSetupModal()">⚙️ Feed Setup</button>
-        <button class="btn" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
+        <button class="btn btn-kiosk-mode" onclick="toggleFullScreen()">🖥️ TV Kiosk</button>
       </div>
     </div>
     <div class="header-sub-row">
