@@ -252,7 +252,6 @@
     .dispatch-card-time { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; }
     .dispatch-card-location { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Office Staging / Backlog Tab View */
     #backlogContainerView {
       display: none;
       flex: 1;
@@ -341,7 +340,6 @@
       main.seven-day-layout .sidebar-right { display: none; }
     }
 
-    /* Mobile Responsive Optimizations: Radar & Backlog collapse seamlessly without clutter */
     @media (max-width: 768px) {
       header { height: auto; padding: 6px 8px; }
       .header-primary-row { gap: 5px; }
@@ -452,7 +450,6 @@
           <button class="btn btn-primary" onclick="openNewBacklogModal()">+ Add Project to Pipeline</button>
         </div>
         <div class="backlog-board-grid">
-          <!-- Stage 1 -->
           <div class="backlog-stage-column">
             <div class="backlog-column-title">
               <span>📋 Permits & Utility Locates</span>
@@ -460,7 +457,6 @@
             </div>
             <div id="colPermitsList" style="display: flex; flex-direction: column; gap: 4px;"></div>
           </div>
-          <!-- Stage 2 -->
           <div class="backlog-stage-column">
             <div class="backlog-column-title">
               <span>📦 Materials Staging</span>
@@ -468,7 +464,6 @@
             </div>
             <div id="colMaterialsList" style="display: flex; flex-direction: column; gap: 4px;"></div>
           </div>
-          <!-- Stage 3 -->
           <div class="backlog-stage-column">
             <div class="backlog-column-title">
               <span>🚜 Ready for Dispatch</span>
@@ -492,7 +487,6 @@
     </aside>
   </main>
 
-  <!-- Feed Setup Modal -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -507,7 +501,6 @@
     </div>
   </div>
 
-  <!-- Job Edit / View Modal -->
   <div id="jobEditModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="jobEditModalTitle">Edit Scheduled Job</div>
@@ -532,7 +525,6 @@
     </div>
   </div>
 
-  <!-- Backlog / Staging Job Modal -->
   <div id="backlogModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="backlogModalTitle">Project Pipeline Item</div>
@@ -559,7 +551,6 @@
     </div>
   </div>
 
-  <!-- Crew Color Setup Modal -->
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
@@ -581,7 +572,6 @@
     </div>
   </div>
 
-  <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -612,6 +602,7 @@
   </div>
 
   <script>
+    const CARTO_API_KEY = "cb1_4xst_1_1e9a6f80e80fb1cbe18a9c29";
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
@@ -629,7 +620,6 @@
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
     let customManualEvents = JSON.parse(localStorage.getItem('custom_manual_events') || '[]');
     
-    // Default backlog mock/storage
     const DEFAULT_BACKLOG = [
       { id: "bl_1", name: "Morrison Pavilion", stage: "permits", location: "Fishers, IN", notes: "Awaiting Hancock Co drainage variance." },
       { id: "bl_2", name: "Christie Multi-Level Deck", stage: "materials", location: "Carmel, IN", notes: "Armadillo decking staged at 84 Lumber." },
@@ -718,7 +708,6 @@
           document.getElementById('weatherConditionLabel').textContent = `• ${interpretWmoCode(cur.weathercode).label}`;
           setWeatherEffectMode(interpretWmoCode(cur.weathercode).mode);
 
-          // Update left sidebar weather metrics
           document.getElementById('radarMetricWind').textContent = `${Math.round(cur.windspeed)} mph`;
           if (data.hourly && data.hourly.relativehumidity_2m) {
             document.getElementById('radarMetricHumidity').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
@@ -972,7 +961,6 @@
       });
     }
 
-    // Render Backlog / Staging Columns
     function renderBacklogColumns() {
       const colPermits = document.getElementById('colPermitsList');
       const colMaterials = document.getElementById('colMaterialsList');
@@ -1357,13 +1345,10 @@
       }
     }
 
-    // ==========================================
-    // LEAFLET LIVE DOPPLER RADAR ENGINE
-    // RainViewer API (Free, zero keys, auto-updating)
-    // ==========================================
+    // Leaflet Doppler Radar Engine with Authenticated CartoDB Base Map
     let leafletMap = null;
     let radarLayer = null;
-    const SHOP_COORDS = [39.9568, -86.0134]; // Fishers, IN
+    const SHOP_COORDS = [39.9568, -86.0134];
 
     function initRadarMap() {
       if (leafletMap) return;
@@ -1374,10 +1359,12 @@
         attributionControl: false
       });
 
-      // Dark Matter Base Map
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Primary: Authenticated Dark Matter Base Map using provided CartoDB key
+      const cartoUrl = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`;
+      const baseLayer = L.tileLayer(cartoUrl, {
         subdomains: 'abcd',
-        maxZoom: 14
+        maxZoom: 14,
+        errorTileUrl: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
       }).addTo(leafletMap);
 
       // Shop Pin Marker
@@ -1390,7 +1377,7 @@
       L.marker(SHOP_COORDS, { icon: shopIcon }).addTo(leafletMap);
 
       updateRadarOverlay();
-      setInterval(updateRadarOverlay, 300000); // 5 min radar refresh
+      setInterval(updateRadarOverlay, 300000);
     }
 
     async function updateRadarOverlay() {
@@ -1422,9 +1409,7 @@
       setTimeout(initRadarMap, 300);
     });
 
-    // ==========================================
-    // REALISTIC WEATHER & ATMOSPHERIC ENGINE
-    // ==========================================
+    // Realistic Weather Animation Engine
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
     let animationFrameId = null;
