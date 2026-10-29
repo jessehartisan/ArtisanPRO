@@ -64,7 +64,22 @@
     :fullscreen .btn-feed-setup, :-webkit-full-screen .btn-feed-setup { display: none !important; }
 
     .header-sub-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 2px; }
-    .site-conditions-strip { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); background: rgba(0,0,0,0.35); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--card-border); }
+    .site-conditions-strip { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      font-size: 0.68rem; 
+      font-weight: 600; 
+      color: var(--text-muted); 
+      background: rgba(0,0,0,0.35); 
+      padding: 1px 6px; 
+      border-radius: 4px; 
+      border: 1px solid var(--card-border); 
+      transition: background 0.2s;
+    }
+    .site-conditions-strip:hover {
+      background: rgba(194, 132, 72, 0.2);
+    }
     .site-conditions-strip .condition-val { color: #ffffff; font-weight: 700; }
     .site-conditions-strip .condition-tag { color: var(--accent); font-weight: 700; text-transform: uppercase; font-size: 0.6rem; letter-spacing: 0.5px; }
 
@@ -204,7 +219,7 @@
       </div>
     </div>
     <div class="header-sub-row">
-      <div class="site-conditions-strip">
+      <div class="site-conditions-strip" style="cursor: pointer;" onclick="cycleWeatherTest()" title="Click to cycle realistic weather effects">
         <span class="condition-tag">Site Conditions</span>
         <span>Fishers, IN:</span>
         <span class="condition-val" id="weatherTemp">--°F</span>
@@ -533,7 +548,7 @@
           } else if (inEvent) {
             if (trimmed.startsWith('SUMMARY:')) cur.summary = trimmed.replace('SUMMARY:', '').trim();
             else if (trimmed.startsWith('DTSTART')) { if (trimmed.includes('VALUE=DATE:')) cur.isAllDay = true; cur.start = parseIcsDate(trimmed); }
-            else if (trimmed.startsWith('DTEND')) { cur.end = parseIcsDate(trimmed); }
+            else if (trimmed.startsWith('DTEND')) cur.end = parseIcsDate(trimmed);
             else if (trimmed.startsWith('LOCATION:')) { cur.location = trimmed.replace('LOCATION:', '').replace(/\\,/g, ',').trim(); }
             else if (trimmed.startsWith('DESCRIPTION:')) { cur.description = trimmed.replace('DESCRIPTION:', '').replace(/\\n/g, '\n').replace(/\\,/g, ',').trim(); }
           }
@@ -896,7 +911,8 @@
       document.getElementById('ytIframe').src = parseYouTubeUrl(raw);
       document.getElementById('ytConfigDrawer').style.display = 'none';
     }
-// ==========================================
+
+    // ==========================================
     // REALISTIC WEATHER & ATMOSPHERIC ENGINE
     // ==========================================
     const canvas = document.getElementById('weatherCanvas');
@@ -912,6 +928,16 @@
     let globalWind = -1.5;
     let windTarget = -1.5;
     let windTimer = 0;
+
+    let testWeatherIdx = 0;
+    function cycleWeatherTest() {
+      const testModes = ['thunder', 'rain', 'snow', 'fog', 'clear'];
+      testWeatherIdx = (testWeatherIdx + 1) % testModes.length;
+      const nextMode = testModes[testWeatherIdx];
+      setWeatherEffectMode(nextMode);
+      const label = document.getElementById('weatherConditionLabel');
+      if (label) label.textContent = `• Test: ${nextMode.toUpperCase()}`;
+    }
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -929,7 +955,7 @@
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
         const count = weatherMode === 'thunder' ? 320 : 220;
         for (let i = 0; i < count; i++) {
-          const depth = Math.random(); // 0 = far, 1 = near
+          const depth = Math.random();
           particles.push({
             x: Math.random() * (canvas.width + 200) - 100,
             y: Math.random() * canvas.height,
@@ -968,7 +994,6 @@
           });
         }
       } else {
-        // Atmospheric floating ember / sun dust motes
         const count = 55;
         for (let i = 0; i < count; i++) {
           particles.push({
@@ -991,7 +1016,6 @@
       initWeatherParticles();
     }
 
-    // Procedural branching lightning generator
     function generateLightningBranch(startX, startY, endY, intensity = 1.0) {
       const segments = [];
       let curX = startX;
@@ -1003,7 +1027,6 @@
         const nextX = curX + (Math.random() - 0.5) * 36;
         segments.push({ x1: curX, y1: curY, x2: nextX, y2: nextY, intensity: intensity });
 
-        // Branching fork opportunity
         if (Math.random() < 0.25 && intensity > 0.4) {
           const forkEndY = curY + (endY - curY) * 0.5;
           const subFork = generateLightningBranch(nextX, nextY, forkEndY, intensity * 0.6);
@@ -1019,15 +1042,13 @@
     function renderWeatherAnimation() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Smoothly oscillate global wind
       windTimer += 0.01;
       if (Math.random() < 0.01) {
-        windTarget = -3.5 + Math.random() * 3.0; // Gust variance between -3.5 and -0.5
+        windTarget = -3.5 + Math.random() * 3.0;
       }
       globalWind += (windTarget - globalWind) * 0.02;
 
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
-        // Procedural Lightning Handling
         if (weatherMode === 'thunder') {
           if (Math.random() < 0.005 && lightningBolts.length === 0) {
             lightningFlash = 0.85;
@@ -1061,7 +1082,6 @@
           }
         }
 
-        // Draw Rain Streaks with Depth Parallax
         for (let p of particles) {
           ctx.strokeStyle = `rgba(200, 225, 255, ${p.opacity})`;
           ctx.lineWidth = p.thickness;
@@ -1073,7 +1093,6 @@
           p.y += p.speed;
           p.x += globalWind * (p.depth + 0.5);
 
-          // Impact handling (droplet splash arcs)
           if (p.y >= canvas.height - 6) {
             if (p.depth > 0.45 && Math.random() < 0.4) {
               const droplets = 2 + Math.floor(Math.random() * 3);
@@ -1094,7 +1113,6 @@
           }
         }
 
-        // Render Upward Water Splash Droplets
         for (let i = splashes.length - 1; i >= 0; i--) {
           const s = splashes[i];
           ctx.fillStyle = `rgba(215, 235, 255, ${s.opacity})`;
@@ -1149,7 +1167,6 @@
         }
 
       } else {
-        // Clear Sky Ambient Floating Embers
         for (let p of particles) {
           p.pulseVal += p.pulseSpeed;
           const currentOpacity = Math.max(0.1, p.opacityBase + Math.sin(p.pulseVal) * 0.2);
@@ -1174,18 +1191,8 @@
       animationFrameId = requestAnimationFrame(renderWeatherAnimation);
     }
 
-    resizeCanvas();ddd
+    resizeCanvas();
     renderWeatherAnimation();
-    
-    let testWeatherIdx = 0;
-function cycleWeatherTest() {
-  const testModes = ['thunder', 'rain', 'snow', 'fog', 'clear'];
-  testWeatherIdx = (testWeatherIdx + 1) % testModes.length;
-  const nextMode = testModes[testWeatherIdx];
-  setWeatherEffectMode(nextMode);
-  const label = document.getElementById('weatherConditionLabel');
-  if (label) label.textContent = `• Test: ${nextMode.toUpperCase()}`;
-}
 
     function switchLayout(layoutName) {
       currentLayout = layoutName;
