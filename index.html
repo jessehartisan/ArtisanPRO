@@ -220,16 +220,16 @@
         </div>
         
         <div class="yt-player-frame-box">
-  <iframe 
-    id="ytIframe" 
-    src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0&modestbranding=1" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-    allowfullscreen>
-  </iframe>
-</div>
+          <iframe 
+            id="ytIframe" 
+            src="https://www.youtube-nocookie.com/embed/videoseries?list=PLVB8RXQBEV78" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+        </div>
 
         <div id="ytConfigDrawer" style="display: none; margin-top: 5px; border-top: 1px solid var(--card-border); padding-top: 4px;">
-          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">https://music.youtube.com/playlist?list=PLVB8RXQBEV78&si=KK8Flxu8fmtp68md</label>
+          <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">YouTube Playlist URL or ID</label>
           <div style="display: flex; gap: 3px; margin-top: 2px;">
             <input type="text" id="ytPlaylistInput" class="modal-input" style="margin: 0; padding: 3px 6px; font-size: 0.7rem;" placeholder="PL... or paste URL" />
             <button class="btn btn-primary" style="padding: 3px 6px;" onclick="saveCustomPlaylist()">Load</button>
@@ -342,12 +342,15 @@
   </div>
 
   <script>
-    const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbxSrdrXPXjdz2QucIFE0X5V0qh3xTtgr5cViY4oDzloJ-lWAxe19FP2XF9paFaQwGk/exec";
+    // Bounded Web App Endpoint from Artisan TimeSheet Engine
+    const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     
+    // Baked-in YouTube Playlist ID
+    const DEFAULT_OFFICE_PLAYLIST = "PLVB8RXQBEV78";
+
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
-    const FALLBACK_PLAYLIST_ID = "PLVB8RXQBEV78&si=KK8Flxu8fmtp68md";
 
     let eventsDatabase = JSON.parse(localStorage.getItem('cached_events_db') || '[]').map(e => {
       e.start = new Date(e.start);
@@ -735,7 +738,6 @@
       document.getElementById('timesheetModal').style.display = 'flex';
     }
 
-    // High-performance image compressor ensuring payload is strictly under 150KB for Apps Script
     function compressReceipt(file) {
       return new Promise((resolve) => {
         if (!file.type.startsWith('image/')) {
@@ -821,70 +823,117 @@
       }
     }
 
-  // TV-Safe Universal YouTube Engine
-const FALLBACK_STREAM = "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0&modestbranding=1";
+    // Universal YouTube Playlist Engine with clean embed parsing
+    function parseYouTubeUrl(raw) {
+      if (!raw) return `https://www.youtube-nocookie.com/embed/videoseries?list=${DEFAULT_OFFICE_PLAYLIST}`;
+      const clean = raw.trim();
 
-function parseYouTubeUrl(raw) {
-  if (!raw) return FALLBACK_STREAM;
-  const clean = raw.trim();
+      if (clean.includes("list=")) {
+        const listId = clean.split("list=")[1].split("&")[0].split("#")[0];
+        return `https://www.youtube-nocookie.com/embed/videoseries?list=${listId}`;
+      }
 
-  // Handle Playlists
-  if (clean.includes("list=")) {
-    const listId = clean.split("list=")[1].split("&")[0].split("#")[0];
-    return `https://www.youtube.com/embed/videoseries?list=${listId}&controls=1&rel=0`;
-  }
+      if (clean.startsWith("PL") || clean.startsWith("RD") || clean.startsWith("UU")) {
+        return `https://www.youtube-nocookie.com/embed/videoseries?list=${clean}`;
+      }
 
-  // Handle Single Videos / Live Streams (Shorts, youtu.be, watch?v=)
-  let videoId = "";
-  if (clean.includes("youtu.be/")) {
-    videoId = clean.split("youtu.be/")[1].split("?")[0].split("&")[0];
-  } else if (clean.includes("watch?v=")) {
-    videoId = clean.split("watch?v=")[1].split("&")[0];
-  } else if (!clean.includes("/") && clean.length > 5) {
-    videoId = clean;
-  }
+      let videoId = "";
+      if (clean.includes("youtu.be/")) {
+        videoId = clean.split("youtu.be/")[1].split("?")[0].split("&")[0];
+      } else if (clean.includes("watch?v=")) {
+        videoId = clean.split("watch?v=")[1].split("&")[0];
+      } else if (!clean.includes("/")) {
+        videoId = clean;
+      }
 
-  if (videoId) {
-    return `https://www.youtube.com/embed/${videoId}?controls=1&rel=0`;
-  }
+      if (videoId) {
+        return `https://www.youtube-nocookie.com/embed/${videoId}`;
+      }
 
-  return FALLBACK_STREAM;
-}
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${DEFAULT_OFFICE_PLAYLIST}`;
+    }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('company_yt_playlist');
-  const frame = document.getElementById('ytIframe');
-  if (frame) {
-    frame.src = saved ? parseYouTubeUrl(saved) : FALLBACK_STREAM;
-  }
-});
+    window.addEventListener('DOMContentLoaded', () => {
+      // Clear out any old malformed playlist IDs saved in the monitor's localStorage
+      const saved = localStorage.getItem('company_yt_playlist');
+      if (saved && saved.length < 14 && saved !== DEFAULT_OFFICE_PLAYLIST) {
+        localStorage.removeItem('company_yt_playlist');
+      }
 
-function toggleMusicDrawer() {
-  const drawer = document.getElementById('ytConfigDrawer');
-  const input = document.getElementById('ytPlaylistInput');
-  if (input) {
-    input.value = localStorage.getItem('company_yt_playlist') || "";
-  }
-  if (drawer) {
-    drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
-  }
-}
+      const activeList = localStorage.getItem('company_yt_playlist') || DEFAULT_OFFICE_PLAYLIST;
+      const frame = document.getElementById('ytIframe');
+      if (frame) {
+        frame.src = parseYouTubeUrl(activeList);
+      }
+    });
 
-function saveCustomPlaylist() {
-  const input = document.getElementById('ytPlaylistInput');
-  if (!input) return;
-  const raw = input.value.trim();
-  if (!raw) return;
+    function toggleMusicDrawer() {
+      const drawer = document.getElementById('ytConfigDrawer');
+      document.getElementById('ytPlaylistInput').value = localStorage.getItem('company_yt_playlist') || DEFAULT_OFFICE_PLAYLIST;
+      drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
+    }
 
-  localStorage.setItem('company_yt_playlist', raw);
-  const frame = document.getElementById('ytIframe');
-  if (frame) {
-    frame.src = parseYouTubeUrl(raw);
-  }
+    function saveCustomPlaylist() {
+      const raw = document.getElementById('ytPlaylistInput').value;
+      if (!raw) return;
+      localStorage.setItem('company_yt_playlist', raw);
+      document.getElementById('ytIframe').src = parseYouTubeUrl(raw);
+      document.getElementById('ytConfigDrawer').style.display = 'none';
+    }
 
-  const drawer = document.getElementById('ytConfigDrawer');
-  if (drawer) drawer.style.display = 'none';
-}
+    const canvas = document.getElementById('weatherCanvas'); const ctx = canvas.getContext('2d');
+    let animationFrameId = null; let weatherMode = 'clear'; let particles = []; let splashes = []; let clouds = []; let lightningFlash = 0;
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initWeatherParticles(); }
+    window.addEventListener('resize', resizeCanvas);
+    function initWeatherParticles() {
+      particles = []; splashes = []; clouds = [];
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        const count = weatherMode === 'thunder' ? 240 : 160;
+        for (let i = 0; i < count; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, speed: 15 + Math.random() * 10, length: 18 + Math.random() * 16, opacity: 0.5 + Math.random() * 0.45 });
+      } else if (weatherMode === 'snow') {
+        for (let i = 0; i < 110; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 2 + Math.random() * 3, speed: 1.5 + Math.random() * 2.5, drift: (Math.random() - 0.5) * 2, opacity: 0.6 + Math.random() * 0.35 });
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        for (let i = 0; i < 10; i++) clouds.push({ x: Math.random() * canvas.width, y: (canvas.height / 10) * i + Math.random() * 40, radius: 220 + Math.random() * 220, speed: 0.3 + Math.random() * 0.6, opacity: weatherMode === 'fog' ? 0.2 : 0.12 });
+      } else {
+        for (let i = 0; i < 45; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 1.5 + Math.random() * 2.5, speedY: -0.2 - Math.random() * 0.4, speedX: (Math.random() - 0.5) * 0.4, opacity: 0.35 + Math.random() * 0.4 });
+      }
+    }
+    function setWeatherEffectMode(newMode) { if (weatherMode === newMode) return; weatherMode = newMode; initWeatherParticles(); }
+    function renderWeatherAnimation() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        if (weatherMode === 'thunder') { if (Math.random() < 0.008) lightningFlash = 0.55 + Math.random() * 0.35; if (lightningFlash > 0) { ctx.fillStyle = `rgba(255, 255, 255, ${lightningFlash})`; ctx.fillRect(0, 0, canvas.width, canvas.height); lightningFlash -= 0.04; } }
+        ctx.strokeStyle = 'rgba(210, 235, 255, 0.75)'; ctx.lineWidth = 1.4;
+        for (let p of particles) {
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 2, p.y + p.length); ctx.stroke();
+          p.y += p.speed; p.x -= 1.2;
+          if (p.y >= canvas.height - 4) { splashes.push({ x: p.x, y: canvas.height - 3, radius: 1, maxRadius: 6 + Math.random() * 8, opacity: 0.8 }); p.y = -20; p.x = Math.random() * (canvas.width + 100); }
+        }
+        for (let i = splashes.length - 1; i >= 0; i--) {
+          const s = splashes[i]; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2); ctx.strokeStyle = `rgba(210, 235, 255, ${s.opacity})`; ctx.stroke();
+          s.radius += 1.0; s.opacity -= 0.04; if (s.opacity <= 0 || s.radius >= s.maxRadius) splashes.splice(i, 1);
+        }
+      } else if (weatherMode === 'snow') {
+        for (let p of particles) { ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fillStyle = `rgba(245, 250, 255, ${p.opacity})`; ctx.fill(); p.y += p.speed; p.x += Math.sin(p.y * 0.02) * p.drift; if (p.y >= canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; } }
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        for (let c of clouds) { const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius); grad.addColorStop(0, `rgba(180, 195, 215, ${c.opacity})`); grad.addColorStop(1, 'rgba(9, 12, 16, 0)'); ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2); ctx.fill(); c.x += c.speed; if (c.x - c.radius > canvas.width) c.x = -c.radius; }
+      } else {
+        for (let p of particles) { ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fillStyle = `rgba(194, 132, 72, ${p.opacity})`; ctx.fill(); p.y += p.speedY; p.x += p.speedX; if (p.y <= -10) p.y = canvas.height + 10; if (p.x <= -10) p.x = canvas.width + 10; if (p.x > canvas.width + 10) p.x = -10; }
+      }
+      animationFrameId = requestAnimationFrame(renderWeatherAnimation);
+    }
+    resizeCanvas(); renderWeatherAnimation();
+
+    function switchLayout(layoutName) {
+      currentLayout = layoutName;
+      document.getElementById('mainContainer').className = layoutName === 'big-month' ? 'big-month-layout' : (layoutName === '7-day' ? 'seven-day-layout' : '');
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      Array.from(document.querySelectorAll('.view-btn')).find(b => b.getAttribute('onclick').includes(layoutName)).classList.add('active');
+      renderCurrentLayout();
+    }
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen();
+    }
   </script>
 </body>
 </html>
