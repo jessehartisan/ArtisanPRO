@@ -89,7 +89,7 @@
     .view-btn.active, .view-btn:hover { background: rgba(194, 132, 72, 0.3); color: var(--text-main); }
     .view-btn.active { color: var(--accent); }
 
-    /* Widescreen Multi-Column Grid - Expanded left rail for full video footprint */
+    /* Widescreen Multi-Column Grid - Expanded left rail for video real estate */
     main { 
       flex: 1; 
       padding: 6px clamp(6px, 0.8vw, 10px); 
@@ -119,7 +119,6 @@
       min-height: 0; 
     }
 
-    /* Showcase takes full height of left column */
     .yt-showcase-widget { 
       flex: 1; 
       padding: 6px; 
@@ -162,7 +161,6 @@
       color: var(--accent); 
     }
 
-    /* Video player scaled to 16:9 ratio and fills available area */
     .yt-player-frame-box { 
       width: 100%; 
       flex: 1;
@@ -432,7 +430,8 @@
     // Bound Web App Endpoint from Artisan TimeSheet Engine
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     
-    // Artisan Outdoor Craftsman Channel Uploads Playlist (UCGktfVW9wTRBqeoi-xT3BUA -> UUGktfVW9wTRBqeoi-xT3BUA)
+    // Default Featured Video ID & Channel Uploads Playlist ID
+    const ARTISAN_FEATURED_VIDEO = "5hJN-NBYNLo";
     const ARTISAN_UPLOADS_PLAYLIST = "UUGktfVW9wTRBqeoi-xT3BUA";
 
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
@@ -916,10 +915,10 @@
       }
     }
 
-   // Anchor video ID guaranteed to load on TV engines
-    const ARTISAN_FEATURED_VIDEO = "5hJN-NBYNLo";
-    const ARTISAN_UPLOADS_PLAYLIST = "UUGktfVW9wTRBqeoi-xT3BUA";
-
+    // ==========================================
+    // ARTISAN SHOWCASE AUTOPLAY ENGINE
+    // Anchored video + playlist loop for universal TV compatibility
+    // ==========================================
     function buildShowcaseUrl(idOrUrl) {
       const raw = (idOrUrl || ARTISAN_UPLOADS_PLAYLIST).trim();
       let playlistId = "";
@@ -939,12 +938,46 @@
         videoId = raw;
       }
 
-      // Anchoring to an explicit video ID while looping the playlist satisfies TV browser security
       if (playlistId) {
         return `https://www.youtube-nocookie.com/embed/${videoId}?list=${playlistId}&autoplay=1&mute=1&loop=1&playsinline=1&controls=1&modestbranding=1`;
       }
 
       return `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&mute=1&loop=1&playsinline=1&controls=1&modestbranding=1`;
+    }
+
+    function initShowcasePlayer() {
+      const saved = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
+      const frame = document.getElementById('artisanShowcaseFrame');
+      if (frame) {
+        frame.src = buildShowcaseUrl(saved);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initShowcasePlayer);
+
+    function toggleShowcaseDrawer() {
+      const drawer = document.getElementById('showcaseConfigDrawer');
+      const input = document.getElementById('showcaseInput');
+      if (input) {
+        input.value = localStorage.getItem('artisan_showcase_id') || ARTISAN_UPLOADS_PLAYLIST;
+      }
+      if (drawer) {
+        drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function saveCustomShowcase() {
+      const input = document.getElementById('showcaseInput');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      localStorage.setItem('artisan_showcase_id', val);
+      const frame = document.getElementById('artisanShowcaseFrame');
+      if (frame) {
+        frame.src = buildShowcaseUrl(val);
+      }
+      document.getElementById('showcaseConfigDrawer').style.display = 'none';
     }
 
     // ==========================================
