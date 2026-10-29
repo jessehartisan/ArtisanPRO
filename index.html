@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     :root {
       --bg-dark: #090c10;           
@@ -78,7 +80,9 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .site-conditions-strip:hover { background: rgba(194, 132, 72, 0.2); }
+    .site-conditions-strip:hover {
+      background: rgba(194, 132, 72, 0.2);
+    }
     .site-conditions-strip .condition-val { color: #ffffff; font-weight: 700; }
     .site-conditions-strip .condition-tag { color: var(--accent); font-weight: 700; text-transform: uppercase; font-size: 0.6rem; letter-spacing: 0.5px; }
 
@@ -107,7 +111,7 @@
     }
 
     .widget { 
-      background: rgba(0,0,0,0.25); 
+      background: rgba(0,0,0,0.2); 
       border: 1px solid var(--card-border); 
       border-radius: 7px; 
       padding: 6px 8px; 
@@ -116,8 +120,7 @@
       min-height: 0; 
     }
 
-    /* Radar Widget Layout */
-    .radar-widget { 
+    .radar-widget-card { 
       flex: 1; 
       padding: 6px; 
       display: flex;
@@ -125,11 +128,12 @@
       min-height: 0;
       height: 100%;
     }
+    
     .bulletin-header-row { 
       display: flex; 
       align-items: center; 
       justify-content: space-between; 
-      margin-bottom: 5px; 
+      margin-bottom: 6px; 
       flex-shrink: 0; 
     }
     .bulletin-title { 
@@ -140,62 +144,63 @@
       color: var(--text-main); 
       display: flex; 
       align-items: center; 
-      gap: 5px; 
+      gap: 4px; 
+    }
+    .btn-icon-tiny { 
+      background: rgba(255,255,255,0.08); 
+      border: 1px solid var(--card-border); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 0.65rem; 
+      transition: all 0.2s; 
+    }
+    .btn-icon-tiny:hover { 
+      background: rgba(255,255,255,0.16); 
+      color: var(--accent); 
     }
 
-    .radar-frame-box { 
+    .radar-container-box { 
       width: 100%; 
       flex: 1;
       min-height: 180px;
       border-radius: 6px; 
       overflow: hidden; 
-      background: #000; 
+      background: #0d1117; 
       position: relative; 
-      z-index: 5; 
-      border: 1px solid rgba(255,255,255,0.08);
+      z-index: 50; 
       box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      border: 1px solid var(--card-border);
     }
-    .radar-frame-box iframe { 
-      width: 100%; 
-      height: 100%; 
-      border: none; 
-      pointer-events: auto; 
-    }
+    #radarMap { width: 100%; height: 100%; }
 
-    .radar-metrics-bar {
+    .site-metrics-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 4px;
       margin-top: 6px;
       flex-shrink: 0;
     }
-    .radar-metric-card {
-      background: rgba(0,0,0,0.4);
+    .site-metric-tile {
+      background: rgba(0,0,0,0.35);
       border: 1px solid var(--card-border);
       border-radius: 4px;
       padding: 4px 6px;
-      font-size: 0.65rem;
+      display: flex;
+      flex-direction: column;
     }
-    .radar-metric-val {
-      font-size: 0.8rem;
+    .site-metric-lbl {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .site-metric-val {
+      font-size: 0.78rem;
       font-weight: 800;
       color: #ffffff;
       margin-top: 1px;
-    }
-
-    /* Mobile Accordion Strip for Radar */
-    .mobile-radar-accordion {
-      display: none;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid var(--card-border);
-      padding: 6px 10px;
-      border-radius: 5px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent);
-      cursor: pointer;
-      text-align: center;
-      margin-bottom: 4px;
     }
 
     .center-view { background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); border-radius: 7px; display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden !important; }
@@ -213,79 +218,28 @@
     .calendar-day-cell.inactive { opacity: 0.28; background: rgba(0,0,0,0.2) !important; }
     .calendar-day-cell.today { background: var(--today-bg) !important; box-shadow: inset 0 0 0 1px var(--today-border); }
     
-    .day-num-row { display: flex; justify-content: space-between; align-items: center; line-height: 1; margin-bottom: 1px; }
-    .day-num { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
-    .calendar-day-cell.today .day-num { color: var(--accent); font-weight: 800; }
-    .day-add-btn { font-size: 0.6rem; color: var(--text-muted); opacity: 0; transition: opacity 0.15s; }
-    .calendar-day-cell:hover .day-add-btn { opacity: 1; color: var(--accent); }
-
-    .event-badge { font-size: clamp(0.58rem, 0.64vw, 0.68rem); font-weight: 700; padding: 1px 3px; border-radius: 2px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; line-height: 1.15; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.6); }
-    .event-badge:hover { filter: brightness(1.2); }
-
-    /* Staging / Backlog Kanban View */
-    .backlog-view-container {
-      flex: 1;
-      display: none;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      padding: 6px;
-      overflow-x: auto;
-      min-height: 0;
-      height: 100%;
-    }
-    .backlog-col {
-      background: rgba(0,0,0,0.35);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-    .backlog-col-header {
-      padding: 5px 8px;
-      background: rgba(0,0,0,0.45);
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .day-num-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      line-height: 1;
+      margin-bottom: 1px;
     }
-    .backlog-card-list {
-      flex: 1;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
-    .backlog-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--card-border);
-      border-left: 3px solid var(--accent);
-      border-radius: 4px;
-      padding: 6px 8px;
-      cursor: pointer;
-    }
-    .backlog-card:hover {
-      background: rgba(255,255,255,0.09);
-      border-color: rgba(255,255,255,0.25);
-    }
-    .backlog-card-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 2px;
-    }
-    .backlog-card-scope {
-      font-size: 0.68rem;
+    .day-num { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
+    .calendar-day-cell.today .day-num { color: var(--accent); font-weight: 800; }
+    .day-add-btn {
+      font-size: 0.6rem;
       color: var(--text-muted);
-      line-height: 1.2;
+      opacity: 0;
+      transition: opacity 0.15s;
     }
+    .calendar-day-cell:hover .day-add-btn {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .event-badge { font-size: clamp(0.58rem, 0.64vw, 0.68rem); font-weight: 700; padding: 1px 3px; border-radius: 2px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; line-height: 1.15; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+    .event-badge:hover { filter: brightness(1.2); }
 
     .sidebar-right { background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); border-radius: 7px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .dispatch-header { flex-shrink: 0; padding: 5px 10px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); }
@@ -297,6 +251,74 @@
     .dispatch-card-title { font-size: clamp(0.72rem, 0.8vw, 0.84rem); font-weight: 700; margin-bottom: 1px; line-height: 1.2; color: #ffffff; }
     .dispatch-card-time { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; }
     .dispatch-card-location { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Office Staging / Backlog Tab View */
+    #backlogContainerView {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .backlog-board-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    .backlog-stage-column {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .backlog-column-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .backlog-item-card {
+      background: rgba(20,25,32,0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 5px;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .backlog-item-card:hover {
+      border-color: var(--accent);
+      background: rgba(30,36,46,0.95);
+    }
+    .backlog-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .backlog-item-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .backlog-item-pill {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .pill-permits { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .pill-materials { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .pill-ready { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(5,7,10,0.88); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 12px; }
     .modal-box { background: rgba(20,25,32,0.98); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 30px -5px rgba(0,0,0,0.9); }
@@ -317,10 +339,9 @@
       main.big-month-layout .sidebar-right { display: none; }
       main.seven-day-layout { grid-template-columns: clamp(260px, 19vw, 320px) 1fr; }
       main.seven-day-layout .sidebar-right { display: none; }
-      main.backlog-layout { grid-template-columns: 1fr; }
-      main.backlog-layout .sidebar-left, main.backlog-layout .sidebar-right { display: none; }
     }
 
+    /* Mobile Responsive Optimizations: Radar & Backlog collapse seamlessly without clutter */
     @media (max-width: 768px) {
       header { height: auto; padding: 6px 8px; }
       .header-primary-row { gap: 5px; }
@@ -331,26 +352,17 @@
       .header-sub-row { flex-direction: column; align-items: stretch; }
       .site-conditions-strip { justify-content: space-between; }
       .view-toggles { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
-      .view-btn { text-align: center; padding: 5px 2px; font-size: 0.65rem; }
-      
+      .view-btn { text-align: center; padding: 5px 2px; font-size: 0.62rem; }
       main { display: flex; flex-direction: column; padding: 6px; gap: 8px; height: auto !important; max-height: none !important; overflow: visible !important; }
       .sidebar-right { order: 1; }
       .center-view { order: 2; }
       .sidebar-left { order: 3; }
-      
-      .mobile-radar-accordion { display: block; }
-      .radar-widget-inner { display: none; }
-      .radar-widget-inner.mobile-open { display: flex; }
-      .radar-frame-box { height: 240px; min-height: 240px; }
-
+      .radar-container-box { min-height: 140px; height: 140px; }
       .calendar-grid { grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, minmax(65px, auto)) !important; overflow: visible !important; }
       .calendar-grid.seven-day-mode { display: flex; flex-direction: column; gap: 5px; }
       .calendar-grid.seven-day-mode .weekday-header { display: none; }
       .calendar-grid.seven-day-mode .calendar-day-cell { border: 1px solid var(--card-border); border-radius: 6px; min-height: auto; padding: 6px; background: rgba(0,0,0,0.3) !important; }
       .calendar-grid.seven-day-mode .calendar-day-cell .day-num { font-size: 0.85rem; margin-bottom: 3px; display: block; }
-
-      .backlog-view-container { display: none; flex-direction: column; height: auto; }
-      .backlog-view-container.active { display: flex; }
     }
   </style>
 </head>
@@ -387,90 +399,88 @@
         <button class="view-btn active" onclick="switchLayout('split')">DAK Split</button>
         <button class="view-btn" onclick="switchLayout('big-month')">Big Month</button>
         <button class="view-btn" onclick="switchLayout('7-day')">7-Day View</button>
-        <button class="view-btn" onclick="switchLayout('backlog')">📋 Backlog</button>
+        <button class="view-btn" onclick="switchLayout('backlog')">📋 Staging / Backlog</button>
       </div>
     </div>
   </header>
 
   <main id="mainContainer">
-    <!-- Left Sidebar: Live Doppler Radar Tile with Mobile Collapsible Accordion -->
+    <!-- Left Sidebar: Live Doppler Radar Tile + Site Weather Metrics -->
     <aside class="sidebar-left">
-      <div class="mobile-radar-accordion" onclick="toggleMobileRadar()">
-        📡 Live Site Radar & Central IN Storm Sweep <span id="mobileRadarChevron">▼</span>
-      </div>
-
-      <div class="widget radar-widget radar-widget-inner" id="radarWidgetContainer">
+      <div class="widget radar-widget-card">
         <div class="bulletin-header-row">
-          <div class="bulletin-title">📡 Live Site Doppler (Fishers / Central IN)</div>
-          <button class="btn-icon-tiny" title="Reload Radar Tile" onclick="reloadRadarFrame()">🔄</button>
+          <div class="bulletin-title">📡 Live Doppler Radar</div>
+          <button class="btn-icon-tiny" onclick="recenterRadar()" title="Recenter to Shop">📍 Center</button>
         </div>
         
-        <div class="radar-frame-box">
-          <!-- Dark themed looping radar centered on latitude 39.9568, longitude -86.0134 -->
-          <iframe 
-            id="radarIframe"
-            src="https://www.rainviewer.com/map.html?loc=39.9568,-86.0134,8&oFa=1&oc=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1&ts=1"
-            loading="lazy">
-          </iframe>
+        <div class="radar-container-box">
+          <div id="radarMap"></div>
         </div>
 
-        <div class="radar-metrics-bar">
-          <div class="radar-metric-card">
-            <span style="color: var(--text-muted); text-transform: uppercase;">Wind Speed</span>
-            <div class="radar-metric-val" id="weatherWind">-- mph</div>
+        <div class="site-metrics-grid">
+          <div class="site-metric-tile">
+            <span class="site-metric-lbl">Wind / Gusts</span>
+            <span class="site-metric-val" id="radarMetricWind">-- mph</span>
           </div>
-          <div class="radar-metric-card">
-            <span style="color: var(--text-muted); text-transform: uppercase;">Precip Chance</span>
-            <div class="radar-metric-val" id="weatherPrecip">0% Today</div>
+          <div class="site-metric-tile">
+            <span class="site-metric-lbl">Precip Window</span>
+            <span class="site-metric-val" id="radarMetricPrecip">Dry</span>
+          </div>
+          <div class="site-metric-tile">
+            <span class="site-metric-lbl">Humidity</span>
+            <span class="site-metric-val" id="radarMetricHumidity">--%</span>
+          </div>
+          <div class="site-metric-tile">
+            <span class="site-metric-lbl">Field Status</span>
+            <span class="site-metric-val" style="color: #10b981;" id="radarMetricFieldReady">Active</span>
           </div>
         </div>
       </div>
     </aside>
 
-    <section class="center-view" id="centerViewContainer">
+    <!-- Center Calendar & Staging Views -->
+    <section class="center-view">
       <div class="calendar-toolbar">
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
-      
-      <!-- Calendar View -->
       <div class="calendar-grid" id="calendarGrid"></div>
-
-      <!-- Kanban Staging / Backlog View (Toggled via "Backlog" Button) -->
-      <div class="backlog-view-container" id="backlogGrid">
-        <div class="backlog-col">
-          <div class="backlog-col-header">
-            <span>1. Permits & Locates</span>
-            <button class="btn-icon-tiny" onclick="openNewBacklogModal('Permits & Locates')">+</button>
-          </div>
-          <div class="backlog-card-list" id="colPermits"></div>
+      
+      <!-- Backlog / Staging View (Toggleable Tab) -->
+      <div id="backlogContainerView">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Office Job Pipeline & Staged Backlog</div>
+          <button class="btn btn-primary" onclick="openNewBacklogModal()">+ Add Project to Pipeline</button>
         </div>
-
-        <div class="backlog-col">
-          <div class="backlog-col-header">
-            <span>2. Materials Staged</span>
-            <button class="btn-icon-tiny" onclick="openNewBacklogModal('Materials Staged')">+</button>
+        <div class="backlog-board-grid">
+          <!-- Stage 1 -->
+          <div class="backlog-stage-column">
+            <div class="backlog-column-title">
+              <span>📋 Permits & Utility Locates</span>
+              <span id="backlogCountPermits" class="dispatch-count">0</span>
+            </div>
+            <div id="colPermitsList" style="display: flex; flex-direction: column; gap: 4px;"></div>
           </div>
-          <div class="backlog-card-list" id="colMaterials"></div>
-        </div>
-
-        <div class="backlog-col">
-          <div class="backlog-col-header">
-            <span>3. Dig / Footer Ready</span>
-            <button class="btn-icon-tiny" onclick="openNewBacklogModal('Dig / Footer Ready')">+</button>
+          <!-- Stage 2 -->
+          <div class="backlog-stage-column">
+            <div class="backlog-column-title">
+              <span>📦 Materials Staging</span>
+              <span id="backlogCountMaterials" class="dispatch-count">0</span>
+            </div>
+            <div id="colMaterialsList" style="display: flex; flex-direction: column; gap: 4px;"></div>
           </div>
-          <div class="backlog-card-list" id="colDigReady"></div>
-        </div>
-
-        <div class="backlog-col">
-          <div class="backlog-col-header">
-            <span>4. Ready to Schedule</span>
-            <button class="btn-icon-tiny" onclick="openNewBacklogModal('Ready to Schedule')">+</button>
+          <!-- Stage 3 -->
+          <div class="backlog-stage-column">
+            <div class="backlog-column-title">
+              <span>🚜 Ready for Dispatch</span>
+              <span id="backlogCountReady" class="dispatch-count">0</span>
+            </div>
+            <div id="colReadyList" style="display: flex; flex-direction: column; gap: 4px;"></div>
           </div>
-          <div class="backlog-card-list" id="colReadyToSchedule"></div>
         </div>
       </div>
     </section>
 
+    <!-- Right Sidebar: Today's Dispatch Queue -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
@@ -522,29 +532,28 @@
     </div>
   </div>
 
-  <!-- Backlog Item Creator/Editor Modal -->
+  <!-- Backlog / Staging Job Modal -->
   <div id="backlogModal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 480px;">
-      <div class="modal-title" id="backlogModalTitle">📋 Add Staged Job</div>
-      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Customer / Project Name</label>
-      <input type="text" id="blJobName" class="modal-input" placeholder="e.g. Christie - Covered Pavilion" style="font-weight: 600;" />
-      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Status Column</label>
-      <select id="blStatus" class="modal-input" style="font-weight: 600;">
-        <option value="Permits & Locates">1. Permits & Locates</option>
-        <option value="Materials Staged">2. Materials Staged</option>
-        <option value="Dig / Footer Ready">3. Dig / Footer Ready</option>
-        <option value="Ready to Schedule">4. Ready to Schedule</option>
+    <div class="modal-box">
+      <div class="modal-title" id="backlogModalTitle">Project Pipeline Item</div>
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Project Name / Client</label>
+      <input type="text" id="blProjectName" class="modal-input" placeholder="e.g. Miller Pergola & Kitchen" />
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Pipeline Stage</label>
+      <select id="blStage" class="modal-input">
+        <option value="permits">📋 Permits & Locates Pending</option>
+        <option value="materials">📦 Materials Staging (84 / Warehouse)</option>
+        <option value="ready">🚜 Ready for Field Crew Dispatch</option>
       </select>
-      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Location / Subdivision</label>
-      <input type="text" id="blLocation" class="modal-input" placeholder="e.g. Geist, Fishers, Carmel" />
-      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope Notes / Pending Items</label>
-      <textarea id="blNotes" class="modal-input" style="height: 80px; resize: vertical;" placeholder="Framing delivered by 84 Lumber, waiting on Hancock County permit..."></textarea>
-      <input type="hidden" id="blEditId" />
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Job Location</label>
+      <input type="text" id="blLocation" class="modal-input" placeholder="Address or Subdivision" />
+      <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scope / Material Order Notes</label>
+      <textarea id="blNotes" class="modal-input" style="height: 80px;"></textarea>
+      <input type="hidden" id="blId" />
       <div class="modal-actions" style="justify-content: space-between;">
-        <button class="btn" id="btnDeleteBacklog" style="color: #f43f5e; display: none;" onclick="deleteBacklogCard()">Delete Job</button>
+        <button class="btn" id="btnDeleteBacklog" style="color: #f43f5e;" onclick="deleteBacklogItem()">Delete</button>
         <div style="display: flex; gap: 6px;">
           <button class="btn" onclick="document.getElementById('backlogModal').style.display='none'">Cancel</button>
-          <button class="btn btn-primary" onclick="saveBacklogItem()">Save Job</button>
+          <button class="btn btn-primary" onclick="saveBacklogItem()">Save Project</button>
         </div>
       </div>
     </div>
@@ -619,14 +628,14 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
     let customManualEvents = JSON.parse(localStorage.getItem('custom_manual_events') || '[]');
-
-    // Staging / Backlog persistent store
+    
+    // Default backlog mock/storage
     const DEFAULT_BACKLOG = [
-      { id: 'bl_1', title: 'Bower - Trex Transcend Deck', status: 'Materials Staged', location: 'Fishers (Geist)', notes: 'Composite framing staged at 84 Lumber.' },
-      { id: 'bl_2', title: 'Christie - Cedar Pavilion', status: 'Permits & Locates', location: 'Noblesville', notes: 'Hamilton County building permit pending.' },
-      { id: 'bl_3', title: 'Byram - Screened Porch', status: 'Ready to Schedule', location: 'Carmel', notes: 'All materials verified and permits in hand.' }
+      { id: "bl_1", name: "Morrison Pavilion", stage: "permits", location: "Fishers, IN", notes: "Awaiting Hancock Co drainage variance." },
+      { id: "bl_2", name: "Christie Multi-Level Deck", stage: "materials", location: "Carmel, IN", notes: "Armadillo decking staged at 84 Lumber." },
+      { id: "bl_3", name: "Bower Screened Porch", stage: "ready", location: "Geist / McCordsville", notes: "Footer inspection passed; ready for Joe." }
     ];
-    let backlogDatabase = JSON.parse(localStorage.getItem('artisan_staging_backlog')) || DEFAULT_BACKLOG;
+    let backlogData = JSON.parse(localStorage.getItem('artisan_backlog_data')) || DEFAULT_BACKLOG;
 
     const DEFAULT_CREW_DEFINITIONS = [
       { name: 'Joe', keyword: 'joe', color: '#a855f7' },
@@ -638,6 +647,10 @@
     ];
 
     let crewDefinitions = JSON.parse(localStorage.getItem('crew_classifications')) || DEFAULT_CREW_DEFINITIONS;
+    if (!crewDefinitions.some(c => c.keyword && c.keyword.toLowerCase().includes('chris'))) {
+      crewDefinitions.splice(4, 0, { name: 'Chris', keyword: 'chris', color: '#eab308' });
+      localStorage.setItem('crew_classifications', JSON.stringify(crewDefinitions));
+    }
 
     const GOOGLE_COLOR_MAP = {
       'lavender': '#7986cb', 'sage': '#33b679', 'grape': '#8e24aa', 'flamingo': '#e67c73',
@@ -697,35 +710,30 @@
 
     async function fetchWeather() {
       try {
-        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0134&current_weather=true&daily=precipitation_probability_max&temperature_unit=fahrenheit&windspeed_unit=mph");
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.9568&longitude=-86.0134&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&temperature_unit=fahrenheit&windspeed_unit=mph");
         if (res.ok) {
           const data = await res.json();
-          document.getElementById('weatherTemp').textContent = `${Math.round(data.current_weather.temperature)}°F`;
-          document.getElementById('weatherConditionLabel').textContent = `• ${interpretWmoCode(data.current_weather.weathercode).label}`;
-          document.getElementById('weatherWind').textContent = `${Math.round(data.current_weather.windspeed)} mph`;
-          if (data.daily && data.daily.precipitation_probability_max) {
-            document.getElementById('weatherPrecip').textContent = `${data.daily.precipitation_probability_max[0]}% Today`;
+          const cur = data.current_weather;
+          document.getElementById('weatherTemp').textContent = `${Math.round(cur.temperature)}°F`;
+          document.getElementById('weatherConditionLabel').textContent = `• ${interpretWmoCode(cur.weathercode).label}`;
+          setWeatherEffectMode(interpretWmoCode(cur.weathercode).mode);
+
+          // Update left sidebar weather metrics
+          document.getElementById('radarMetricWind').textContent = `${Math.round(cur.windspeed)} mph`;
+          if (data.hourly && data.hourly.relativehumidity_2m) {
+            document.getElementById('radarMetricHumidity').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
           }
-          setWeatherEffectMode(interpretWmoCode(data.current_weather.weathercode).mode);
+          if (data.hourly && data.hourly.precipitation_probability) {
+            const prob = data.hourly.precipitation_probability[0];
+            const precipEl = document.getElementById('radarMetricPrecip');
+            precipEl.textContent = prob > 25 ? `${prob}% Rain Risk` : "Dry";
+            precipEl.style.color = prob > 50 ? "#f43f5e" : (prob > 25 ? "#eab308" : "#ffffff");
+          }
         }
       } catch (e) {}
     }
     fetchWeather();
     setInterval(fetchWeather, 900000);
-
-    function reloadRadarFrame() {
-      const frame = document.getElementById('radarIframe');
-      if (frame) {
-        frame.src = "https://www.rainviewer.com/map.html?loc=39.9568,-86.0134,8&oFa=1&oc=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1&ts=1";
-      }
-    }
-
-    function toggleMobileRadar() {
-      const widget = document.getElementById('radarWidgetContainer');
-      const chev = document.getElementById('mobileRadarChevron');
-      widget.classList.toggle('mobile-open');
-      chev.textContent = widget.classList.contains('mobile-open') ? '▲' : '▼';
-    }
 
     function parseIcsDate(raw) {
       if (!raw) return new Date();
@@ -817,20 +825,19 @@
     }
 
     function renderCurrentLayout() {
-      const grid = document.getElementById('calendarGrid');
-      const blView = document.getElementById('backlogGrid');
-
       if (currentLayout === 'backlog') {
-        grid.style.display = 'none';
-        blView.style.display = 'grid';
+        document.getElementById('calendarGrid').style.display = 'none';
+        document.getElementById('backlogContainerView').style.display = 'block';
+        document.getElementById('calendarMonthHeading').textContent = "📋 Active Pipeline & Staging Queue";
         renderBacklogColumns();
-        document.getElementById('calendarMonthHeading').textContent = "📋 Active Staging & Unscheduled Backlog";
-      } else {
-        blView.style.display = 'none';
-        grid.style.display = 'grid';
-        if (currentLayout === '7-day') renderSevenDayGrid();
-        else renderCalendarGrid();
+        return;
       }
+
+      document.getElementById('calendarGrid').style.display = 'grid';
+      document.getElementById('backlogContainerView').style.display = 'none';
+
+      if (currentLayout === '7-day') renderSevenDayGrid();
+      else renderCalendarGrid();
       populateTodayQueue();
     }
 
@@ -854,8 +861,8 @@
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell' + (day === now.getDate() && month === now.getMonth() && year === now.getFullYear() ? ' today' : '');
         const cellDate = new Date(year, month, day);
-        const isoDate = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
+        const isoDate = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         cell.innerHTML = `
           <div class="day-num-row">
             <span class="day-num">${day}</span>
@@ -931,84 +938,6 @@
       }
     }
 
-    function renderBacklogColumns() {
-      const colMap = {
-        'Permits & Locates': document.getElementById('colPermits'),
-        'Materials Staged': document.getElementById('colMaterials'),
-        'Dig / Footer Ready': document.getElementById('colDigReady'),
-        'Ready to Schedule': document.getElementById('colReadyToSchedule')
-      };
-      Object.values(colMap).forEach(col => { if (col) col.innerHTML = ''; });
-
-      backlogDatabase.forEach(card => {
-        const targetCol = colMap[card.status];
-        if (!targetCol) return;
-        const el = document.createElement('div');
-        el.className = 'backlog-card';
-        el.innerHTML = `
-          <div class="backlog-card-title">${card.title}</div>
-          <div style="font-size: 0.65rem; color: var(--accent); margin-bottom: 2px;">📍 ${card.location || 'Local Site'}</div>
-          <div class="backlog-card-scope">${card.notes || 'No scope notes logged'}</div>
-        `;
-        el.onclick = () => openEditBacklogModal(card.id);
-        targetCol.appendChild(el);
-      });
-    }
-
-    function openNewBacklogModal(defaultStatus = 'Permits & Locates') {
-      document.getElementById('backlogModalTitle').textContent = "📋 Add Staged Job";
-      document.getElementById('blEditId').value = "new";
-      document.getElementById('blJobName').value = "";
-      document.getElementById('blLocation').value = "";
-      document.getElementById('blNotes').value = "";
-      document.getElementById('blStatus').value = defaultStatus;
-      document.getElementById('btnDeleteBacklog').style.display = "none";
-      document.getElementById('backlogModal').style.display = 'flex';
-    }
-
-    function openEditBacklogModal(cardId) {
-      const card = backlogDatabase.find(c => c.id === cardId);
-      if (!card) return;
-      document.getElementById('backlogModalTitle').textContent = "Edit Staged Job";
-      document.getElementById('blEditId').value = card.id;
-      document.getElementById('blJobName').value = card.title;
-      document.getElementById('blLocation').value = card.location || "";
-      document.getElementById('blNotes').value = card.notes || "";
-      document.getElementById('blStatus').value = card.status;
-      document.getElementById('btnDeleteBacklog').style.display = "block";
-      document.getElementById('backlogModal').style.display = 'flex';
-    }
-
-    function saveBacklogItem() {
-      const id = document.getElementById('blEditId').value;
-      const title = document.getElementById('blJobName').value.trim();
-      const location = document.getElementById('blLocation').value.trim();
-      const notes = document.getElementById('blNotes').value.trim();
-      const status = document.getElementById('blStatus').value;
-
-      if (!title) { alert('Please provide a project name.'); return; }
-
-      if (id === 'new') {
-        backlogDatabase.push({ id: 'bl_' + Date.now(), title, location, notes, status });
-      } else {
-        const idx = backlogDatabase.findIndex(c => c.id === id);
-        if (idx > -1) {
-          backlogDatabase[idx] = { id, title, location, notes, status };
-        }
-      }
-      localStorage.setItem('artisan_staging_backlog', JSON.stringify(backlogDatabase));
-      document.getElementById('backlogModal').style.display = 'none';
-      renderBacklogColumns();
-    }
-
-    function deleteBacklogCard() {
-      const id = document.getElementById('blEditId').value;
-      backlogDatabase = backlogDatabase.filter(c => c.id !== id);
-      localStorage.setItem('artisan_staging_backlog', JSON.stringify(backlogDatabase));
-      document.getElementById('backlogModal').style.display = 'none';
-      renderBacklogColumns();
-    }
-
     function populateTodayQueue() {
       const container = document.getElementById('dispatchQueue');
       const countPill = document.getElementById('dispatchCountPill');
@@ -1041,6 +970,100 @@
         card.onclick = () => openJobEditModal(evt.id);
         container.appendChild(card);
       });
+    }
+
+    // Render Backlog / Staging Columns
+    function renderBacklogColumns() {
+      const colPermits = document.getElementById('colPermitsList');
+      const colMaterials = document.getElementById('colMaterialsList');
+      const colReady = document.getElementById('colReadyList');
+
+      colPermits.innerHTML = '';
+      colMaterials.innerHTML = '';
+      colReady.innerHTML = '';
+
+      const pItems = backlogData.filter(i => i.stage === 'permits');
+      const mItems = backlogData.filter(i => i.stage === 'materials');
+      const rItems = backlogData.filter(i => i.stage === 'ready');
+
+      document.getElementById('backlogCountPermits').textContent = pItems.length;
+      document.getElementById('backlogCountMaterials').textContent = mItems.length;
+      document.getElementById('backlogCountReady').textContent = rItems.length;
+
+      const buildCard = (item, pillClass, pillText) => {
+        const card = document.createElement('div');
+        card.className = 'backlog-item-card';
+        card.innerHTML = `
+          <div class="backlog-item-header">
+            <span class="backlog-item-name">${item.name}</span>
+            <span class="backlog-item-pill ${pillClass}">${pillText}</span>
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-muted);">📍 ${item.location || 'Pending Site Address'}</div>
+          ${item.notes ? `<div style="font-size: 0.65rem; color: #cbd5e1; margin-top: 2px;">${item.notes}</div>` : ''}
+        `;
+        card.onclick = () => openEditBacklogModal(item.id);
+        return card;
+      };
+
+      pItems.forEach(i => colPermits.appendChild(buildCard(i, 'pill-permits', 'Permits / Locates')));
+      mItems.forEach(i => colMaterials.appendChild(buildCard(i, 'pill-materials', 'Staging')));
+      rItems.forEach(i => colReady.appendChild(buildCard(i, 'pill-ready', 'Dispatch Ready')));
+    }
+
+    function openNewBacklogModal() {
+      document.getElementById('backlogModalTitle').textContent = "➕ Add Project to Pipeline";
+      document.getElementById('blId').value = "new";
+      document.getElementById('blProjectName').value = "";
+      document.getElementById('blStage').value = "permits";
+      document.getElementById('blLocation').value = "";
+      document.getElementById('blNotes').value = "";
+      document.getElementById('btnDeleteBacklog').style.display = "none";
+      document.getElementById('backlogModal').style.display = "flex";
+    }
+
+    function openEditBacklogModal(id) {
+      const item = backlogData.find(b => b.id === id);
+      if (!item) return;
+      document.getElementById('backlogModalTitle').textContent = "Edit Pipeline Project";
+      document.getElementById('blId').value = item.id;
+      document.getElementById('blProjectName').value = item.name;
+      document.getElementById('blStage').value = item.stage;
+      document.getElementById('blLocation').value = item.location || '';
+      document.getElementById('blNotes').value = item.notes || '';
+      document.getElementById('btnDeleteBacklog').style.display = "block";
+      document.getElementById('backlogModal').style.display = "flex";
+    }
+
+    function saveBacklogItem() {
+      const id = document.getElementById('blId').value;
+      const name = document.getElementById('blProjectName').value.trim();
+      const stage = document.getElementById('blStage').value;
+      const location = document.getElementById('blLocation').value.trim();
+      const notes = document.getElementById('blNotes').value.trim();
+
+      if (!name) {
+        alert("Please provide a project name.");
+        return;
+      }
+
+      if (id === "new") {
+        backlogData.push({ id: "bl_" + Date.now(), name, stage, location, notes });
+      } else {
+        const idx = backlogData.findIndex(b => b.id === id);
+        if (idx > -1) backlogData[idx] = { id, name, stage, location, notes };
+      }
+
+      localStorage.setItem('artisan_backlog_data', JSON.stringify(backlogData));
+      document.getElementById('backlogModal').style.display = "none";
+      renderBacklogColumns();
+    }
+
+    function deleteBacklogItem() {
+      const id = document.getElementById('blId').value;
+      backlogData = backlogData.filter(b => b.id !== id);
+      localStorage.setItem('artisan_backlog_data', JSON.stringify(backlogData));
+      document.getElementById('backlogModal').style.display = "none";
+      renderBacklogColumns();
     }
 
     async function fetchSingleFeed(feedUrl) {
@@ -1150,7 +1173,10 @@
       const startVal = document.getElementById('editJobStart').value;
       const endVal = document.getElementById('editJobEnd').value;
 
-      if (!newSummary) { alert("Please provide an event title / crew tag."); return; }
+      if (!newSummary) {
+        alert("Please provide an event title / crew tag.");
+        return;
+      }
 
       if (id === "new") {
         const manualId = "manual_" + Date.now();
@@ -1242,4 +1268,460 @@
       document.getElementById('tsDate').value = new Date().toISOString().split('T')[0];
       document.getElementById('tsHours').value = ''; document.getElementById('tsJob').value = ''; document.getElementById('tsNotes').value = '';
       const f = document.getElementById('tsReceipt'); if (f) f.value = '';
-      document.getElementById('tsSubmitStatus').textContent = ''; document.getElementById('btnSubmitTS').disabled
+      document.getElementById('tsSubmitStatus').textContent = ''; document.getElementById('btnSubmitTS').disabled = false;
+      document.getElementById('timesheetModal').style.display = 'flex';
+    }
+
+    function compressReceipt(file) {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = () => resolve({ base64: reader.result, type: file.type });
+          reader.readAsDataURL(file);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 1000;
+            let w = img.width, h = img.height;
+            if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+            const cvs = document.createElement('canvas');
+            cvs.width = w; cvs.height = h;
+            const ctx = cvs.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve({ base64: cvs.toDataURL('image/jpeg', 0.65), type: 'image/jpeg' });
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function submitTimeSheet(event) {
+      if (event) event.preventDefault();
+      const statusEl = document.getElementById('tsSubmitStatus'); const btn = document.getElementById('btnSubmitTS');
+      const hours = document.getElementById('tsHours').value; const job = document.getElementById('tsJob').value.trim();
+      const crew = document.getElementById('tsCrew').value; const dateWorked = document.getElementById('tsDate').value;
+      const notes = document.getElementById('tsNotes').value.trim();
+      
+      if (!hours || !job) { statusEl.style.color = '#f43f5e'; statusEl.textContent = 'Please provide both hours and job name.'; return; }
+      statusEl.style.color = 'var(--accent)'; statusEl.textContent = 'Preparing submission...'; btn.disabled = true;
+
+      let b64 = null, name = null, type = null;
+      const fileInput = document.getElementById('tsReceipt');
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        statusEl.textContent = 'Compressing receipt...';
+        const compressed = await compressReceipt(fileInput.files[0]);
+        b64 = compressed.base64;
+        type = compressed.type;
+        name = `${dateWorked}_${crew}_${job.replace(/\s+/g, '_')}_receipt.jpg`;
+      }
+
+      statusEl.textContent = 'Logging to Office...';
+
+      const payload = {
+        crewWorker: crew,
+        dateWorked: dateWorked,
+        hours: hours,
+        jobProject: job,
+        notes: notes,
+        receiptBase64: b64,
+        receiptName: name,
+        receiptType: type
+      };
+
+      try {
+        await fetch(TIMESHEET_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          cache: 'no-cache',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        statusEl.style.color = '#10b981';
+        statusEl.textContent = '✓ Logged to Office!';
+        setTimeout(() => {
+          document.getElementById('timesheetModal').style.display = 'none';
+          btn.disabled = false;
+          statusEl.textContent = '';
+          if (fileInput) fileInput.value = '';
+        }, 1400);
+      } catch (err) {
+        statusEl.style.color = '#f43f5e';
+        statusEl.textContent = 'Network error. Try again.';
+        btn.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // LEAFLET LIVE DOPPLER RADAR ENGINE
+    // RainViewer API (Free, zero keys, auto-updating)
+    // ==========================================
+    let leafletMap = null;
+    let radarLayer = null;
+    const SHOP_COORDS = [39.9568, -86.0134]; // Fishers, IN
+
+    function initRadarMap() {
+      if (leafletMap) return;
+      leafletMap = L.map('radarMap', {
+        center: SHOP_COORDS,
+        zoom: 8,
+        zoomControl: false,
+        attributionControl: false
+      });
+
+      // Dark Matter Base Map
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 14
+      }).addTo(leafletMap);
+
+      // Shop Pin Marker
+      const shopIcon = L.divIcon({
+        className: 'custom-shop-pin',
+        html: `<div style="background: #c28448; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 8px rgba(194,132,72,0.9);"></div>`,
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      });
+      L.marker(SHOP_COORDS, { icon: shopIcon }).addTo(leafletMap);
+
+      updateRadarOverlay();
+      setInterval(updateRadarOverlay, 300000); // 5 min radar refresh
+    }
+
+    async function updateRadarOverlay() {
+      try {
+        const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.radar && data.radar.past && data.radar.past.length > 0) {
+            const latest = data.radar.past[data.radar.past.length - 1];
+            const radarPath = latest.path;
+
+            if (radarLayer) leafletMap.removeLayer(radarLayer);
+            radarLayer = L.tileLayer(`https://tilecache.rainviewer.com${radarPath}/256/{z}/{x}/{y}/2/1_1.png`, {
+              opacity: 0.65,
+              zIndex: 100
+            }).addTo(leafletMap);
+          }
+        }
+      } catch (e) {}
+    }
+
+    function recenterRadar() {
+      if (leafletMap) {
+        leafletMap.setView(SHOP_COORDS, 8);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initRadarMap, 300);
+    });
+
+    // ==========================================
+    // REALISTIC WEATHER & ATMOSPHERIC ENGINE
+    // ==========================================
+    const canvas = document.getElementById('weatherCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+    let weatherMode = 'clear';
+
+    let particles = [];
+    let splashes = [];
+    let clouds = [];
+    let lightningBolts = [];
+    let lightningFlash = 0;
+    let globalWind = -1.5;
+    let windTarget = -1.5;
+    let windTimer = 0;
+
+    let testWeatherIdx = 0;
+    function cycleWeatherTest() {
+      const testModes = ['thunder', 'rain', 'snow', 'fog', 'clear'];
+      testWeatherIdx = (testWeatherIdx + 1) % testModes.length;
+      const nextMode = testModes[testWeatherIdx];
+      setWeatherEffectMode(nextMode);
+      const label = document.getElementById('weatherConditionLabel');
+      if (label) label.textContent = `• Test: ${nextMode.toUpperCase()}`;
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initWeatherParticles();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function initWeatherParticles() {
+      particles = [];
+      splashes = [];
+      clouds = [];
+      lightningBolts = [];
+
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        const count = weatherMode === 'thunder' ? 320 : 220;
+        for (let i = 0; i < count; i++) {
+          const depth = Math.random();
+          particles.push({
+            x: Math.random() * (canvas.width + 200) - 100,
+            y: Math.random() * canvas.height,
+            depth: depth,
+            length: 12 + depth * 22,
+            speed: 14 + depth * 16,
+            thickness: 0.8 + depth * 1.4,
+            opacity: 0.2 + depth * 0.6
+          });
+        }
+      } else if (weatherMode === 'snow') {
+        const count = 160;
+        for (let i = 0; i < count; i++) {
+          const depth = Math.random();
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            depth: depth,
+            radius: 1 + depth * 3.5,
+            speed: 0.8 + depth * 2.2,
+            drift: (Math.random() - 0.5) * 1.5,
+            wobbleSpeed: 0.01 + Math.random() * 0.03,
+            wobbleOffset: Math.random() * Math.PI * 2,
+            opacity: 0.3 + depth * 0.6
+          });
+        }
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        const count = 16;
+        for (let i = 0; i < count; i++) {
+          clouds.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * (canvas.height * 0.85),
+            radius: 180 + Math.random() * 260,
+            speed: 0.15 + Math.random() * 0.35,
+            opacity: weatherMode === 'fog' ? (0.08 + Math.random() * 0.12) : (0.04 + Math.random() * 0.08)
+          });
+        }
+      } else {
+        const count = 55;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 1 + Math.random() * 2.5,
+            speedY: -0.2 - Math.random() * 0.4,
+            speedX: (Math.random() - 0.5) * 0.3,
+            pulseSpeed: 0.02 + Math.random() * 0.03,
+            pulseVal: Math.random() * Math.PI * 2,
+            opacityBase: 0.25 + Math.random() * 0.4
+          });
+        }
+      }
+    }
+
+    function setWeatherEffectMode(newMode) {
+      if (weatherMode === newMode) return;
+      weatherMode = newMode;
+      initWeatherParticles();
+    }
+
+    function generateLightningBranch(startX, startY, endY, intensity = 1.0) {
+      const segments = [];
+      let curX = startX;
+      let curY = startY;
+      
+      while (curY < endY) {
+        const segLen = 12 + Math.random() * 20;
+        const nextY = Math.min(curY + segLen, endY);
+        const nextX = curX + (Math.random() - 0.5) * 36;
+        segments.push({ x1: curX, y1: curY, x2: nextX, y2: nextY, intensity: intensity });
+
+        if (Math.random() < 0.25 && intensity > 0.4) {
+          const forkEndY = curY + (endY - curY) * 0.5;
+          const subFork = generateLightningBranch(nextX, nextY, forkEndY, intensity * 0.6);
+          segments.push(...subFork);
+        }
+
+        curX = nextX;
+        curY = nextY;
+      }
+      return segments;
+    }
+
+    function renderWeatherAnimation() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      windTimer += 0.01;
+      if (Math.random() < 0.01) {
+        windTarget = -3.5 + Math.random() * 3.0;
+      }
+      globalWind += (windTarget - globalWind) * 0.02;
+
+      if (weatherMode === 'rain' || weatherMode === 'thunder') {
+        if (weatherMode === 'thunder') {
+          if (Math.random() < 0.005 && lightningBolts.length === 0) {
+            lightningFlash = 0.85;
+            const rootX = canvas.width * 0.15 + Math.random() * (canvas.width * 0.7);
+            const targetY = canvas.height * 0.65 + Math.random() * (canvas.height * 0.35);
+            lightningBolts = generateLightningBranch(rootX, 0, targetY, 1.0);
+          }
+
+          if (lightningFlash > 0) {
+            ctx.fillStyle = `rgba(220, 235, 255, ${lightningFlash * 0.28})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            lightningFlash -= 0.035;
+          }
+
+          if (lightningBolts.length > 0) {
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = 'rgba(165, 215, 255, 0.9)';
+            for (let b of lightningBolts) {
+              ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1.0, b.intensity * (lightningFlash + 0.3))})`;
+              ctx.lineWidth = Math.max(0.8, b.intensity * 2.8);
+              ctx.beginPath();
+              ctx.moveTo(b.x1, b.y1);
+              ctx.lineTo(b.x2, b.y2);
+              ctx.stroke();
+            }
+            ctx.shadowBlur = 0;
+
+            if (lightningFlash <= 0.05) {
+              lightningBolts = [];
+            }
+          }
+        }
+
+        for (let p of particles) {
+          ctx.strokeStyle = `rgba(200, 225, 255, ${p.opacity})`;
+          ctx.lineWidth = p.thickness;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x + globalWind * (p.depth + 0.5), p.y + p.length);
+          ctx.stroke();
+
+          p.y += p.speed;
+          p.x += globalWind * (p.depth + 0.5);
+
+          if (p.y >= canvas.height - 6) {
+            if (p.depth > 0.45 && Math.random() < 0.4) {
+              const droplets = 2 + Math.floor(Math.random() * 3);
+              for (let d = 0; d < droplets; d++) {
+                splashes.push({
+                  x: p.x,
+                  y: canvas.height - 3,
+                  vx: (Math.random() - 0.5) * 4 + globalWind * 0.3,
+                  vy: -1.5 - Math.random() * 3.5,
+                  radius: 0.8 + Math.random() * 1.2,
+                  gravity: 0.2,
+                  opacity: 0.75
+                });
+              }
+            }
+            p.y = -20 - Math.random() * 30;
+            p.x = Math.random() * (canvas.width + 300) - 150;
+          }
+        }
+
+        for (let i = splashes.length - 1; i >= 0; i--) {
+          const s = splashes[i];
+          ctx.fillStyle = `rgba(215, 235, 255, ${s.opacity})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          s.x += s.vx;
+          s.y += s.vy;
+          s.vy += s.gravity;
+          s.opacity -= 0.038;
+
+          if (s.opacity <= 0 || s.y > canvas.height) {
+            splashes.splice(i, 1);
+          }
+        }
+
+      } else if (weatherMode === 'snow') {
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(240, 248, 255, ${p.opacity})`;
+          ctx.fill();
+
+          p.y += p.speed;
+          p.wobbleOffset += p.wobbleSpeed;
+          p.x += Math.sin(p.wobbleOffset) * p.drift + globalWind * 0.4;
+
+          if (p.y >= canvas.height + 10) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+          }
+        }
+
+      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
+        for (let c of clouds) {
+          const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius);
+          grad.addColorStop(0, `rgba(180, 195, 215, ${c.opacity})`);
+          grad.addColorStop(0.65, `rgba(140, 165, 190, ${c.opacity * 0.5})`);
+          grad.addColorStop(1, 'rgba(9, 12, 16, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          c.x += c.speed;
+          if (c.x - c.radius > canvas.width) {
+            c.x = -c.radius;
+            c.y = Math.random() * (canvas.height * 0.85);
+          }
+        }
+
+      } else {
+        for (let p of particles) {
+          p.pulseVal += p.pulseSpeed;
+          const currentOpacity = Math.max(0.1, p.opacityBase + Math.sin(p.pulseVal) * 0.2);
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(194, 132, 72, ${currentOpacity})`;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = 'rgba(194, 132, 72, 0.4)';
+          ctx.fill();
+
+          p.y += p.speedY;
+          p.x += p.speedX;
+
+          if (p.y <= -10) p.y = canvas.height + 10;
+          if (p.x <= -10) p.x = canvas.width + 10;
+          if (p.x > canvas.width + 10) p.x = -10;
+        }
+        ctx.shadowBlur = 0;
+      }
+
+      animationFrameId = requestAnimationFrame(renderWeatherAnimation);
+    }
+
+    resizeCanvas();
+    renderWeatherAnimation();
+
+    function switchLayout(layoutName) {
+      currentLayout = layoutName;
+      document.getElementById('mainContainer').className = 
+        layoutName === 'big-month' ? 'big-month-layout' : 
+        (layoutName === '7-day' ? 'seven-day-layout' : '');
+
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      Array.from(document.querySelectorAll('.view-btn')).find(b => b.getAttribute('onclick').includes(layoutName)).classList.add('active');
+      
+      renderCurrentLayout();
+      if (layoutName !== 'backlog' && leafletMap) {
+        setTimeout(() => leafletMap.invalidateSize(), 200);
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen();
+    }
+  </script>
+</body>
+</html>
