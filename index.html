@@ -47,9 +47,31 @@
     .header-primary-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 8px; }
     
     .brand-block { display: flex; flex-direction: column; gap: 2px; }
-    .brand-row { display: flex; align-items: center; gap: 8px; }
-    .brand-logo { font-size: clamp(1rem, 1.2vw, 1.25rem); font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 2px; }
-    .brand-logo span { color: var(--accent); }
+    .brand-row { display: flex; align-items: center; gap: 10px; }
+
+    .brand-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      max-width: 150px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.85));
+    }
+    .brand-fallback-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .brand-fallback-text span { color: var(--accent); }
+
     .compact-datetime-ticker { font-size: 0.72rem; font-weight: 700; background: var(--accent-muted); color: var(--accent); padding: 1px 7px; border-radius: 999px; border: 1px solid rgba(194, 132, 72, 0.45); white-space: nowrap; }
 
     .brand-subtext { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
@@ -171,7 +193,6 @@
     .dispatch-card-time { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; }
     .dispatch-card-location { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* On-Demand Doppler Radar Tab View */
     #radarContainerView {
       display: none;
       flex: 1;
@@ -206,7 +227,6 @@
     .site-metric-lbl { font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
     .site-metric-val { font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-top: 1px; }
 
-    /* Office Staging / Backlog Tab View */
     #backlogContainerView {
       display: none;
       flex: 1;
@@ -295,7 +315,9 @@
       .brand-block { align-items: flex-start; }
       .brand-row { width: 100%; justify-content: space-between; }
       
-      /* 2-Button Grid on Mobile (Log Hours & Add Event) */
+      .brand-logo-img { height: 32px; }
+      .brand-fallback-text { font-size: 1.05rem; }
+
       .controls-cluster { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
       .controls-cluster .btn { justify-content: center; padding: 9px 6px; font-size: 0.78rem; width: 100%; }
       
@@ -324,7 +346,6 @@
         order: 2; 
       }
 
-      /* In 7-Day View or Big Month on mobile, hide the Today's Dispatch panel */
       main.seven-day-layout .sidebar-right,
       main.big-month-layout .sidebar-right {
         display: none !important;
@@ -337,7 +358,6 @@
         overflow: visible !important; 
       }
 
-      /* 7-Day Mobile List Mode: Stack each full day cleanly as readable cards */
       .calendar-grid.seven-day-mode { 
         display: flex !important; 
         flex-direction: column !important; 
@@ -382,7 +402,25 @@
     <div class="header-primary-row">
       <div class="brand-block">
         <div class="brand-row">
-          <div class="brand-logo">Artisan<span>PRO</span></div>
+          <!-- Replaced Text Header with Custom Transparent Logo & Native Fallback -->
+          <div class="brand-logo-container" onclick="switchLayout('split')" title="ArtisanPRO Home">
+            <img 
+              id="brandLogoImg"
+              src="logo.png" 
+              alt="ArtisanPRO" 
+              class="brand-logo-img"
+              onerror="this.style.display='none'; document.getElementById('brandFallbackText').style.display='flex';"
+            />
+            <div id="brandFallbackText" class="brand-fallback-text" style="display: none;">
+              <!-- Embedded SVG crest emblem fallback matching your new brand design -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10" stroke="#c28448" stroke-width="1.8"/>
+                <path d="M12 6L8 16H10L10.8 14H13.2L14 16H16L12 6Z" fill="#c28448"/>
+                <path d="M11.2 12.2H12.8L12 9.8L11.2 12.2Z" fill="#090c10"/>
+              </svg>
+              Artisan<span style="color: #c28448; font-weight: 800;">PRO</span>
+            </div>
+          </div>
           <div class="compact-datetime-ticker" id="headerDateTimeTicker">Loading date & time...</div>
         </div>
         <div class="brand-subtext">
@@ -808,7 +846,6 @@
         }
       }
 
-      // Merge local in-app custom manual events with multi-day expansion across all spanned days
       customManualEvents.forEach(item => {
         const mStart = new Date(item.start);
         const mEnd = item.end ? new Date(item.end) : null;
@@ -900,7 +937,6 @@
         return;
       }
 
-      // Default Calendar Views
       calGrid.style.display = currentLayout === '7-day' ? 'flex' : 'grid';
       radarView.style.display = 'none';
       backlogView.style.display = 'none';
@@ -972,7 +1008,6 @@
       const endDay = new Date(now); endDay.setDate(now.getDate() + 6);
       document.getElementById('calendarMonthHeading').textContent = `7-Day Outlook (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
       
-      // Desktop headers
       for (let i = 0; i < 7; i++) {
         const d = new Date(now); d.setDate(now.getDate() + i);
         const header = document.createElement('div'); header.className = 'weekday-header';
@@ -981,7 +1016,6 @@
         grid.appendChild(header);
       }
 
-      // Day cells
       for (let i = 0; i < 7; i++) {
         const cellDate = new Date(now); cellDate.setDate(now.getDate() + i);
         const cell = document.createElement('div'); cell.className = 'calendar-day-cell' + (i === 0 ? ' today' : '');
