@@ -150,7 +150,14 @@
     .month-title { font-size: clamp(0.85rem, 1vw, 1.05rem); font-weight: 800; letter-spacing: -0.5px; color: #ffffff; }
 
     .calendar-grid { flex: 1; height: calc(100% - 32px); min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, calc((100% - 20px) / 5)); overflow: hidden; background: transparent; }
-    .calendar-grid.seven-day-mode { grid-template-rows: 22px 1fr; }
+    
+    /* Dedicated full-height 7-column layout without separate header tracks */
+    .calendar-grid.seven-day-mode { 
+      grid-template-columns: repeat(7, 1fr) !important;
+      grid-template-rows: 1fr !important;
+      height: calc(100% - 32px) !important;
+    }
+    
     .weekday-header { background: rgba(0,0,0,0.35); padding: 1px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--card-border); border-right: 1px solid var(--card-border); }
     .weekday-header:last-child { border-right: none; }
     .calendar-day-cell { border-right: 1px solid var(--grid-line); border-bottom: 1px solid var(--grid-line); padding: 2px; display: flex; flex-direction: column; gap: 1px; min-height: 0; height: 100%; overflow-y: auto; scrollbar-width: none; position: relative; background: transparent; cursor: pointer; }
@@ -912,7 +919,6 @@
 
     function navigateCalendar(direction) {
       if (currentLayout === '7-day') {
-        // Lock 7-day to current forward rolling window
         return;
       }
       activeCalendarDate.setMonth(activeCalendarDate.getMonth() + direction);
@@ -950,7 +956,7 @@
         return;
       }
 
-      calGrid.style.display = currentLayout === '7-day' ? 'flex' : 'grid';
+      calGrid.style.display = 'grid';
       radarView.style.display = 'none';
       backlogView.style.display = 'none';
 
@@ -1077,25 +1083,19 @@
       grid.classList.add('seven-day-mode');
       grid.innerHTML = '';
       
-      // Locked strictly to current day and the next 6 days
       const startDay = new Date(actualToday.getFullYear(), actualToday.getMonth(), actualToday.getDate());
       const endDay = new Date(startDay); 
       endDay.setDate(startDay.getDate() + 6);
 
       document.getElementById('calendarMonthHeading').textContent = `7-Day Outlook (${startDay.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
-      
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(startDay); d.setDate(startDay.getDate() + i);
-        const header = document.createElement('div'); header.className = 'weekday-header';
-        header.textContent = d.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' });
-        if (i === 0) header.style.color = 'var(--accent)';
-        grid.appendChild(header);
-      }
 
+      // Render only the 7 full day columns directly
       for (let i = 0; i < 7; i++) {
-        const cellDate = new Date(startDay); cellDate.setDate(startDay.getDate() + i);
+        const cellDate = new Date(startDay); 
+        cellDate.setDate(startDay.getDate() + i);
         const isToday = (i === 0);
-        const cell = document.createElement('div'); cell.className = 'calendar-day-cell' + (isToday ? ' today' : '');
+        const cell = document.createElement('div'); 
+        cell.className = 'calendar-day-cell' + (isToday ? ' today' : '');
         const isoDate = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
 
         cell.innerHTML = `
@@ -1110,16 +1110,25 @@
           openNewEventModal(isoDate);
         };
 
-        const dayEvents = eventsDatabase.filter(e => e.start.getFullYear() === cellDate.getFullYear() && e.start.getMonth() === cellDate.getMonth() && e.start.getDate() === cellDate.getDate());
+        const dayEvents = eventsDatabase.filter(e => 
+          e.start.getFullYear() === cellDate.getFullYear() && 
+          e.start.getMonth() === cellDate.getMonth() && 
+          e.start.getDate() === cellDate.getDate()
+        );
+
         if (dayEvents.length === 0) {
           cell.innerHTML += `<div style="color: var(--text-muted); font-size: 0.72rem; padding: 4px 0;">No jobs scheduled</div>`;
         } else {
           dayEvents.forEach(evt => {
-            const badge = document.createElement('div'); badge.className = 'event-badge';
+            const badge = document.createElement('div'); 
+            badge.className = 'event-badge';
             badge.style.backgroundColor = getEventColor(evt.summary);
             const timeLabel = evt.isAllDay ? 'All Day' : evt.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
             badge.textContent = `${cleanEventTitle(evt.summary)} (${timeLabel})`;
-            badge.onclick = (e) => { e.stopPropagation(); openJobEditModal(evt.id); };
+            badge.onclick = (e) => { 
+              e.stopPropagation(); 
+              openJobEditModal(evt.id); 
+            };
             cell.appendChild(badge);
           });
         }
@@ -1649,252 +1658,4 @@
             sweepSpeed2: 0.00035 + Math.random() * 0.00045,
             sweepAmp1: 0.05 + Math.random() * 0.035,
             sweepAmp2: 0.03 + Math.random() * 0.02,
-            pulseSpeed: 0.0012 + Math.random() * 0.0012,
-            phase1: Math.random() * Math.PI * 2,
-            phase2: Math.random() * Math.PI * 2,
-            baseAlpha: 0.035 + Math.random() * 0.03
-          });
-        }
-      }
-    }
-
-    function setWeatherEffectMode(newMode) {
-      if (weatherMode === newMode) return;
-      weatherMode = newMode;
-      initWeatherParticles();
-    }
-
-    function generateLightningBranch(startX, startY, endY, intensity = 1.0) {
-      const segments = [];
-      let curX = startX;
-      let curY = startY;
-      
-      while (curY < endY) {
-        const segLen = 12 + Math.random() * 20;
-        const nextY = Math.min(curY + segLen, endY);
-        const nextX = curX + (Math.random() - 0.5) * 36;
-        segments.push({ x1: curX, y1: curY, x2: nextX, y2: nextY, intensity: intensity });
-
-        if (Math.random() < 0.25 && intensity > 0.4) {
-          const forkEndY = curY + (endY - curY) * 0.5;
-          const subFork = generateLightningBranch(nextX, nextY, forkEndY, intensity * 0.6);
-          segments.push(...subFork);
-        }
-
-        curX = nextX;
-        curY = nextY;
-      }
-      return segments;
-    }
-
-    function renderWeatherAnimation(timestamp) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      windTimer += 0.01;
-      if (Math.random() < 0.01) {
-        windTarget = -3.5 + Math.random() * 3.0;
-      }
-      globalWind += (windTarget - globalWind) * 0.02;
-
-      if (weatherMode === 'rain' || weatherMode === 'thunder') {
-        if (weatherMode === 'thunder') {
-          if (Math.random() < 0.005 && lightningBolts.length === 0) {
-            lightningFlash = 0.85;
-            const rootX = canvas.width * 0.15 + Math.random() * (canvas.width * 0.7);
-            const targetY = canvas.height * 0.65 + Math.random() * (canvas.height * 0.35);
-            lightningBolts = generateLightningBranch(rootX, 0, targetY, 1.0);
-          }
-
-          if (lightningFlash > 0) {
-            ctx.fillStyle = `rgba(220, 235, 255, ${lightningFlash * 0.28})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            lightningFlash -= 0.035;
-          }
-
-          if (lightningBolts.length > 0) {
-            ctx.shadowBlur = 14;
-            ctx.shadowColor = 'rgba(165, 215, 255, 0.9)';
-            for (let b of lightningBolts) {
-              ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1.0, b.intensity * (lightningFlash + 0.3))})`;
-              ctx.lineWidth = Math.max(0.8, b.intensity * 2.8);
-              ctx.beginPath();
-              ctx.moveTo(b.x1, b.y1);
-              ctx.lineTo(b.x2, b.y2);
-              ctx.stroke();
-            }
-            ctx.shadowBlur = 0;
-
-            if (lightningFlash <= 0.05) {
-              lightningBolts = [];
-            }
-          }
-        }
-
-        for (let p of particles) {
-          ctx.strokeStyle = `rgba(200, 225, 255, ${p.opacity})`;
-          ctx.lineWidth = p.thickness;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x + globalWind * (p.depth + 0.5), p.y + p.length);
-          ctx.stroke();
-
-          p.y += p.speed;
-          p.x += globalWind * (p.depth + 0.5);
-
-          if (p.y >= canvas.height - 6) {
-            if (p.depth > 0.45 && Math.random() < 0.4) {
-              const droplets = 2 + Math.floor(Math.random() * 3);
-              for (let d = 0; d < droplets; d++) {
-                splashes.push({
-                  x: p.x,
-                  y: canvas.height - 3,
-                  vx: (Math.random() - 0.5) * 4 + globalWind * 0.3,
-                  vy: -1.5 - Math.random() * 3.5,
-                  radius: 0.8 + Math.random() * 1.2,
-                  gravity: 0.2,
-                  opacity: 0.75
-                });
-              }
-            }
-            p.y = -20 - Math.random() * 30;
-            p.x = Math.random() * (canvas.width + 300) - 150;
-          }
-        }
-
-        for (let i = splashes.length - 1; i >= 0; i--) {
-          const s = splashes[i];
-          ctx.fillStyle = `rgba(215, 235, 255, ${s.opacity})`;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-          ctx.fill();
-
-          s.x += s.vx;
-          s.y += s.vy;
-          s.vy += s.gravity;
-          s.opacity -= 0.038;
-
-          if (s.opacity <= 0 || s.y > canvas.height) {
-            splashes.splice(i, 1);
-          }
-        }
-
-      } else if (weatherMode === 'snow') {
-        for (let p of particles) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(240, 248, 255, ${p.opacity})`;
-          ctx.fill();
-
-          p.y += p.speed;
-          p.wobbleOffset += p.wobbleSpeed;
-          p.x += Math.sin(p.wobbleOffset) * p.drift + globalWind * 0.4;
-
-          if (p.y >= canvas.height + 10) {
-            p.y = -10;
-            p.x = Math.random() * canvas.width;
-          }
-        }
-
-      } else if (weatherMode === 'fog' || weatherMode === 'clouds') {
-        for (let c of clouds) {
-          const grad = ctx.createRadialGradient(c.x, c.y, c.radius * 0.1, c.x, c.y, c.radius);
-          grad.addColorStop(0, `rgba(180, 195, 215, ${c.opacity})`);
-          grad.addColorStop(0.65, `rgba(140, 165, 190, ${c.opacity * 0.5})`);
-          grad.addColorStop(1, 'rgba(9, 12, 16, 0)');
-
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
-          ctx.fill();
-
-          c.x += c.speed;
-          if (c.x - c.radius > canvas.width) {
-            c.x = -c.radius;
-            c.y = Math.random() * (canvas.height * 0.85);
-          }
-        }
-
-      } else {
-        const t = timestamp || performance.now();
-        const maxDiagonal = Math.hypot(canvas.width, canvas.height) * 1.35;
-
-        for (let ray of sunRays) {
-          const sweepMotion = Math.sin(t * ray.sweepSpeed1 + ray.phase1) * ray.sweepAmp1 +
-                              Math.cos(t * ray.sweepSpeed2 + ray.phase2) * ray.sweepAmp2;
-          const currentAngle = ray.baseAngle + sweepMotion;
-          
-          const breatheAlpha = ray.baseAlpha + Math.sin(t * ray.pulseSpeed + ray.phase1) * (ray.baseAlpha * 0.65);
-          const currentAlpha = Math.max(0.015, breatheAlpha);
-
-          const a1 = currentAngle - ray.width * 0.5;
-          const a2 = currentAngle + ray.width * 0.5;
-
-          const x1 = Math.cos(a1) * maxDiagonal;
-          const y1 = Math.sin(a1) * maxDiagonal;
-          const x2 = Math.cos(a2) * maxDiagonal;
-          const y2 = Math.sin(a2) * maxDiagonal;
-
-          const rayGrad = ctx.createRadialGradient(0, 0, 30, 0, 0, maxDiagonal);
-          rayGrad.addColorStop(0, `rgba(255, 225, 150, ${currentAlpha * 1.6})`);
-          rayGrad.addColorStop(0.2, `rgba(225, 165, 85, ${currentAlpha * 1.1})`);
-          rayGrad.addColorStop(0.65, `rgba(194, 132, 72, ${currentAlpha * 0.35})`);
-          rayGrad.addColorStop(1, 'rgba(9, 12, 16, 0)');
-
-          ctx.fillStyle = rayGrad;
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(x1, y1);
-          ctx.lineTo(x2, y2);
-          ctx.closePath();
-          ctx.fill();
-        }
-
-        const coronaPulse = Math.sin(t * 0.0015) * 35;
-        const coronaRadius = 380 + coronaPulse;
-        const corona = ctx.createRadialGradient(0, 0, 15, 0, 0, coronaRadius);
-        corona.addColorStop(0, 'rgba(255, 240, 190, 0.34)');
-        corona.addColorStop(0.25, 'rgba(220, 155, 75, 0.16)');
-        corona.addColorStop(0.65, 'rgba(194, 132, 72, 0.05)');
-        corona.addColorStop(1, 'rgba(9, 12, 16, 0)');
-        ctx.fillStyle = corona;
-        ctx.beginPath();
-        ctx.arc(0, 0, coronaRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        const corePulse = Math.sin(t * 0.0022) * 8;
-        const coreRadius = 90 + corePulse;
-        const sunCore = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
-        sunCore.addColorStop(0, 'rgba(255, 250, 230, 0.6)');
-        sunCore.addColorStop(0.45, 'rgba(245, 185, 80, 0.25)');
-        sunCore.addColorStop(1, 'rgba(194, 132, 72, 0)');
-        ctx.fillStyle = sunCore;
-        ctx.beginPath();
-        ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      animationFrameId = requestAnimationFrame(renderWeatherAnimation);
-    }
-
-    resizeCanvas();
-    renderWeatherAnimation();
-
-    function switchLayout(layoutName) {
-      currentLayout = layoutName;
-      document.getElementById('mainContainer').className = 
-        layoutName === 'big-month' ? 'big-month-layout' : 
-        (layoutName === '7-day' ? 'seven-day-layout' : '');
-
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      const activeBtn = Array.from(document.querySelectorAll('.view-btn')).find(b => b.getAttribute('onclick').includes(layoutName));
-      if (activeBtn) activeBtn.classList.add('active');
-      
-      renderCurrentLayout();
-    }
-
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen();
-    }
-  </script>
-</body>
-</html>
+            pulseSpeed: 0.0012 + Math.random()
