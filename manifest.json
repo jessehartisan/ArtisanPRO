@@ -11,25 +11,25 @@
   "description": "Smart Office and Field Dispatch Tool for Artisan Outdoor Craftsman",
   "icons": [
     {
-      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo-app.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo-app.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo-app.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo-app.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
