@@ -145,10 +145,11 @@
     }
 
     .center-view { background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); border-radius: 7px; display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
-    .calendar-toolbar { flex-shrink: 0; height: 28px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--card-border); background: rgba(0,0,0,0.25); }
+    .calendar-toolbar { flex-shrink: 0; height: 32px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--card-border); background: rgba(0,0,0,0.25); }
+    .calendar-nav-group { display: flex; align-items: center; gap: 6px; }
     .month-title { font-size: clamp(0.85rem, 1vw, 1.05rem); font-weight: 800; letter-spacing: -0.5px; color: #ffffff; }
 
-    .calendar-grid { flex: 1; height: calc(100% - 28px); min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, calc((100% - 20px) / 5)); overflow: hidden; background: transparent; }
+    .calendar-grid { flex: 1; height: calc(100% - 32px); min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, calc((100% - 20px) / 5)); overflow: hidden; background: transparent; }
     .calendar-grid.seven-day-mode { grid-template-rows: 22px 1fr; }
     .weekday-header { background: rgba(0,0,0,0.35); padding: 1px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--card-border); border-right: 1px solid var(--card-border); }
     .weekday-header:last-child { border-right: none; }
@@ -156,7 +157,7 @@
     .calendar-day-cell::-webkit-scrollbar { display: none; }
     .calendar-day-cell:hover { background: rgba(255,255,255,0.04) !important; }
     .calendar-day-cell:nth-child(7n) { border-right: none; }
-    .calendar-day-cell.inactive { opacity: 0.28; background: rgba(0,0,0,0.2) !important; }
+    .calendar-day-cell.inactive { opacity: 0.38; background: rgba(0,0,0,0.25) !important; }
     .calendar-day-cell.today { background: var(--today-bg) !important; box-shadow: inset 0 0 0 1px var(--today-border); }
     
     .day-num-row {
@@ -402,7 +403,7 @@
     <div class="header-primary-row">
       <div class="brand-block">
         <div class="brand-row">
-          <div class="brand-logo-container" onclick="switchLayout('split')" title="ArtisanPRO Home">
+          <div class="brand-logo-container" onclick="jumpToToday()" title="Jump to Today">
             <img 
               id="brandLogoImg"
               src="logo.png" 
@@ -454,12 +455,20 @@
 
   <main id="mainContainer">
     <section class="center-view">
+      <!-- Toolbar with Previous/Today/Next Navigation Controls -->
       <div class="calendar-toolbar">
+        <div class="calendar-nav-group">
+          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(-1)" title="Previous Month / Week">◀ Prev</button>
+          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="jumpToToday()" title="Jump to Today">Today</button>
+          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(1)" title="Next Month / Week">Next ▶</button>
+        </div>
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
       
+      <!-- Primary Calendar Grid -->
       <div class="calendar-grid" id="calendarGrid"></div>
 
+      <!-- On-Demand Doppler Radar View -->
       <div id="radarContainerView">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Live Doppler Radar & Site Telemetry</div>
@@ -492,6 +501,7 @@
         </div>
       </div>
       
+      <!-- Backlog / Staging View -->
       <div id="backlogContainerView">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Office Job Pipeline & Staged Backlog</div>
@@ -523,6 +533,7 @@
       </div>
     </section>
 
+    <!-- Right Sidebar: Today's Dispatch Queue -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
@@ -534,6 +545,7 @@
     </aside>
   </main>
 
+  <!-- Feed Setup Modal -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -548,6 +560,7 @@
     </div>
   </div>
 
+  <!-- Job Edit / View Modal -->
   <div id="jobEditModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="jobEditModalTitle">Edit Scheduled Job</div>
@@ -572,6 +585,7 @@
     </div>
   </div>
 
+  <!-- Backlog / Staging Job Modal -->
   <div id="backlogModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="backlogModalTitle">Project Pipeline Item</div>
@@ -598,6 +612,7 @@
     </div>
   </div>
 
+  <!-- Crew Color Setup Modal -->
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
@@ -619,6 +634,7 @@
     </div>
   </div>
 
+  <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -665,6 +681,9 @@
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
     let customManualEvents = JSON.parse(localStorage.getItem('custom_manual_events') || '[]');
+
+    // Persistent calendar cursor state allowing back/forward date browsing
+    let activeCalendarDate = new Date();
     
     const DEFAULT_BACKLOG = [
       { id: "bl_1", name: "Morrison Pavilion", stage: "permits", location: "Fishers, IN", notes: "Awaiting Hancock Co drainage variance." },
@@ -902,6 +921,23 @@
       renderCurrentLayout();
     }
 
+    // ==========================================
+    // CALENDAR VIEW & TIME TRAVEL CONTROLS
+    // ==========================================
+    function navigateCalendar(direction) {
+      if (currentLayout === '7-day') {
+        activeCalendarDate.setDate(activeCalendarDate.getDate() + (direction * 7));
+      } else {
+        activeCalendarDate.setMonth(activeCalendarDate.getMonth() + direction);
+      }
+      renderCurrentLayout();
+    }
+
+    function jumpToToday() {
+      activeCalendarDate = new Date();
+      renderCurrentLayout();
+    }
+
     function renderCurrentLayout() {
       const calGrid = document.getElementById('calendarGrid');
       const radarView = document.getElementById('radarContainerView');
@@ -936,24 +972,54 @@
 
     function renderCalendarGrid() {
       const grid = document.getElementById('calendarGrid');
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
+      const year = activeCalendarDate.getFullYear();
+      const month = activeCalendarDate.getMonth();
+      const actualToday = new Date();
+
       grid.classList.remove('seven-day-mode');
       grid.style.display = 'grid';
-      document.getElementById('calendarMonthHeading').textContent = now.toLocaleDateString([], { month: 'long', year: 'numeric' });
+      document.getElementById('calendarMonthHeading').textContent = activeCalendarDate.toLocaleDateString([], { month: 'long', year: 'numeric' });
       grid.innerHTML = `<div class="weekday-header">SUN</div><div class="weekday-header">MON</div><div class="weekday-header">TUE</div><div class="weekday-header">WED</div><div class="weekday-header">THU</div><div class="weekday-header">FRI</div><div class="weekday-header">SAT</div>`;
       
       const firstDayIndex = new Date(year, month, 1).getDay();
       const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
       const prevMonthLastDay = new Date(year, month, 0).getDate();
       
+      // Previous month inactive cells: fully rendered and interactive for past inspection
       for (let x = firstDayIndex; x > 0; x--) {
-        grid.innerHTML += `<div class="calendar-day-cell inactive"><div class="day-num-row"><span class="day-num">${prevMonthLastDay - x + 1}</span></div></div>`;
+        const prevDayNum = prevMonthLastDay - x + 1;
+        const cellDate = new Date(year, month - 1, prevDayNum);
+        const isoDate = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
+        
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell inactive';
+        cell.innerHTML = `
+          <div class="day-num-row">
+            <span class="day-num">${prevDayNum}</span>
+            <span class="day-add-btn" title="Add event on this date">➕</span>
+          </div>
+        `;
+        cell.onclick = (e) => {
+          if (e.target.closest('.event-badge')) return;
+          openNewEventModal(isoDate);
+        };
+
+        eventsDatabase.filter(e => e.start.getFullYear() === cellDate.getFullYear() && e.start.getMonth() === cellDate.getMonth() && e.start.getDate() === cellDate.getDate()).forEach(evt => {
+          const badge = document.createElement('div');
+          badge.className = 'event-badge';
+          badge.style.backgroundColor = getEventColor(evt.summary);
+          badge.textContent = cleanEventTitle(evt.summary);
+          badge.onclick = (e) => { e.stopPropagation(); openJobEditModal(evt.id); };
+          cell.appendChild(badge);
+        });
+        grid.appendChild(cell);
       }
+
+      // Current month active cells
       for (let day = 1; day <= totalDaysInMonth; day++) {
         const cell = document.createElement('div');
-        cell.className = 'calendar-day-cell' + (day === now.getDate() && month === now.getMonth() && year === now.getFullYear() ? ' today' : '');
+        const isToday = (day === actualToday.getDate() && month === actualToday.getMonth() && year === actualToday.getFullYear());
+        cell.className = 'calendar-day-cell' + (isToday ? ' today' : '');
         const cellDate = new Date(year, month, day);
 
         const isoDate = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -982,31 +1048,62 @@
         });
         grid.appendChild(cell);
       }
+
+      // Trailing next month cells
       const trailingDays = (firstDayIndex + totalDaysInMonth > 35) ? (42 - (firstDayIndex + totalDaysInMonth)) : (35 - (firstDayIndex + totalDaysInMonth));
       for (let i = 1; i <= trailingDays; i++) {
-        grid.innerHTML += `<div class="calendar-day-cell inactive"><div class="day-num-row"><span class="day-num">${i}</span></div></div>`;
+        const cellDate = new Date(year, month + 1, i);
+        const isoDate = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
+
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell inactive';
+        cell.innerHTML = `
+          <div class="day-num-row">
+            <span class="day-num">${i}</span>
+            <span class="day-add-btn" title="Add event on this date">➕</span>
+          </div>
+        `;
+        cell.onclick = (e) => {
+          if (e.target.closest('.event-badge')) return;
+          openNewEventModal(isoDate);
+        };
+
+        eventsDatabase.filter(e => e.start.getFullYear() === cellDate.getFullYear() && e.start.getMonth() === cellDate.getMonth() && e.start.getDate() === cellDate.getDate()).forEach(evt => {
+          const badge = document.createElement('div');
+          badge.className = 'event-badge';
+          badge.style.backgroundColor = getEventColor(evt.summary);
+          badge.textContent = cleanEventTitle(evt.summary);
+          badge.onclick = (e) => { e.stopPropagation(); openJobEditModal(evt.id); };
+          cell.appendChild(badge);
+        });
+        grid.appendChild(cell);
       }
     }
 
     function renderSevenDayGrid() {
       const grid = document.getElementById('calendarGrid');
-      const now = new Date();
+      const actualToday = new Date();
       grid.classList.add('seven-day-mode');
       grid.innerHTML = '';
-      const endDay = new Date(now); endDay.setDate(now.getDate() + 6);
-      document.getElementById('calendarMonthHeading').textContent = `7-Day Outlook (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
+      
+      const startDay = new Date(activeCalendarDate);
+      const endDay = new Date(activeCalendarDate); 
+      endDay.setDate(startDay.getDate() + 6);
+
+      document.getElementById('calendarMonthHeading').textContent = `7-Day Outlook (${startDay.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDay.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })})`;
       
       for (let i = 0; i < 7; i++) {
-        const d = new Date(now); d.setDate(now.getDate() + i);
+        const d = new Date(startDay); d.setDate(startDay.getDate() + i);
         const header = document.createElement('div'); header.className = 'weekday-header';
         header.textContent = d.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' });
-        if (i === 0) header.style.color = 'var(--accent)';
+        if (d.toDateString() === actualToday.toDateString()) header.style.color = 'var(--accent)';
         grid.appendChild(header);
       }
 
       for (let i = 0; i < 7; i++) {
-        const cellDate = new Date(now); cellDate.setDate(now.getDate() + i);
-        const cell = document.createElement('div'); cell.className = 'calendar-day-cell' + (i === 0 ? ' today' : '');
+        const cellDate = new Date(startDay); cellDate.setDate(startDay.getDate() + i);
+        const isToday = cellDate.toDateString() === actualToday.toDateString();
+        const cell = document.createElement('div'); cell.className = 'calendar-day-cell' + (isToday ? ' today' : '');
         const isoDate = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
 
         cell.innerHTML = `
@@ -1466,7 +1563,7 @@
     }
 
     // ==========================================
-    // ATMOSPHERIC BACKGROUND WEATHER & SOLAR ENGINE
+    // ATMOSPHERIC BACKGROUND WEATHER & ANIMATED GOD RAYS
     // ==========================================
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
@@ -1550,19 +1647,21 @@
           });
         }
       } else {
-        // Clear Sky: Construct 8 gentle, dancing volumetric solar light rays
-        const rayCount = 8;
-        const angularSpan = Math.PI * 0.46; // Covers from top edge down into main view
+        // Clear Sky: 9 dancing, flowing volumetric God Rays
+        const rayCount = 9;
+        const angularSpan = Math.PI * 0.48;
         for (let i = 0; i < rayCount; i++) {
-          const baseAngle = 0.08 + (i / (rayCount - 1)) * angularSpan + (Math.random() - 0.5) * 0.05;
+          const baseAngle = 0.06 + (i / (rayCount - 1)) * angularSpan + (Math.random() - 0.5) * 0.04;
           sunRays.push({
             angle: baseAngle,
-            width: 0.09 + Math.random() * 0.07,
-            driftSpeed: 0.006 + Math.random() * 0.008,
-            driftAmp: 0.04 + Math.random() * 0.03,
-            pulseSpeed: 0.012 + Math.random() * 0.018,
-            phase: Math.random() * Math.PI * 2,
-            baseAlpha: 0.035 + Math.random() * 0.03
+            width: 0.08 + Math.random() * 0.06,
+            driftSpeed1: 0.018 + Math.random() * 0.022,
+            driftSpeed2: 0.009 + Math.random() * 0.014,
+            driftAmp: 0.065 + Math.random() * 0.045,
+            pulseSpeed: 0.02 + Math.random() * 0.025,
+            phase1: Math.random() * Math.PI * 2,
+            phase2: Math.random() * Math.PI * 2,
+            baseAlpha: 0.04 + Math.random() * 0.035
           });
         }
       }
@@ -1726,15 +1825,19 @@
 
       } else {
         // ==========================================
-        // CLEAR SKY: CORNER SUN & DANCING LIGHT BEAMS
+        // FLUID ANIMATED GOD RAYS & DANCING CORONA
         // ==========================================
         sunTime += 0.016;
-        const maxDiagonal = Math.hypot(canvas.width, canvas.height) * 1.15;
+        const maxDiagonal = Math.hypot(canvas.width, canvas.height) * 1.25;
 
-        // 1. Render subtle volumetric sun shafts
+        // Render animated ray beams with sweeping harmonic oscillations
         for (let ray of sunRays) {
-          const currentAngle = ray.angle + Math.sin(sunTime * ray.driftSpeed + ray.phase) * ray.driftAmp;
-          const currentAlpha = Math.max(0.012, ray.baseAlpha + Math.sin(sunTime * ray.pulseSpeed + ray.phase) * (ray.baseAlpha * 0.45));
+          const sweepMotion = Math.sin(sunTime * ray.driftSpeed1 + ray.phase1) * (ray.driftAmp * 0.7) +
+                              Math.cos(sunTime * ray.driftSpeed2 + ray.phase2) * (ray.driftAmp * 0.3);
+          const currentAngle = ray.angle + sweepMotion;
+          
+          const breatheAlpha = ray.baseAlpha + Math.sin(sunTime * ray.pulseSpeed + ray.phase1) * (ray.baseAlpha * 0.55);
+          const currentAlpha = Math.max(0.015, breatheAlpha);
 
           const a1 = currentAngle - ray.width * 0.5;
           const a2 = currentAngle + ray.width * 0.5;
@@ -1744,10 +1847,10 @@
           const x2 = Math.cos(a2) * maxDiagonal;
           const y2 = Math.sin(a2) * maxDiagonal;
 
-          const rayGrad = ctx.createRadialGradient(0, 0, 45, 0, 0, maxDiagonal);
-          rayGrad.addColorStop(0, `rgba(255, 218, 140, ${currentAlpha * 1.5})`);
-          rayGrad.addColorStop(0.25, `rgba(215, 155, 75, ${currentAlpha})`);
-          rayGrad.addColorStop(0.7, `rgba(194, 132, 72, ${currentAlpha * 0.3})`);
+          const rayGrad = ctx.createRadialGradient(0, 0, 40, 0, 0, maxDiagonal);
+          rayGrad.addColorStop(0, `rgba(255, 225, 150, ${currentAlpha * 1.6})`);
+          rayGrad.addColorStop(0.2, `rgba(225, 165, 85, ${currentAlpha * 1.1})`);
+          rayGrad.addColorStop(0.65, `rgba(194, 132, 72, ${currentAlpha * 0.35})`);
           rayGrad.addColorStop(1, 'rgba(9, 12, 16, 0)');
 
           ctx.fillStyle = rayGrad;
@@ -1759,25 +1862,29 @@
           ctx.fill();
         }
 
-        // 2. Wide atmospheric corona glow in top-left corner
-        const corona = ctx.createRadialGradient(0, 0, 10, 0, 0, 360);
-        corona.addColorStop(0, 'rgba(255, 235, 175, 0.32)');
-        corona.addColorStop(0.25, 'rgba(215, 145, 65, 0.14)');
-        corona.addColorStop(0.65, 'rgba(194, 132, 72, 0.04)');
+        // Animated warm corona pulsing softly
+        const coronaPulse = Math.sin(sunTime * 0.025) * 35;
+        const coronaRadius = 380 + coronaPulse;
+        const corona = ctx.createRadialGradient(0, 0, 15, 0, 0, coronaRadius);
+        corona.addColorStop(0, 'rgba(255, 240, 190, 0.34)');
+        corona.addColorStop(0.25, 'rgba(220, 155, 75, 0.16)');
+        corona.addColorStop(0.65, 'rgba(194, 132, 72, 0.05)');
         corona.addColorStop(1, 'rgba(9, 12, 16, 0)');
         ctx.fillStyle = corona;
         ctx.beginPath();
-        ctx.arc(0, 0, 360, 0, Math.PI * 2);
+        ctx.arc(0, 0, coronaRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // 3. Luminous sun disk in the corner
-        const sunCore = ctx.createRadialGradient(0, 0, 0, 0, 0, 85);
-        sunCore.addColorStop(0, 'rgba(255, 248, 220, 0.55)');
-        sunCore.addColorStop(0.5, 'rgba(240, 175, 70, 0.22)');
+        // Luminous glowing sun hub
+        const corePulse = Math.sin(sunTime * 0.035) * 8;
+        const coreRadius = 90 + corePulse;
+        const sunCore = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
+        sunCore.addColorStop(0, 'rgba(255, 250, 230, 0.6)');
+        sunCore.addColorStop(0.45, 'rgba(245, 185, 80, 0.25)');
         sunCore.addColorStop(1, 'rgba(194, 132, 72, 0)');
         ctx.fillStyle = sunCore;
         ctx.beginPath();
-        ctx.arc(0, 0, 85, 0, Math.PI * 2);
+        ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
         ctx.fill();
       }
 
