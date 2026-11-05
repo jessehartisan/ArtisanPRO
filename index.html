@@ -151,7 +151,6 @@
 
     .calendar-grid { flex: 1; height: calc(100% - 32px); min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 20px repeat(5, calc((100% - 20px) / 5)); overflow: hidden; background: transparent; }
     
-    /* Strict 7-Day desktop grid layout: 7 full-height columns without extra header row */
     .calendar-grid.seven-day-mode { 
       grid-template-columns: repeat(7, 1fr) !important; 
       grid-template-rows: 1fr !important; 
@@ -465,9 +464,9 @@
     <section class="center-view">
       <div class="calendar-toolbar">
         <div class="calendar-nav-group" id="calendarNavGroup">
-          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(-1)" title="Previous Month">◀ Prev</button>
+          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(-1)" title="Previous Week / Month">◀ Prev</button>
           <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="jumpToToday()" title="Jump to Today">Today</button>
-          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(1)" title="Next Month">Next ▶</button>
+          <button class="btn" style="padding: 2px 7px; font-size: 0.68rem;" onclick="navigateCalendar(1)" title="Next Week / Month">Next ▶</button>
         </div>
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
@@ -920,9 +919,10 @@
 
     function navigateCalendar(direction) {
       if (currentLayout === '7-day') {
-        return;
+        activeCalendarDate.setDate(activeCalendarDate.getDate() + (direction * 7));
+      } else {
+        activeCalendarDate.setMonth(activeCalendarDate.getMonth() + direction);
       }
-      activeCalendarDate.setMonth(activeCalendarDate.getMonth() + direction);
       renderCurrentLayout();
     }
 
@@ -960,12 +960,11 @@
       calGrid.style.display = 'grid';
       radarView.style.display = 'none';
       backlogView.style.display = 'none';
+      if (navGroup) navGroup.style.display = 'flex';
 
       if (currentLayout === '7-day') {
-        if (navGroup) navGroup.style.display = 'none';
         renderSevenDayGrid();
       } else {
-        if (navGroup) navGroup.style.display = 'flex';
         renderCalendarGrid();
       }
       populateTodayQueue();
@@ -1084,7 +1083,7 @@
       grid.classList.add('seven-day-mode');
       grid.innerHTML = '';
       
-      const startDay = new Date(actualToday.getFullYear(), actualToday.getMonth(), actualToday.getDate());
+      const startDay = new Date(activeCalendarDate.getFullYear(), activeCalendarDate.getMonth(), activeCalendarDate.getDate());
       const endDay = new Date(startDay); 
       endDay.setDate(startDay.getDate() + 6);
 
@@ -1093,7 +1092,7 @@
       for (let i = 0; i < 7; i++) {
         const cellDate = new Date(startDay); 
         cellDate.setDate(startDay.getDate() + i);
-        const isToday = (i === 0);
+        const isToday = cellDate.toDateString() === actualToday.toDateString();
         const cell = document.createElement('div'); 
         cell.className = 'calendar-day-cell' + (isToday ? ' today' : '');
         const isoDate = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
