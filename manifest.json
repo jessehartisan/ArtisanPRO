@@ -1,25 +1,38 @@
 {
+  "id": "/ArtisanPRO/",
   "name": "ArtisanPRO Dispatch",
   "short_name": "ArtisanPRO",
-  "start_url": "/ArtisanPRO/",
-  "scope": "/ArtisanPRO/",
+  "start_url": "https://jessehartisan.github.io/ArtisanPRO/",
+  "scope": "https://jessehartisan.github.io/ArtisanPRO/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#090c10",
   "theme_color": "#090c10",
-  "description": "Smart Office & Field Dispatch Tool for Artisan Outdoor Craftsman",
+  "description": "Smart Office and Field Dispatch Tool for Artisan Outdoor Craftsman",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "logo.png",
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "https://jessehartisan.github.io/ArtisanPRO/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
