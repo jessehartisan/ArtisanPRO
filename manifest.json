@@ -1,0 +1,16 @@
+{
+  "name": "ArtisanPRO",
+  "short_name": "ArtisanPRO",
+  "start_url": "/ArtisanPRO/",
+  "display": "standalone",
+  "background_color": "#090c10",
+  "theme_color": "#090c10",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
