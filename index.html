@@ -402,7 +402,6 @@
     <div class="header-primary-row">
       <div class="brand-block">
         <div class="brand-row">
-          <!-- Replaced Text Header with Custom Transparent Logo & Native Fallback -->
           <div class="brand-logo-container" onclick="switchLayout('split')" title="ArtisanPRO Home">
             <img 
               id="brandLogoImg"
@@ -412,7 +411,6 @@
               onerror="this.style.display='none'; document.getElementById('brandFallbackText').style.display='flex';"
             />
             <div id="brandFallbackText" class="brand-fallback-text" style="display: none;">
-              <!-- Embedded SVG crest emblem fallback matching your new brand design -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
                 <circle cx="12" cy="12" r="10" stroke="#c28448" stroke-width="1.8"/>
                 <path d="M12 6L8 16H10L10.8 14H13.2L14 16H16L12 6Z" fill="#c28448"/>
@@ -455,16 +453,13 @@
   </header>
 
   <main id="mainContainer">
-    <!-- Center Calendar, Radar, & Staging Views -->
     <section class="center-view">
       <div class="calendar-toolbar">
         <div class="month-title" id="calendarMonthHeading">Month Year</div>
       </div>
       
-      <!-- Primary Calendar Grid -->
       <div class="calendar-grid" id="calendarGrid"></div>
 
-      <!-- On-Demand Doppler Radar View -->
       <div id="radarContainerView">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Live Doppler Radar & Site Telemetry</div>
@@ -497,7 +492,6 @@
         </div>
       </div>
       
-      <!-- Backlog / Staging View -->
       <div id="backlogContainerView">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Office Job Pipeline & Staged Backlog</div>
@@ -529,7 +523,6 @@
       </div>
     </section>
 
-    <!-- Right Sidebar: Today's Dispatch Queue -->
     <aside class="sidebar-right">
       <div class="dispatch-header">
         <div class="dispatch-title">Today's Dispatch</div>
@@ -541,7 +534,6 @@
     </aside>
   </main>
 
-  <!-- Feed Setup Modal -->
   <div id="feedModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Calendar Sync Setup</div>
@@ -556,7 +548,6 @@
     </div>
   </div>
 
-  <!-- Job Edit / View Modal -->
   <div id="jobEditModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="jobEditModalTitle">Edit Scheduled Job</div>
@@ -581,7 +572,6 @@
     </div>
   </div>
 
-  <!-- Backlog / Staging Job Modal -->
   <div id="backlogModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title" id="backlogModalTitle">Project Pipeline Item</div>
@@ -608,7 +598,6 @@
     </div>
   </div>
 
-  <!-- Crew Color Setup Modal -->
   <div id="crewModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 560px;">
       <div class="modal-title">Edit Crew Classifications & Colors</div>
@@ -630,7 +619,6 @@
     </div>
   </div>
 
-  <!-- Field Time Sheet Modal -->
   <div id="timesheetModal" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
       <div class="modal-title">⏱️ Submit Field Time Sheet</div>
@@ -1477,6 +1465,9 @@
       }
     }
 
+    // ==========================================
+    // ATMOSPHERIC BACKGROUND WEATHER & SOLAR ENGINE
+    // ==========================================
     const canvas = document.getElementById('weatherCanvas');
     const ctx = canvas.getContext('2d');
     let animationFrameId = null;
@@ -1486,6 +1477,8 @@
     let splashes = [];
     let clouds = [];
     let lightningBolts = [];
+    let sunRays = [];
+    let sunTime = 0;
     let lightningFlash = 0;
     let globalWind = -1.5;
     let windTarget = -1.5;
@@ -1493,7 +1486,7 @@
 
     let testWeatherIdx = 0;
     function cycleWeatherTest() {
-      const testModes = ['thunder', 'rain', 'snow', 'fog', 'clear'];
+      const testModes = ['clear', 'rain', 'thunder', 'snow', 'fog'];
       testWeatherIdx = (testWeatherIdx + 1) % testModes.length;
       const nextMode = testModes[testWeatherIdx];
       setWeatherEffectMode(nextMode);
@@ -1513,6 +1506,7 @@
       splashes = [];
       clouds = [];
       lightningBolts = [];
+      sunRays = [];
 
       if (weatherMode === 'rain' || weatherMode === 'thunder') {
         const count = weatherMode === 'thunder' ? 320 : 220;
@@ -1556,17 +1550,19 @@
           });
         }
       } else {
-        const count = 55;
-        for (let i = 0; i < count; i++) {
-          particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: 1 + Math.random() * 2.5,
-            speedY: -0.2 - Math.random() * 0.4,
-            speedX: (Math.random() - 0.5) * 0.3,
-            pulseSpeed: 0.02 + Math.random() * 0.03,
-            pulseVal: Math.random() * Math.PI * 2,
-            opacityBase: 0.25 + Math.random() * 0.4
+        // Clear Sky: Construct 8 gentle, dancing volumetric solar light rays
+        const rayCount = 8;
+        const angularSpan = Math.PI * 0.46; // Covers from top edge down into main view
+        for (let i = 0; i < rayCount; i++) {
+          const baseAngle = 0.08 + (i / (rayCount - 1)) * angularSpan + (Math.random() - 0.5) * 0.05;
+          sunRays.push({
+            angle: baseAngle,
+            width: 0.09 + Math.random() * 0.07,
+            driftSpeed: 0.006 + Math.random() * 0.008,
+            driftAmp: 0.04 + Math.random() * 0.03,
+            pulseSpeed: 0.012 + Math.random() * 0.018,
+            phase: Math.random() * Math.PI * 2,
+            baseAlpha: 0.035 + Math.random() * 0.03
           });
         }
       }
@@ -1729,25 +1725,60 @@
         }
 
       } else {
-        for (let p of particles) {
-          p.pulseVal += p.pulseSpeed;
-          const currentOpacity = Math.max(0.1, p.opacityBase + Math.sin(p.pulseVal) * 0.2);
+        // ==========================================
+        // CLEAR SKY: CORNER SUN & DANCING LIGHT BEAMS
+        // ==========================================
+        sunTime += 0.016;
+        const maxDiagonal = Math.hypot(canvas.width, canvas.height) * 1.15;
 
+        // 1. Render subtle volumetric sun shafts
+        for (let ray of sunRays) {
+          const currentAngle = ray.angle + Math.sin(sunTime * ray.driftSpeed + ray.phase) * ray.driftAmp;
+          const currentAlpha = Math.max(0.012, ray.baseAlpha + Math.sin(sunTime * ray.pulseSpeed + ray.phase) * (ray.baseAlpha * 0.45));
+
+          const a1 = currentAngle - ray.width * 0.5;
+          const a2 = currentAngle + ray.width * 0.5;
+
+          const x1 = Math.cos(a1) * maxDiagonal;
+          const y1 = Math.sin(a1) * maxDiagonal;
+          const x2 = Math.cos(a2) * maxDiagonal;
+          const y2 = Math.sin(a2) * maxDiagonal;
+
+          const rayGrad = ctx.createRadialGradient(0, 0, 45, 0, 0, maxDiagonal);
+          rayGrad.addColorStop(0, `rgba(255, 218, 140, ${currentAlpha * 1.5})`);
+          rayGrad.addColorStop(0.25, `rgba(215, 155, 75, ${currentAlpha})`);
+          rayGrad.addColorStop(0.7, `rgba(194, 132, 72, ${currentAlpha * 0.3})`);
+          rayGrad.addColorStop(1, 'rgba(9, 12, 16, 0)');
+
+          ctx.fillStyle = rayGrad;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(194, 132, 72, ${currentOpacity})`;
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = 'rgba(194, 132, 72, 0.4)';
+          ctx.moveTo(0, 0);
+          ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
           ctx.fill();
-
-          p.y += p.speedY;
-          p.x += p.speedX;
-
-          if (p.y <= -10) p.y = canvas.height + 10;
-          if (p.x <= -10) p.x = canvas.width + 10;
-          if (p.x > canvas.width + 10) p.x = -10;
         }
-        ctx.shadowBlur = 0;
+
+        // 2. Wide atmospheric corona glow in top-left corner
+        const corona = ctx.createRadialGradient(0, 0, 10, 0, 0, 360);
+        corona.addColorStop(0, 'rgba(255, 235, 175, 0.32)');
+        corona.addColorStop(0.25, 'rgba(215, 145, 65, 0.14)');
+        corona.addColorStop(0.65, 'rgba(194, 132, 72, 0.04)');
+        corona.addColorStop(1, 'rgba(9, 12, 16, 0)');
+        ctx.fillStyle = corona;
+        ctx.beginPath();
+        ctx.arc(0, 0, 360, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Luminous sun disk in the corner
+        const sunCore = ctx.createRadialGradient(0, 0, 0, 0, 0, 85);
+        sunCore.addColorStop(0, 'rgba(255, 248, 220, 0.55)');
+        sunCore.addColorStop(0.5, 'rgba(240, 175, 70, 0.22)');
+        sunCore.addColorStop(1, 'rgba(194, 132, 72, 0)');
+        ctx.fillStyle = sunCore;
+        ctx.beginPath();
+        ctx.arc(0, 0, 85, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       animationFrameId = requestAnimationFrame(renderWeatherAnimation);
