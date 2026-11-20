@@ -679,7 +679,7 @@
     });
 
     let currentLayout = 'split';
-    let countdownSec = 60;
+    let countdownSec = 120;
     let isFetching = false;
     let localEventOverrides = JSON.parse(localStorage.getItem('cal_event_overrides') || '{}');
     let customManualEvents = JSON.parse(localStorage.getItem('custom_manual_events') || '[]');
@@ -1267,69 +1267,96 @@
       renderBacklogColumns();
     }
 
-    async function fetchWithTimeout(url, timeoutMs = 22000) {
+    async function fetchWithTimeout(url, label, timeoutMs = 25000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
         clearTimeout(timer);
-        if (res.ok) {
-          const text = await res.text();
-          if (text && text.includes('BEGIN:VCALENDAR')) return text;
+        if (!res.ok) {
+          return { ok: false, error: `${label} HTTP ${res.status}` };
         }
+        const text = await res.text();
+        if (text && text.includes('BEGIN:VCALENDAR')) {
+          return { ok: true, data: text };
+        }
+        return { ok: false, error: `${label} Invalid ICS` };
       } catch (e) {
         clearTimeout(timer);
+        return { ok: false, error: `${label} ${e.name === 'AbortError' ? 'Timeout' : 'NetErr'}` };
       }
-      return null;
     }
 
     async function fetchSingleFeed(feedUrl) {
-      if (!feedUrl) return null;
+      if (!feedUrl) return { ok: false, error: 'Empty URL' };
       const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
       const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
 
       // 1. Primary Cloudflare Worker
-      let result = await fetchWithTimeout(`${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`, 22000);
-      if (result) return result;
+      let res = await fetchWithTimeout(`${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`, 'CF', 25000);
+      if (res.ok) return res;
+      const firstErr = res.error;
 
       // 2. Secondary AllOrigins Proxy
-      result = await fetchWithTimeout(`${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`, 22000);
-      if (result) return result;
+      res = await fetchWithTimeout(`${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`, 'AO', 25000);
+      if (res.ok) return res;
 
       // 3. Tertiary CorsProxy Fallback
-      result = await fetchWithTimeout(`${TERTIARY_PROXY}${encodeURIComponent(targetWithBust)}`, 22000);
-      if (result) return result;
+      res = await fetchWithTimeout(`${TERTIARY_PROXY}${encodeURIComponent(targetWithBust)}`, 'CP', 25000);
+      if (res.ok) return res;
 
-      return null;
+      return { ok: false, error: `${firstErr} / ${res.error}` };
     }
 
     async function triggerSync() {
       let feedUrl1 = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
       let feedUrl2 = localStorage.getItem('company_cal_url2') || '';
-      const badge = document.getElementById('syncBadge'); const dot = document.getElementById('syncDot');
-      if (!feedUrl1 && !feedUrl2) { if (badge) badge.textContent = 'No Feed Configured'; if (dot) dot.className = 'sync-dot'; return; }
+      const badge = document.getElementById('syncBadge'); 
+      const dot = document.getElementById('syncDot');
+      
+      if (!feedUrl1 && !feedUrl2) { 
+        if (badge) badge.textContent = 'No Feed Configured'; 
+        if (dot) dot.className = 'sync-dot'; 
+        return; 
+      }
       if (isFetching) return;
-      isFetching = true; if (dot) dot.className = 'sync-dot busy'; if (badge) badge.textContent = 'Syncing...';
+      isFetching = true; 
+      if (dot) dot.className = 'sync-dot busy'; 
+      if (badge) badge.textContent = 'Syncing feeds...';
+
       try {
-        const [res1, res2] = await Promise.all([fetchSingleFeed(feedUrl1), fetchSingleFeed(feedUrl2)]);
-        const validFeeds = [res1, res2].filter(Boolean);
+        const [res1, res2] = await Promise.all([
+          feedUrl1 ? fetchSingleFeed(feedUrl1) : Promise.resolve({ ok: false, error: '' }),
+          feedUrl2 ? fetchSingleFeed(feedUrl2) : Promise.resolve({ ok: false, error: '' })
+        ]);
+
+        const validFeeds = [res1.ok ? res1.data : null, res2.ok ? res2.data : null].filter(Boolean);
+
         if (validFeeds.length > 0) {
           parseICS(validFeeds);
-          if (badge) badge.textContent = `Synced ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+          const partialNote = (!res1.ok && feedUrl1) ? ` (Feed1: ${res1.error})` : ((!res2.ok && feedUrl2) ? ` (Feed2: ${res2.error})` : '');
+          if (badge) badge.textContent = `Synced ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}${partialNote}`;
           if (dot) dot.className = 'sync-dot';
         } else {
           if (eventsDatabase.length === 0) parseICS([]);
-          throw new Error('Could not pull calendar feed');
+          const errDetail = [res1.error, res2.error].filter(Boolean).join(' | ');
+          throw new Error(errDetail || 'Fetch failed');
         }
       } catch (err) {
-        if (badge) badge.textContent = 'Retrying in 60s'; if (dot) dot.className = 'sync-dot';
-      } finally { isFetching = false; countdownSec = 60; }
+        if (badge) badge.textContent = `Retrying (${err.message})`; 
+        if (dot) dot.className = 'sync-dot';
+      } finally { 
+        isFetching = false; 
+        countdownSec = 120;
+      }
     }
+
     setInterval(() => {
       countdownSec--;
       const badge = document.getElementById('syncBadge');
-      if (badge && badge.textContent.includes('Synced')) badge.textContent = `${badge.textContent.split(' (')[0]} (next in ${countdownSec}s)`;
-      else if (badge && badge.textContent.includes('Retrying')) badge.textContent = `Retrying in 60s (next in ${countdownSec}s)`;
+      if (badge && (badge.textContent.includes('Synced') || badge.textContent.includes('Retrying'))) {
+        badge.textContent = `${badge.textContent.split(' (next')[0]} (next in ${countdownSec}s)`;
+      }
       if (countdownSec <= 0) triggerSync();
     }, 1000);
 
@@ -1928,12 +1955,10 @@
     }
     
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then(reg => {
-          reg.update();
-        }).catch((err) => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let reg of registrations) {
+          reg.unregister();
+        }
       });
     }
   </script>
