@@ -670,7 +670,8 @@
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
     const TERTIARY_PROXY = "https://corsproxy.io/?url=";
-    const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
+    const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jessehartisanoc%40gmail.com/private-d9ade14e8d57a1fa2f478b50783b0ee3/basic.ics";
+    const DEFAULT_FEED_URL_2 = "";
 
     let eventsDatabase = JSON.parse(localStorage.getItem('cached_events_db') || '[]').map(e => {
       e.start = new Date(e.start);
@@ -1310,7 +1311,14 @@
 
     async function triggerSync() {
       let feedUrl1 = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
-      let feedUrl2 = localStorage.getItem('company_cal_url2') || '';
+      let feedUrl2 = localStorage.getItem('company_cal_url2') || DEFAULT_FEED_URL_2;
+      
+      // Auto-upgrade any lingering broken public URL in localStorage to the private secret URL
+      if (feedUrl1.includes('/public/basic.ics')) {
+        feedUrl1 = DEFAULT_FEED_URL;
+        localStorage.setItem('company_cal_url', feedUrl1);
+      }
+
       const badge = document.getElementById('syncBadge'); 
       const dot = document.getElementById('syncDot');
       
@@ -1327,14 +1335,14 @@
       try {
         const [res1, res2] = await Promise.all([
           feedUrl1 ? fetchSingleFeed(feedUrl1) : Promise.resolve({ ok: false, error: '' }),
-          feedUrl2 ? fetchSingleFeed(feedUrl2) : Promise.resolve({ ok: false, error: '' })
+          (feedUrl2 && feedUrl2 !== feedUrl1) ? fetchSingleFeed(feedUrl2) : Promise.resolve({ ok: false, error: '' })
         ]);
 
         const validFeeds = [res1.ok ? res1.data : null, res2.ok ? res2.data : null].filter(Boolean);
 
         if (validFeeds.length > 0) {
           parseICS(validFeeds);
-          const partialNote = (!res1.ok && feedUrl1) ? ` (Feed1: ${res1.error})` : ((!res2.ok && feedUrl2) ? ` (Feed2: ${res2.error})` : '');
+          const partialNote = (!res1.ok && feedUrl1) ? ` (Feed1: ${res1.error})` : ((!res2.ok && feedUrl2 && feedUrl2 !== feedUrl1) ? ` (Feed2: ${res2.error})` : '');
           if (badge) badge.textContent = `Synced ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}${partialNote}`;
           if (dot) dot.className = 'sync-dot';
         } else {
@@ -1365,7 +1373,7 @@
 
     function openFeedSetupModal() {
       document.getElementById('feedUrlInput').value = localStorage.getItem('company_cal_url') || DEFAULT_FEED_URL;
-      document.getElementById('feedUrlInput2').value = localStorage.getItem('company_cal_url2') || '';
+      document.getElementById('feedUrlInput2').value = localStorage.getItem('company_cal_url2') || DEFAULT_FEED_URL_2;
       document.getElementById('feedModal').style.display = 'flex';
     }
     function saveFeedUrl() {
