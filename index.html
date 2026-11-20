@@ -669,6 +669,7 @@
     const TIMESHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkjvdgwFo9W4yD_SZQ-l8ZXOHHIebP8cB20vKzvQo3TBEEZDpOL5AakKLmiEX_qLKw/exec";
     const CLOUDFLARE_WORKER = "https://divine-butterfly-e54f.jesseh-a39.workers.dev/?url=";
     const SECONDARY_PROXY = "https://api.allorigins.win/raw?url=";
+    const TERTIARY_PROXY = "https://corsproxy.io/?url=";
     const DEFAULT_FEED_URL = "https://calendar.google.com/calendar/ical/jesseh%40artisanoc.com/public/basic.ics";
 
     let eventsDatabase = JSON.parse(localStorage.getItem('cached_events_db') || '[]').map(e => {
@@ -1266,21 +1267,39 @@
       renderBacklogColumns();
     }
 
+    async function fetchWithTimeout(url, timeoutMs = 22000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+        clearTimeout(timer);
+        if (res.ok) {
+          const text = await res.text();
+          if (text && text.includes('BEGIN:VCALENDAR')) return text;
+        }
+      } catch (e) {
+        clearTimeout(timer);
+      }
+      return null;
+    }
+
     async function fetchSingleFeed(feedUrl) {
       if (!feedUrl) return null;
-      const targetWithBust = feedUrl.replace('webcal://', 'https://').trim() + (feedUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
-      try {
-        const c1 = new AbortController(); const t1 = setTimeout(() => c1.abort(), 9000);
-        const r1 = await fetch(`${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`, { signal: c1.signal, cache: 'no-store' });
-        clearTimeout(t1);
-        if (r1.ok) { const txt = await r1.text(); if (txt.includes('BEGIN:VCALENDAR')) return txt; }
-      } catch (e) {}
-      try {
-        const c2 = new AbortController(); const t2 = setTimeout(() => c2.abort(), 9000);
-        const r2 = await fetch(`${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`, { signal: c2.signal, cache: 'no-store' });
-        clearTimeout(t2);
-        if (r2.ok) { const txt = await r2.text(); if (txt.includes('BEGIN:VCALENDAR')) return txt; }
-      } catch (e) {}
+      const cleanUrl = feedUrl.replace('webcal://', 'https://').trim();
+      const targetWithBust = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
+
+      // 1. Primary Cloudflare Worker
+      let result = await fetchWithTimeout(`${CLOUDFLARE_WORKER}${encodeURIComponent(targetWithBust)}`, 22000);
+      if (result) return result;
+
+      // 2. Secondary AllOrigins Proxy
+      result = await fetchWithTimeout(`${SECONDARY_PROXY}${encodeURIComponent(targetWithBust)}`, 22000);
+      if (result) return result;
+
+      // 3. Tertiary CorsProxy Fallback
+      result = await fetchWithTimeout(`${TERTIARY_PROXY}${encodeURIComponent(targetWithBust)}`, 22000);
+      if (result) return result;
+
       return null;
     }
 
@@ -1299,7 +1318,7 @@
           if (badge) badge.textContent = `Synced ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
           if (dot) dot.className = 'sync-dot';
         } else {
-          parseICS([]);
+          if (eventsDatabase.length === 0) parseICS([]);
           throw new Error('Could not pull calendar feed');
         }
       } catch (err) {
@@ -1909,12 +1928,14 @@
     }
     
     if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch((err) => {
-        console.log('ServiceWorker registration failed: ', err);
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          reg.update();
+        }).catch((err) => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
       });
-    });
-  }
+    }
   </script>
 </body>
 </html>
